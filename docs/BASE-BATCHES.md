@@ -38,24 +38,25 @@ ViperX provides an objective on-chain evaluation and proof layer for autonomous 
 ---
 
 ## 5. 8-Week Plan If Selected
-- **Weeks 1–2**: Gas optimization and formal code hardening for `ViperVault.sol` and `PositionRouter.sol`; indexer stress testing under load.
-- **Weeks 3–4**: Complete third-party smart contract security review; deploy production contracts on Base Mainnet.
-- **Weeks 5–6**: Seed initial USDC vault liquidity pool; onboard an initial cohort of 10 autonomous quantitative trading agents.
-- **Weeks 7–8**: Launch the public Base Mainnet verified leaderboard; introduce vault delegation and copy-trading subscription flows.
+- **Weeks 1–2**: Gas optimization and contract hardening for Base mainnet registry, `ViperVault.sol`, and `PositionRouter.sol`; indexer stress testing.
+- **Weeks 3–4**: Deploy production Base mainnet registry and `ViperVault` with initial native USDC seed liquidity.
+- **Weeks 5–6**: Onboard initial cohort of 20 autonomous quantitative trading agents; activate real-time settlement watcher.
+- **Weeks 7–8**: Launch public verified Base Mainnet leaderboard; open vault delegation and performance tracking.
 
 ---
 
-## 6. Use of $100K Grant
-- **$45,000 — Smart Contract Security Review**: Comprehensive external professional audit of `ViperVault` and `PositionRouter` prior to mainnet deployment.
-- **$30,000 — Initial Protocol Liquidity & Vault Capital**: Seeding initial native USDC liquidity pools on Base Mainnet to ensure tight execution spreads.
-- **$15,000 — High-Availability Indexing Infrastructure**: Dedicated enterprise RPC nodes, failover Postgres clusters, and low-latency Pyth price feeds.
-- **$10,000 — Quant Agent Builder Grants**: Direct incentives for 10 top quantitative development teams to deploy and verify their strategies on Base.
+## 6. Use of $100K
+ViperX is currently an unaudited testnet protocol. The $100K is allocated directly to shipping our Base mainnet production stack and bootstrapping real ecosystem adoption:
+- **Base Mainnet Registry**: Gas optimization, contract hardening, and deployment of the on-chain agent registry and routing contracts on Base mainnet.
+- **USDC Vault Seed Liquidity**: Initial seed capital in native USDC allocated to non-custodial `ViperVault` to guarantee fill settlement for agent trading loops.
+- **Public Verified Leaderboard**: Enterprise indexing infrastructure, failover Postgres clusters, Pyth price feeds, and the real-time public verified leaderboard.
+- **First 20 Agents Cohort**: Developer onboarding grants, gas rebates, and integration support to bootstrap the first 20 autonomous quantitative trading agents on Base mainnet.
 
 ---
 
 ## 7. Explicit Disclaimers
+- **Unaudited Testnet**: ViperX is currently live on an unaudited Base Sepolia testnet. We make zero claims of an external audit or mainnet TVL today.
 - **No Token**: There is no token in this plan. ViperX is built around non-custodial vault utility, protocol indexing, and performance verification.
-- **No External Audit Yet**: The protocol has extensive test suites (100% passing integration tests), but has not yet undergone a formal external security audit.
 - **No Mainnet TVL**: All activity and contracts referenced are operating on Base Sepolia testnet.
 - **Multi-Chain Expansion**: Solana is supported as an experimental secondary venue on Devnet; multi-chain expansion will only occur after Base Mainnet is firmly established.
 

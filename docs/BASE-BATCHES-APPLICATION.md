@@ -40,7 +40,7 @@ Base is our primary home because algorithmic trading agents require native USDC 
 ---
 
 ### 5. Stage / Traction — Honest Testnet Wording (60 words)
-ViperX is live on Base Sepolia testnet with zero mainnet TVL and no active commercial users. The end-to-end stack is operational: Base contracts (`ViperVault`, `PositionRouter`, `PythPriceAdapter`), indexer daemon, and Next.js interface. Our live demo showcases the core anti-gaming thesis: testnet agents claiming 50 trades with 0 verified on-chain fills sit visibly unranked on the public leaderboard.
+ViperX is an unaudited testnet protocol live on Base Sepolia with zero mainnet TVL and no active commercial users. The end-to-end stack is operational: Base contracts (`ViperVault`, `PositionRouter`, `PythPriceAdapter`), indexer daemon, and Next.js interface. Our live demo showcases the core anti-gaming thesis: testnet agents claiming 50 trades with 0 verified on-chain fills sit visibly unranked on the public leaderboard.
 
 ---
 
@@ -50,18 +50,19 @@ Founder: Ritesh (@Ritesh5969). Solo technical builder who has previously shipped
 ---
 
 ### 7. 8-Week Plan (4 bullets)
-- **Weeks 1–2**: Gas optimization pass on `ViperVault` and engagement of external security firm for smart contract audit.
-- **Weeks 3–4**: Base mainnet contract deployment and provisioning of initial $30K USDC non-custodial liquidity vault.
-- **Weeks 5–6**: Onboarding first cohort of 10 external algorithmic agent builders with dedicated indexing infrastructure.
-- **Weeks 7–8**: Launch public verified Base mainnet leaderboard with non-custodial copy-trading subscriptions.
+- **Weeks 1–2**: Gas optimization and contract hardening for Base mainnet registry, `ViperVault`, and `PositionRouter`.
+- **Weeks 3–4**: Base mainnet contract deployment and provisioning initial USDC seed liquidity into non-custodial vaults.
+- **Weeks 5–6**: Onboarding and bootstrapping the first cohort of 20 autonomous quantitative trading agents on Base mainnet.
+- **Weeks 7–8**: Launch the public verified Base mainnet leaderboard with real-time settlement verification and anti-gaming gates.
 
 ---
 
 ### 8. Use of $100K (4 bullets)
-- **$45,000 — Smart Contract Security Audit**: Comprehensive third-party security review of Base smart contracts prior to mainnet launch.
-- **$30,000 — Protocol-Owned Liquidity**: Initial USDC seed liquidity deposited into non-custodial `ViperVault` for agent trade settlement.
-- **$15,000 — High-Availability Indexer Infrastructure**: Multi-region PostgreSQL database hosting and dedicated Base RPC nodes.
-- **$10,000 — Builder Incentives**: Gas fee rebates and developer grants for initial cohort of 10 autonomous trading agent teams.
+ViperX is currently an unaudited testnet. The $100K is dedicated to delivering our Base mainnet production milestone:
+- **Base Mainnet Registry**: Gas optimization, contract hardening, and deployment of the on-chain agent registry and routing contracts on Base mainnet.
+- **USDC Vault Liquidity**: Initial seed capital in native USDC allocated to non-custodial `ViperVault` to guarantee fill settlement for agent trading loops.
+- **Public Verified Leaderboard**: Production indexer infrastructure, failover Postgres clustering, and Pyth oracle integrations powering the real-time public leaderboard.
+- **First 20 Agents Cohort**: Developer onboarding incentives, gas subsidies, and technical integration support to bootstrap the first 20 verified quantitative trading agents on Base.
 
 ---
 
@@ -73,4 +74,4 @@ Base is the default network and primary home for our contracts, liquidity, and r
 ### 10. What We Are Not Pitching
 - **No Token**: We are not launching a speculative protocol or governance token; there is no token in this roadmap.
 - **No Retail Perp DEX**: We are not building a consumer derivatives exchange; `ViperVault` is an execution substrate solely used to verify agent fills.
-- **No Audited Mainnet Protocol**: We do not claim an audited or production-hardened mainnet deployment today; external audits are scheduled as part of our milestone funding.
+- **No Audited Mainnet Protocol**: We are an unaudited testnet today with zero mainnet TVL. We make no false claims of external audits, production hardening, or mainnet scale.

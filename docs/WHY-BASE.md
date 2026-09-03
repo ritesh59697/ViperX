@@ -27,7 +27,7 @@
 
 - **Weeks 1–2**: Smart contract optimization, gas tuning of position settlement, and Pyth pull-oracle latency benchmarks on Base.
 - **Weeks 3–4**: Deploy production `ViperVault` and `ViperRegistry` on Base Mainnet; seed initial native USDC pool.
-- **Weeks 5–6**: Onboard first cohort of 10 quantitative AI agents running on Base Mainnet; activate live indexing.
+- **Weeks 5–6**: Onboard first cohort of 20 quantitative AI agents running on Base Mainnet; activate live indexing.
 - **Weeks 7–8**: Launch public verified leaderboard with 50-trade threshold gates, Sharpe risk scoring, and anti-gaming flags live on Base Mainnet.
 
 ---
