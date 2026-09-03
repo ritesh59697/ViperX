@@ -9,6 +9,7 @@ import bs58 from "bs58";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { RobotLogo } from "@/components/ui/RobotLogo";
+import { ExternalLinkGlyph } from "@/components/ui/StatusGlyphs";
 import {
   unfollowAgent,
   followAgentMessage,
@@ -175,9 +176,10 @@ export function CopyTradingPanel({
                 <Button
                   variant="outline"
                   href={`/agents/${copying.sourceAgentPda}`}
-                  className="!px-3 !py-1.5 !text-xs !h-8 flex-1 justify-center"
+                  className="!px-3 !py-1.5 !text-xs !h-8 flex-1 justify-center inline-flex items-center gap-1.5"
                 >
-                  View Source Agent ↗
+                  <span>View Source Agent</span>
+                  <ExternalLinkGlyph className="h-3 w-3" />
                 </Button>
 
                 {isOwner && status.step !== "done" && (
@@ -284,9 +286,10 @@ export function CopyTradingPanel({
                         <Button
                           variant="outline"
                           href={`/agents/${follower.followerAgentPda}`}
-                          className="!px-3 !py-1.5 !text-xs !h-8 flex-1 justify-center"
+                          className="!px-3 !py-1.5 !text-xs !h-8 flex-1 justify-center inline-flex items-center gap-1.5"
                         >
-                          View Agent ↗
+                          <span>View Agent</span>
+                          <ExternalLinkGlyph className="h-3 w-3" />
                         </Button>
 
                         {isMyFollower && (

@@ -6,54 +6,55 @@ current; this file is the conceptual map, not a status tracker.
 
 ## System overview
 
-The single most important property of this diagram is that **the party that
-trades and the party that verifies are different**, and they read from
-different sources. `execution-runtime` reports its own fills;
-`pnl-indexer`'s watcher independently reads Velocity's on-chain
-`PerpPosition.settledPnl` and reconciles against that self-report. A
-leaderboard rank depends on the verified number, never the claimed one.
+ViperX follows a Base-first execution and verification architecture: **Frontend -> Base Execution (`ViperVault` + `PositionRouter`) -> Verification Runtime (`pnl-indexer` + `leaderboard-api`)**, with **Solana as a parallel optional path**.
+
+The foundational invariant is that **the party that trades and the party that verifies are strictly decoupled**, reading from independent sources:
+- `execution-runtime` submits trade intents and reports self-declared execution.
+- `pnl-indexer` independently reads settled positions from on-chain state (Base Sepolia `ViperVault` events & Pyth oracle updates, and optionally Solana Devnet programs) and verifies against self-reports.
+- Leaderboard ranking is calculated exclusively on verified settled fills and volatility-adjusted Sharpe ratios, never claimed screenshots or voluntary off-chain logs.
 
 ```
                             ┌──────────────────────────┐
-                            │        Frontend           │
-                            │  (Next.js + wallet)       │
-                            └─────────────┬─────────────┘
-                                          │ REST
-                            ┌─────────────▼─────────────┐
-                            │      Leaderboard API       │
-                            │  ranks by risk-adjusted    │
-                            │  Sharpe + anti-gaming      │
-                            │  RANK GATE: 50 *verified*  │
-                            │  fills, not claimed ones   │
-                            └─────────────┬─────────────┘
-                                          │ reads
-                            ┌─────────────▼─────────────┐
-                            │         Postgres           │
-                            │  trades row holds BOTH:    │
-                            │   realized_pnl  (claimed)  │
-                            │   onchain_verified_pnl     │
-                            └────▲──────────────────▲────┘
-                    self-reports │                  │ writes verified
-                                 │                  │ + divergence flag
-            ┌────────────────────┴─────┐   ┌────────┴───────────────────┐
-            │    Execution Runtime      │   │       PNL Indexer          │
-            │  strategy loop per agent  │   │  velocityWatcher: read-only│
-            │  opens/closes positions   │   │  poll of every agent vault │
-            │  calls record_trade       │   │  skillEngine: auto-tuning  │
-            └───┬───────────────────┬───┘   └────────▲──────────▲────────┘
-                │ record_trade      │ trades         │          │
-                │ authority_pause   │                │ reads    │ registry
-                │                   │                │ settled  │ events
-                │                   │                │ PnL      │
-        ┌───────▼──────────┐   ┌────▼────────────────┴──┐       │
-        │  Agent Registry   │   │      Velocity DEX      │       │
-        │  (Anchor, devnet) │   │  devnet perp DEX,      │       │
-        │  identity, status │   │  delegated vaults      │       │
-        │  trade_count      │◀──┼────────────────────────┘       │
-        │  (SELF-REPORTED)  │   └────────────────────────────────┘
-        └───────────────────┘
-                │
-                └──── registry events ──────────────────────────▶
+                            │        Frontend          │
+                            │   (Next.js + Web3)       │
+                            └─────────────┬────────────┘
+                                          │
+                  ┌───────────────────────┴───────────────────────┐
+                  │ (Primary Flow)                                │ (Parallel Optional Path)
+                  ▼                                               ▼
+      ┌─────────────────────────┐                     ┌─────────────────────────┐
+      │     Base Execution      │                     │     Solana Devnet       │
+      │  ViperVault.sol (USDC)  │                     │  viperx_agent_registry  │
+      │  PositionRouter.sol     │                     │  viperx_perpetuals      │
+      │  PythPriceAdapter.sol   │                     │  (SVM parallel DEX)     │
+      └───────────┬─────────────┘                     └───────────┬─────────────┘
+                  │ on-chain settlement                           │ on-chain settlement
+                  │                                               │
+                  └───────────────────────┬───────────────────────┘
+                                          │ on-chain event stream
+                                          ▼
+                            ┌──────────────────────────┐
+                            │   Verification Runtime   │
+                            │   (pnl-indexer daemon)   │
+                            │  * Reconciles claimed    │
+                            │    vs on-chain settled   │
+                            │  * Anti-gaming filters   │
+                            └─────────────┬────────────┘
+                                          │ writes verified
+                                          ▼
+                            ┌──────────────────────────┐
+                            │         Postgres         │
+                            │  holds verified metrics  │
+                            │  + anti-gaming flags     │
+                            └─────────────┬────────────┘
+                                          │ serves
+                                          ▼
+                            ┌──────────────────────────┐
+                            │     Leaderboard API      │
+                            │  Sharpe + anti-gaming    │
+                            │  RANK GATE: 50 verified  │
+                            │  fills, not claimed ones │
+                            └──────────────────────────┘
 ```
 
 ### The trust boundary

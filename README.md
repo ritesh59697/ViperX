@@ -2,57 +2,68 @@
 
 # ViperX
 
-**Decentralized Verification Protocol and Performance Indexer for Autonomous AI Trading Agents**
+**ViperX is the on-chain proof layer for AI trading agents on Base. We rank agents on settled USDC fills, not screenshots.**
 
 [![Live Application](https://img.shields.io/badge/Live_App-viper--x--lake.vercel.app-blue?style=flat-square)](https://viper-x-lake.vercel.app)
-[![Base Sepolia](https://img.shields.io/badge/Base_Sepolia-Chain_84532-0052FF?style=flat-square&logo=coinbase)](https://sepolia.basescan.org/address/0x68c59b55359Dc36D9E842e7314Da1150a964f4C7)
-[![Solana Devnet](https://img.shields.io/badge/Solana_Devnet-SVM-9945FF?style=flat-square&logo=solana)](https://explorer.solana.com/address/321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm?cluster=devnet)
+[![Base Sepolia](https://img.shields.io/badge/Primary_Venue-Base_Sepolia-0052FF?style=flat-square&logo=coinbase)](https://sepolia.basescan.org/address/0x68c59b55359Dc36D9E842e7314Da1150a964f4C7)
+[![Solana Devnet](https://img.shields.io/badge/Secondary_Venue-Solana_Devnet-9945FF?style=flat-square&logo=solana)](https://explorer.solana.com/address/321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm?cluster=devnet)
 [![Pyth Network](https://img.shields.io/badge/Oracle-Pyth_Network-white?style=flat-square)](https://pyth.network)
 [![Next.js](https://img.shields.io/badge/Frontend-Next.js_16-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](./LICENSE)
 
-[**Launch Interface**](https://viper-x-lake.vercel.app) • [**Architecture Specs**](./docs/ARCHITECTURE.md) • [**Verified Contracts**](./DEPLOYED.md) • [**Audit Report**](./AUDIT_REPORT.md)
+[**Launch Interface**](https://viper-x-lake.vercel.app) • [**Architecture Specs**](./docs/ARCHITECTURE.md) • [**Verified Contracts**](./DEPLOYED.md) • [**Integration Report**](./INTEGRATION_REPORT.md)
 
 </div>
 
 ---
 
-## Abstract
-
-Anyone can claim an exceptional AI trading track record. Traditional agent directories rely on self-reported off-chain telemetry, making metrics susceptible to selective reporting, simulated volume, and wash-trading manipulation.
-
-**ViperX** introduces an on-chain verification pipeline that strictly separates what an agent claims from what independent indexers verify against settled on-chain transactions. Only fills corroborated by genuine position state, collateral commitments, and oracle price proofs earn a rank on the public leaderboard.
-
----
-
 ## Live Deployment
 
-- **Production Interface**: [https://viper-x-lake.vercel.app](https://viper-x-lake.vercel.app)
-- **Primary Execution Venue**: Base Sepolia (EVM)
-- **Secondary Execution Venue**: Solana Devnet (SVM)
-- **Price Oracles**: Pyth Network Low-Latency Pull Oracles
+- **Web Interface**: [https://viper-x-lake.vercel.app](https://viper-x-lake.vercel.app)
+
+### Primary Execution Venue: Base Sepolia (Chain ID: `84532`)
+
+| Contract | Address | Explorer Link |
+| :--- | :--- | :--- |
+| **`ViperVault`** | `0x68c59b55359Dc36D9E842e7314Da1150a964f4C7` | [View on BaseScan](https://sepolia.basescan.org/address/0x68c59b55359Dc36D9E842e7314Da1150a964f4C7) |
+| **`PositionRouter`** | `0x1E8500fA19C416064416Ad5Ed8a68A7d569Cc63F` | [View on BaseScan](https://sepolia.basescan.org/address/0x1E8500fA19C416064416Ad5Ed8a68A7d569Cc63F) |
+| **`PythPriceAdapter`** | `0x36B9e0D1b0702FC59114A87f277b836d482EaF6A` | [View on BaseScan](https://sepolia.basescan.org/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A) |
+| **Testnet USDC** | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` | [View on BaseScan](https://sepolia.basescan.org/token/0x036CbD53842c5426634e7929541eC2318f3dCF7e) |
+| **Pyth Oracle Endpoint** | `0xA2aa501b19aff244D90cc15a4Cf739D2725B5729` | [View on BaseScan](https://sepolia.basescan.org/address/0xA2aa501b19aff244D90cc15a4Cf739D2725B5729) |
+
+### Secondary Execution Venue: Solana Devnet (SVM)
+
+| Program | Program ID | Explorer Link |
+| :--- | :--- | :--- |
+| **`viperx_agent_registry`** | `321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm` | [View on Solana Explorer](https://explorer.solana.com/address/321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm?cluster=devnet) |
+| **`viperx_perpetuals`** | `6Deo4a3kxfhykzK82ghBrwMY4nHE613Nz9ejb46WFcED` | [View on Solana Explorer](https://explorer.solana.com/address/6Deo4a3kxfhykzK82ghBrwMY4nHE613Nz9ejb46WFcED?cluster=devnet) |
 
 ---
 
-## Core Pillars
+## Problem
 
-### 1. Risk-Adjusted Ranking Over Vanity Volume
-- Traditional leaderboards sort by nominal PnL, favoring high-leverage gambles that inevitably liquidate.
-- ViperX ranks agents using a volatility-adjusted Sharpe ratio, maximum drawdown penalties, and win-rate consistency across standardized time horizons (24h, 7d, 30d, All Time).
-- Eligibility requires a minimum threshold of 50 independently confirmed fills.
+Anyone can claim an exceptional AI trading track record with cherry-picked screenshots, simulated paper runs, or self-reported PnL curves.
+Traditional agent directories rely entirely on unverified off-chain telemetry, making metrics vulnerable to selective reporting, simulated volume, and wash-trading manipulation.
+There is no trustless way to know whether an agent actually risks capital, survives adverse market conditions, or simply games marketing metrics.
+ViperX strictly separates what an agent claims from what independent indexers verify against settled on-chain transactions.
 
-### 2. Heuristic Anti-Gaming Pipeline
-- Automated detection filters out high-frequency self-wash loops (sub-10s round-trips).
-- Micro-position spamming (sub-$5 collateral) is disqualified from scoring.
-- Divergence checks identify discrepancies between an agent's self-reported telemetry and on-chain settled reality. Flagged agents are explicitly marked and relegated below legitimate participants.
+---
 
-### 3. Non-Custodial Smart Contract Vaulting
-- **Base (EVM)**: `ViperVault.sol` manages collateral in ERC-20 USDC with dynamic borrow rates and virtual liquidity accounting. `PositionRouter.sol` executes verified order intents with Pyth oracle mark prices.
-- **Solana (SVM)**: Anchor program `viperx_perpetuals` provides native parallelized position execution, while `viperx_agent_registry` guarantees immutable PDA-based agent identity delegation.
+## Product Wedge
 
-### 4. Cryptographic Strategy Tuning
-- Strategy parameters (RSI thresholds, take-profit, stop-loss, position sizing) are cryptographically signed by the agent's authoritative owner via EIP-712 (Base) or Ed25519 (Solana).
-- Every parameter change is recorded on-chain and indexed into an immutable historical audit trail, providing complete transparency into how an agent's logic evolved over time.
+- **50 Independently Verified Fills to Rank**: Eligibility for the public leaderboard requires clearing a minimum threshold of 50 closed trades verified directly against on-chain position state.
+- **Anti-Gaming & Heuristic Guardrails**: Automated wash-trade filters disqualify rapid self-trading loops (sub-10s round trips), enforce a $5 minimum collateral floor to prevent dust spamming, and flag divergence between self-reported telemetry and on-chain settled PnL.
+- **Non-Custodial Vault Architecture**: `ViperVault.sol` safeguards trading capital directly under the owner's keys. Autonomous agents receive narrow delegated transaction authority to submit order intents and self-pause—withdrawal rights never leave the owner's wallet.
+- **Risk-Adjusted Performance Ranking**: Agents are evaluated on volatility-adjusted Sharpe ratio, maximum drawdown penalties, and win consistency rather than nominal or lucky high-leverage PnL.
+
+---
+
+## Why Base First
+
+- **Native USDC Foundation**: Base provides deep native USDC liquidity as the primary trading and settlement asset, eliminating synthetic stablecoin friction for automated strategies.
+- **Sub-Cent Agent Execution**: Ultra-low transaction fees enable continuous agent execution, frequent risk-adjustment rebalancing, and high-cadence position updates without gas cost degradation.
+- **Coinbase Ecosystem Distribution**: Direct on-chain rails into the Coinbase user base and developer tooling provide natural distribution for verified agent vaults and future copy-trading subscriptions.
+- **Multi-Chain Architecture**: Base is our primary home venue; Solana serves as a secondary expansion venue for parallelized SVM execution.
 
 ---
 
@@ -63,7 +74,7 @@ Anyone can claim an exceptional AI trading track record. Traditional agent direc
 |                                 USER INTERFACE                                 |
 |         Next.js 16 (Turbopack) | Wagmi & RainbowKit | Solana Wallet Adapter    |
 +-----------------------+--------------------------------+-----------------------+
-                        |                                |
+                        | (Default / Primary)            | (Secondary)
                         v                                v
 +------------------------------------+   +---------------------------------------+
 |        BASE SEPOLIA (EVM)          |   |          SOLANA DEVNET (SVM)          |
@@ -85,27 +96,6 @@ Anyone can claim an exceptional AI trading track record. Traditional agent direc
 |  4. Integrity API: Emits verified agent rankings to public leaderboard.        |
 +--------------------------------------------------------------------------------+
 ```
-
----
-
-## Verified Smart Contracts
-
-### Base Sepolia Testnet (Chain ID: 84532)
-
-| Contract | Address | Explorer |
-| :--- | :--- | :--- |
-| **ViperVault** | `0x68c59b55359Dc36D9E842e7314Da1150a964f4C7` | [View on BaseScan](https://sepolia.basescan.org/address/0x68c59b55359Dc36D9E842e7314Da1150a964f4C7) |
-| **PositionRouter** | `0x1E8500fA19C416064416Ad5Ed8a68A7d569Cc63F` | [View on BaseScan](https://sepolia.basescan.org/address/0x1E8500fA19C416064416Ad5Ed8a68A7d569Cc63F) |
-| **PythPriceAdapter** | `0x36B9e0D1b0702FC59114A87f277b836d482EaF6A` | [View on BaseScan](https://sepolia.basescan.org/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A) |
-| **Testnet USDC** | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` | [View on BaseScan](https://sepolia.basescan.org/token/0x036CbD53842c5426634e7929541eC2318f3dCF7e) |
-| **Pyth Oracle Endpoint** | `0xA2aa501b19aff244D90cc15a4Cf739D2725B5729` | [View on BaseScan](https://sepolia.basescan.org/address/0xA2aa501b19aff244D90cc15a4Cf739D2725B5729) |
-
-### Solana Devnet (SVM)
-
-| Program | Program ID | Explorer |
-| :--- | :--- | :--- |
-| **viperx_agent_registry** | `321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm` | [View on Solana Explorer](https://explorer.solana.com/address/321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm?cluster=devnet) |
-| **viperx_perpetuals** | `6Deo4a3kxfhykzK82ghBrwMY4nHE613Nz9ejb46WFcED` | [View on Solana Explorer](https://explorer.solana.com/address/6Deo4a3kxfhykzK82ghBrwMY4nHE613Nz9ejb46WFcED?cluster=devnet) |
 
 ---
 
@@ -135,7 +125,7 @@ Anyone can claim an exceptional AI trading track record. Traditional agent direc
 │   └── GRANT-NARRATIVE.md      # Protocol mission and ecosystem alignment
 │
 ├── DEPLOYED.md                 # Complete record of deployed contracts and Pyth feeds
-├── AUDIT_REPORT.md             # Integration test audit and validation report
+├── INTEGRATION_REPORT.md       # End-to-end integration checklist and test pass report
 └── LICENSE                     # MIT Open Source License
 ```
 
@@ -181,14 +171,18 @@ Anyone can claim an exceptional AI trading track record. Traditional agent direc
 
 ---
 
-## Security and Verification Standards
+## Security & Verification Standards
 
 - **Collateral Protection**: Non-custodial contracts ensure that only authorized owner keys can deposit, withdraw, or modify strategy parameters.
 - **Oracle Staleness Guards**: Pyth price updates require fresh cryptographic proofs with explicit maximum staleness boundaries (30 seconds) and confidence interval enforcement.
-- **Audit History**: Initial protocol integration and component audits are detailed in [AUDIT_REPORT.md](./AUDIT_REPORT.md).
+- **Testing & Verification**: Contract test suites and integration verifications are documented in [INTEGRATION_REPORT.md](./INTEGRATION_REPORT.md).
 
 ---
 
 ## License
 
 This project is licensed under the [MIT License](./LICENSE).
+
+---
+
+Founder: Ritesh (@Ritesh5969). Pre-seed, solo, testnet.

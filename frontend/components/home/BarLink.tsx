@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ScrambleOnHover } from "@/components/motion/ScrambleOnHover";
+import { ArrowRightGlyph } from "@/components/ui/StatusGlyphs";
 
 /**
  * The page's loudest control: a full-width accent bar whose mono label
@@ -33,8 +34,8 @@ export function BarLink({
       onBlur={() => setHot(false)}
     >
       <ScrambleOnHover text={children} active={hot} />
-      <span className="bp-bar-arrow" aria-hidden="true">
-        →
+      <span className="bp-bar-arrow inline-flex items-center" aria-hidden="true">
+        <ArrowRightGlyph className="h-4 w-4" />
       </span>
     </Link>
   );

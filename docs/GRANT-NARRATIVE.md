@@ -1,3 +1,7 @@
+> **Notice**: This narrative was written for Solana grants.  
+> For Base Batches use [docs/BASE-BATCHES.md](./BASE-BATCHES.md).  
+> Base is the primary network.
+
 # ViperX — Grant Narrative
 
 Source material for grant applications (Solana Foundation, Colosseum,

@@ -128,83 +128,84 @@ export default function DashboardPage() {
     : "";
 
   return (
-    <Section className="pt-20 pb-24 sm:pt-24">
-      {/* Dashboard Title & Wallet Info */}
-      <div className="mb-10 flex flex-col justify-between gap-6 border-b border-border pb-8 sm:flex-row sm:items-end">
-        <div>
-          <span className="t-label">Workspace</span>
-          <h1 className="t-h2 mt-3 text-foreground">Wallet Dashboard</h1>
-          <p className="t-body mt-2 max-w-[54ch] text-sm">
-            Monitor your deployed SV/EV agents, active copy subscriptions, and strategy performance.
-          </p>
+    <Section width="wide" className="pt-6 pb-20 sm:pt-8 relative z-10">
+      <div className="w-full flex flex-col gap-8 bg-background/95 backdrop-blur-[2px] p-5 sm:p-9 rounded-2xl">
+        {/* Dashboard Title & Wallet Info */}
+        <div className="flex flex-col justify-between gap-6 border-b border-border pb-8 sm:flex-row sm:items-end">
+          <div>
+            <span className="t-label">Workspace</span>
+            <h1 className="text-3xl sm:text-4xl font-bold font-mono text-foreground mt-2 tracking-tight">Wallet Dashboard</h1>
+            <p className="t-body mt-2 max-w-[54ch] text-sm">
+              Monitor your deployed SV/EV agents, active copy subscriptions, and strategy performance.
+            </p>
+          </div>
+
+          {connectedAddress && (
+            <div className="flex flex-col gap-1 font-mono text-xs sm:text-right bg-surface/50 border border-border/60 rounded-xl p-3 sm:px-4">
+              <span className="text-foreground-muted text-[11px]">Connected Wallet</span>
+              <span className="font-semibold text-foreground tracking-wide">{shortenedAddress}</span>
+              <span className="text-[10px] text-foreground-faint uppercase tracking-wider font-semibold">
+                {activeChain === "solana" ? "Solana Devnet" : "Base Sepolia"}
+              </span>
+            </div>
+          )}
         </div>
 
-        {connectedAddress && (
-          <div className="flex flex-col gap-1 font-mono text-xs sm:text-right">
-            <span className="text-foreground-muted">Connected Wallet</span>
-            <span className="font-semibold text-foreground">{shortenedAddress}</span>
-            <span className="text-[10px] text-foreground-faint uppercase tracking-wider">
-              {activeChain === "solana" ? "Solana Devnet" : "Base Sepolia"}
-            </span>
+        {!connectedAddress && (
+          <div className="py-16 text-center font-mono text-sm text-foreground-muted bg-surface/30 rounded-xl border border-border">
+            Connect your wallet using the button in the top-right corner to initialize this workspace.
           </div>
         )}
-      </div>
 
-      {!connectedAddress && (
-        <div className="bp-panel py-16 text-center font-mono text-sm text-foreground-muted">
-          Connect your wallet using the button in the top-right corner to initialize this workspace.
-        </div>
-      )}
-
-      {connectedAddress && (
-        <div className="space-y-12">
-          {/* Quick Stats Grid */}
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="surface surface-solid p-5 font-mono rounded-xl hover:border-border-strong transition-all duration-300 relative overflow-hidden group flex items-start justify-between">
-              <div className="flex flex-col">
-                <span className="t-label text-[10px]">Bots Deployed</span>
-                <span className="mt-2 block text-3xl font-bold text-foreground tracking-tight">{agents.length}</span>
+        {connectedAddress && (
+          <div className="space-y-10">
+            {/* Quick Stats Grid */}
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="bg-surface/50 border border-border hover:border-border-strong p-5 font-mono rounded-xl transition-all duration-300 relative overflow-hidden group flex items-start justify-between shadow-xs">
+                <div className="flex flex-col">
+                  <span className="t-label text-[10px] uppercase tracking-wider text-foreground-faint">Bots Deployed</span>
+                  <span className="mt-2 block text-3xl font-bold text-foreground tracking-tight">{agents.length}</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-background/80 border border-border group-hover:border-border-strong transition-colors">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent shrink-0">
+                    <path d="M12 8V4H8" />
+                    <rect width="16" height="12" x="4" y="8" rx="2" />
+                    <path d="M9 13h.01" />
+                    <path d="M15 13h.01" />
+                    <path d="M12 17v1" />
+                    <path d="M8 21h8" />
+                  </svg>
+                </div>
               </div>
-              <div className="p-2 rounded-lg bg-background-muted border border-border group-hover:border-border-strong transition-colors">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent shrink-0">
-                  <path d="M12 8V4H8" />
-                  <rect width="16" height="12" x="4" y="8" rx="2" />
-                  <path d="M9 13h.01" />
-                  <path d="M15 13h.01" />
-                  <path d="M12 17v1" />
-                  <path d="M8 21h8" />
-                </svg>
+              <div className="bg-surface/50 border border-border hover:border-border-strong p-5 font-mono rounded-xl transition-all duration-300 relative overflow-hidden group flex items-start justify-between shadow-xs">
+                <div className="flex flex-col">
+                  <span className="t-label text-[10px] uppercase tracking-wider text-foreground-faint">Copy Subscriptions</span>
+                  <span className="mt-2 block text-3xl font-bold text-foreground tracking-tight">{copying.length}</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-background/80 border border-border group-hover:border-border-strong transition-colors">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent shrink-0">
+                    <path d="m17 2 4 4-4 4" />
+                    <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+                    <path d="m7 22-4-4 4-4" />
+                    <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+                  </svg>
+                </div>
               </div>
-            </div>
-            <div className="surface surface-solid p-5 font-mono rounded-xl hover:border-border-strong transition-all duration-300 relative overflow-hidden group flex items-start justify-between">
-              <div className="flex flex-col">
-                <span className="t-label text-[10px]">Copy Subscriptions</span>
-                <span className="mt-2 block text-3xl font-bold text-foreground tracking-tight">{copying.length}</span>
-              </div>
-              <div className="p-2 rounded-lg bg-background-muted border border-border group-hover:border-border-strong transition-colors">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent shrink-0">
-                  <path d="m17 2 4 4-4 4" />
-                  <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
-                  <path d="m7 22-4-4 4-4" />
-                  <path d="M21 13v1a4 4 0 0 1-4 4H3" />
-                </svg>
-              </div>
-            </div>
-            <div className="surface surface-solid p-5 font-mono rounded-xl hover:border-border-strong transition-all duration-300 relative overflow-hidden group flex items-start justify-between">
-              <div className="flex flex-col">
-                <span className="t-label text-[10px]">Your Followers</span>
-                <span className="mt-2 block text-3xl font-bold text-foreground tracking-tight">{followers.length}</span>
-              </div>
-              <div className="p-2 rounded-lg bg-background-muted border border-border group-hover:border-border-strong transition-colors">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent shrink-0">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
+              <div className="bg-surface/50 border border-border hover:border-border-strong p-5 font-mono rounded-xl transition-all duration-300 relative overflow-hidden group flex items-start justify-between shadow-xs">
+                <div className="flex flex-col">
+                  <span className="t-label text-[10px] uppercase tracking-wider text-foreground-faint">Your Followers</span>
+                  <span className="mt-2 block text-3xl font-bold text-foreground tracking-tight">{followers.length}</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-background/80 border border-border group-hover:border-border-strong transition-colors">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent shrink-0">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                </div>
               </div>
             </div>
-          </div>
 
           {loading ? (
             <div className="flex items-center justify-center py-12 font-mono text-xs text-foreground-muted">
@@ -222,14 +223,14 @@ export default function DashboardPage() {
                 </div>
 
                 {agents.filter(a => !a.isPaper).length === 0 ? (
-                  <Card variant="muted" className="py-10 text-center font-mono text-xs text-foreground-muted">
+                  <Card variant="muted" className="py-10 text-center font-mono text-xs text-foreground-muted bg-surface/30 border border-border">
                     No live bots registered under this wallet yet. Click &quot;Deploy Bot&quot; above to create one.
                   </Card>
                 ) : (
-                  <div className="overflow-x-auto rounded-xl border border-border bg-background-elevated-solid">
+                  <div className="overflow-x-auto rounded-xl border border-border bg-surface/40">
                     <table className="w-full text-left font-mono text-xs">
                       <thead>
-                        <tr className="border-b border-border bg-background-muted text-foreground-muted uppercase tracking-wider text-[10px]">
+                        <tr className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px]">
                           <th className="p-4">Agent ID</th>
                           <th className="p-4">Name</th>
                           <th className="p-4">Chain</th>
@@ -241,7 +242,7 @@ export default function DashboardPage() {
                       </thead>
                       <tbody>
                         {agents.filter(a => !a.isPaper).map((agent) => (
-                          <tr key={agent.agentPda} className="border-b border-border bg-background-elevated-solid transition-colors hover:bg-background-muted last:border-b-0">
+                          <tr key={agent.agentPda} className="border-b border-border/50 transition-colors hover:bg-surface/60 last:border-b-0">
                             <td className="p-4 font-semibold text-foreground">
                               <Link href={`/agents/${agent.agentPda}`} className="hover:underline">
                                 {agent.agentId}
@@ -257,7 +258,7 @@ export default function DashboardPage() {
                                 {agent.chain}
                               </span>
                             </td>
-                            <td className="p-4 text-foreground">
+                            <td className="p-4 text-foreground font-semibold">
                               ${Number(agent.vaultBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </td>
                             <td className="p-4 text-foreground-muted">{agent.tradeCount}</td>
@@ -290,13 +291,13 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between border-b border-border pb-3">
                     <div className="flex items-center gap-2">
                       <h2 className="font-mono text-sm font-semibold text-foreground">Paper Trading Bots</h2>
-                      <span className="rounded-full border border-border bg-background-elevated-solid px-2 py-0.5 text-[10px] font-bold uppercase text-foreground-faint">
+                      <span className="rounded-full border border-border bg-surface px-2 py-0.5 text-[10px] font-bold uppercase text-foreground-faint">
                         PAPER
                       </span>
                     </div>
                     <Button href="/create" className="py-1 px-3 text-xs" variant="secondary">+ Paper Bot</Button>
                   </div>
-                  <div className="surface surface-solid rounded-xl px-4 py-3">
+                  <div className="rounded-xl border border-border bg-surface/50 px-4 py-3">
                     <div className="flex items-start gap-2 text-foreground-muted">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0 text-accent">
                         <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
@@ -308,10 +309,10 @@ export default function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="overflow-x-auto rounded-xl border border-border bg-background-elevated-solid">
+                  <div className="overflow-x-auto rounded-xl border border-border bg-surface/40">
                     <table className="w-full text-left font-mono text-xs">
                       <thead>
-                        <tr className="border-b border-border bg-background-muted text-foreground-muted uppercase tracking-wider text-[10px]">
+                        <tr className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px]">
                           <th className="p-4">Agent ID</th>
                           <th className="p-4">Name</th>
                           <th className="p-4">Chain</th>
@@ -323,7 +324,7 @@ export default function DashboardPage() {
                       </thead>
                       <tbody>
                         {agents.filter(a => a.isPaper).map((agent) => (
-                          <tr key={agent.agentPda} className="border-b border-border bg-background-elevated-solid transition-colors hover:bg-background-muted last:border-b-0">
+                          <tr key={agent.agentPda} className="border-b border-border/50 transition-colors hover:bg-surface/60 last:border-b-0">
                             <td className="p-4 font-semibold text-foreground">
                               <Link href={`/agents/${agent.agentPda}`} className="hover:underline">
                                 {agent.agentId}
@@ -331,13 +332,13 @@ export default function DashboardPage() {
                             </td>
                             <td className="p-4 text-foreground-muted">{agent.name}</td>
                             <td className="p-4">
-                              <span className="rounded border border-border bg-background-muted px-1.5 py-0.5 text-[10px] font-bold uppercase text-foreground-muted">
+                              <span className="rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] font-bold uppercase text-foreground-muted">
                                 PAPER / {agent.chain}
                               </span>
                             </td>
                             <td className="p-4 font-semibold text-foreground">
                               ${Number(agent.simulatedBalance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              <span className="ml-1 text-[9px] uppercase text-foreground-faint">simulated</span>
+                              <span className="ml-1 text-[9px] uppercase text-foreground-faint font-normal">simulated</span>
                             </td>
                             <td className="p-4 text-foreground-muted">{agent.tradeCount}</td>
                             <td className="p-4">
@@ -363,7 +364,6 @@ export default function DashboardPage() {
                 </div>
               )}
 
-
               {/* SECTION 2: ACTIVE COPY-TRADING SUBSCRIPTIONS */}
               <div className="space-y-4">
                 <div className="border-b border-border pb-3">
@@ -371,14 +371,14 @@ export default function DashboardPage() {
                 </div>
 
                 {copying.length === 0 ? (
-                  <Card variant="muted" className="py-10 text-center font-mono text-xs text-foreground-muted">
+                  <Card variant="muted" className="py-10 text-center font-mono text-xs text-foreground-muted bg-surface/30 border border-border">
                     Your bots are not copy-trading any other strategy yet. Explore the leaderboard to follow top performers.
                   </Card>
                 ) : (
-                  <div className="overflow-x-auto rounded-xl border border-border bg-background-elevated-solid">
+                  <div className="overflow-x-auto rounded-xl border border-border bg-surface/40">
                     <table className="w-full text-left font-mono text-xs">
                       <thead>
-                        <tr className="border-b border-border bg-background-muted text-foreground-muted uppercase tracking-wider text-[10px]">
+                        <tr className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px]">
                           <th className="p-4">My Follower Bot</th>
                           <th className="p-4">Source Bot (Copied)</th>
                           <th className="p-4">Allocated Size</th>
@@ -387,9 +387,9 @@ export default function DashboardPage() {
                       </thead>
                       <tbody>
                         {copying.map((relationship) => (
-                          <tr key={`${relationship.followerAgentPda}-${relationship.sourceAgentPda}`} className="border-b border-border bg-background-elevated-solid transition-colors hover:bg-background-muted last:border-b-0">
-                            <td className="p-4 text-foreground">
-                              <Link href={`/agents/${relationship.followerAgentPda}`} className="hover:underline font-semibold">
+                          <tr key={`${relationship.followerAgentPda}-${relationship.sourceAgentPda}`} className="border-b border-border/50 transition-colors hover:bg-surface/60 last:border-b-0">
+                            <td className="p-4 text-foreground font-semibold">
+                              <Link href={`/agents/${relationship.followerAgentPda}`} className="hover:underline">
                                 {relationship.followerAgentId}
                               </Link>
                             </td>
@@ -398,7 +398,7 @@ export default function DashboardPage() {
                                 {relationship.sourceAgentId}
                               </Link>
                             </td>
-                            <td className="p-4 text-foreground">${Number(relationship.sizeUsd).toFixed(0)} USD</td>
+                            <td className="p-4 text-foreground font-semibold">${Number(relationship.sizeUsd).toFixed(0)} USD</td>
                             <td className="p-4 text-right">
                               <Button
                                 onClick={() => handleUnfollow(relationship.followerAgentPda, relationship.sourceAgentPda)}
@@ -424,14 +424,14 @@ export default function DashboardPage() {
                 </div>
 
                 {followers.length === 0 ? (
-                  <Card variant="muted" className="py-10 text-center font-mono text-xs text-foreground-muted">
+                  <Card variant="muted" className="py-10 text-center font-mono text-xs text-foreground-muted bg-surface/30 border border-border">
                     No other users are copy-trading your bots yet. Build a strong track record to rank on the leaderboard and attract subscribers!
                   </Card>
                 ) : (
-                  <div className="overflow-x-auto rounded-xl border border-border bg-background-elevated-solid">
+                  <div className="overflow-x-auto rounded-xl border border-border bg-surface/40">
                     <table className="w-full text-left font-mono text-xs">
                       <thead>
-                        <tr className="border-b border-border bg-background-muted text-foreground-muted uppercase tracking-wider text-[10px]">
+                        <tr className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px]">
                           <th className="p-4">My Bot (Source)</th>
                           <th className="p-4">Follower Bot Address</th>
                           <th className="p-4">Follower Bot Name</th>
@@ -440,9 +440,9 @@ export default function DashboardPage() {
                       </thead>
                       <tbody>
                         {followers.map((relationship) => (
-                          <tr key={`${relationship.followerAgentPda}-${relationship.sourceAgentPda}`} className="border-b border-border bg-background-elevated-solid transition-colors hover:bg-background-muted last:border-b-0">
-                            <td className="p-4 text-foreground">
-                              <Link href={`/agents/${relationship.sourceAgentPda}`} className="hover:underline font-semibold">
+                          <tr key={`${relationship.followerAgentPda}-${relationship.sourceAgentPda}`} className="border-b border-border/50 transition-colors hover:bg-surface/60 last:border-b-0">
+                            <td className="p-4 text-foreground font-semibold">
+                              <Link href={`/agents/${relationship.sourceAgentPda}`} className="hover:underline">
                                 {relationship.sourceAgentId}
                               </Link>
                             </td>
@@ -450,7 +450,7 @@ export default function DashboardPage() {
                               {relationship.followerAgentPda.slice(0, 8)}...{relationship.followerAgentPda.slice(-6)}
                             </td>
                             <td className="p-4 text-foreground-muted">{relationship.followerAgentId}</td>
-                            <td className="p-4 text-foreground">${Number(relationship.sizeUsd).toFixed(0)} USD</td>
+                            <td className="p-4 text-foreground font-semibold">${Number(relationship.sizeUsd).toFixed(0)} USD</td>
                           </tr>
                         ))}
                       </tbody>
@@ -465,7 +465,7 @@ export default function DashboardPage() {
 
       {/* Disconnected State Fallback Banner */}
       {!connectedAddress && (
-        <Card variant="muted" className="mt-8 py-12 text-center font-mono text-xs">
+        <Card variant="muted" className="mt-8 py-12 text-center font-mono text-xs bg-surface/30 border border-border">
           <div className="max-w-md mx-auto flex flex-col items-center gap-4">
             <span className="text-foreground-muted">Connect your wallet to initialize this workspace.</span>
             <div className="flex gap-4">
@@ -474,6 +474,7 @@ export default function DashboardPage() {
           </div>
         </Card>
       )}
+      </div>
     </Section>
   );
 }

@@ -8,6 +8,8 @@ import {
 } from "@/lib/leaderboardApi";
 import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { ArrowRightGlyph } from "@/components/ui/StatusGlyphs";
 import { StaggerTableBody, StaggerRow } from "@/components/motion/StaggerTable";
 import { EnterArenaModal } from "@/components/arena/EnterArenaModal";
 import { ArenaMatchups } from "@/components/arena/ArenaMatchups";
@@ -57,7 +59,7 @@ export default async function ArenaSeasonPage({
   const pending: LeaderboardAgent[] = data ? data.entrants.filter((a) => !a.onchain_verified) : [];
 
   return (
-    <Section width="wide" className="pt-20 pb-24 sm:pt-24">
+    <Section width="wide" className="pt-6 pb-20 sm:pt-8 relative z-10">
       <div className="mb-8">
         <Link
           href="/arena"
@@ -71,12 +73,8 @@ export default async function ArenaSeasonPage({
       </div>
 
       {fetchError && (
-        <Card variant="error">
-          Couldn&apos;t reach leaderboard-api: {fetchError}
-          <br />
-          <span className="text-xs opacity-80">
-            Is it running? <code className="font-mono">cd backend/leaderboard-api &amp;&amp; npm run dev</code>
-          </span>
+        <Card variant="error" className="font-mono text-xs">
+          Unable to connect to the arena indexer. Please refresh the page or try again shortly.
         </Card>
       )}
 
@@ -109,54 +107,66 @@ export default async function ArenaSeasonPage({
           )}
 
           {ranked.length > 0 && (
-            <div className="surface mt-8 overflow-hidden rounded-xl">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="t-label border-b border-border">
-                    <tr>
-                      <th className={TH}>#</th>
-                      <th className={TH}>Agent</th>
-                      <th className={TH}>Owner</th>
-                      <th className={`${TH} text-right`}>Sharpe</th>
-                      <th className={`${TH} text-right`}>ROI</th>
-                      <th className={`${TH} text-right`}>Max DD</th>
-                    </tr>
-                  </thead>
-                  <StaggerTableBody className="divide-y divide-border">
-                    {ranked.map((agent) => (
-                      <StaggerRow key={agent.agent_pda} className="transition-colors hover:bg-surface">
-                        <td className={`${TD} font-mono text-xs text-foreground-faint`}>{agent.rank}</td>
-                        <td className={TD}>
-                          <Link
-                            href={`/agents/${agent.agent_pda}`}
-                            className="font-medium text-foreground transition-colors hover:text-accent"
+            <div className="overflow-x-auto rounded-xl border border-border bg-surface/40 mt-8">
+              <table className="w-full text-left text-sm">
+                <thead className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px] font-mono">
+                  <tr>
+                    <th className={TH}>#</th>
+                    <th className={TH}>Agent</th>
+                    <th className={TH}>Owner</th>
+                    <th className={`${TH} text-right`}>Sharpe</th>
+                    <th className={`${TH} text-right`}>ROI</th>
+                    <th className={`${TH} text-right`}>Max DD</th>
+                    <th className={`${TH} text-right`}>Profile</th>
+                  </tr>
+                </thead>
+                <StaggerTableBody className="divide-y divide-border/50 font-mono text-xs">
+                  {ranked.map((agent) => (
+                    <StaggerRow key={agent.agent_pda} className="transition-colors hover:bg-surface/60">
+                      <td className={`${TD} font-mono text-xs text-foreground-faint`}>{agent.rank}</td>
+                      <td className={TD}>
+                        <Link
+                          href={`/agents/${agent.agent_pda}`}
+                          prefetch={true}
+                          className="group inline-flex items-center gap-1.5 font-medium text-foreground transition-colors hover:text-accent font-sans text-sm"
+                        >
+                          <span className="group-hover:underline underline-offset-4 decoration-accent/60">{agent.name}</span>
+                          <ArrowRightGlyph className="h-3 w-3 text-foreground-faint group-hover:text-accent group-hover:translate-x-0.5 transition-all shrink-0" />
+                        </Link>
+                        {agent.wash_trading_flagged && (
+                          <span
+                            className="mt-1 block text-[0.6875rem] font-medium text-negative"
+                            title={agent.flagged_reason || "Flagged for wash trading patterns"}
                           >
-                            {agent.name}
-                          </Link>
-                          {agent.wash_trading_flagged && (
-                            <span
-                              className="mt-1 block text-[0.6875rem] font-medium text-negative"
-                              title={agent.flagged_reason || "Flagged for wash trading patterns"}
-                            >
-                              Flagged
-                            </span>
-                          )}
-                        </td>
-                        <td className={`${TD} font-mono text-xs text-foreground-muted`}>{truncate(agent.owner)}</td>
-                        <td className={`${TD} text-right font-mono text-xs font-medium text-foreground`}>
-                          {formatMetric(agent.sharpe_like)}
-                        </td>
-                        <td className={`${TD} text-right font-mono text-xs font-medium text-foreground`}>
-                          {formatMetric(agent.roi_pct, "%")}
-                        </td>
-                        <td className={`${TD} text-right font-mono text-xs text-foreground-muted`}>
-                          {formatMetric(agent.max_drawdown_pct, "%")}
-                        </td>
-                      </StaggerRow>
-                    ))}
-                  </StaggerTableBody>
-                </table>
-              </div>
+                            Flagged
+                          </span>
+                        )}
+                      </td>
+                      <td className={`${TD} font-mono text-xs text-foreground-muted`}>{truncate(agent.owner)}</td>
+                      <td className={`${TD} text-right font-mono text-xs font-medium text-foreground`}>
+                        {formatMetric(agent.sharpe_like)}
+                      </td>
+                      <td className={`${TD} text-right font-mono text-xs font-medium text-foreground`}>
+                        {formatMetric(agent.roi_pct, "%")}
+                      </td>
+                      <td className={`${TD} text-right font-mono text-xs text-foreground-muted`}>
+                        {formatMetric(agent.max_drawdown_pct, "%")}
+                      </td>
+                      <td className={`${TD} text-right`}>
+                        <Button
+                          href={`/agents/${agent.agent_pda}`}
+                          prefetch={true}
+                          variant="secondary"
+                          className="!py-1 !px-2.5 !text-[11px] !h-7 font-mono inline-flex items-center gap-1 hover:border-accent/40 hover:text-accent"
+                        >
+                          <span>View</span>
+                          <ArrowRightGlyph className="h-2.5 w-2.5 opacity-70" />
+                        </Button>
+                      </td>
+                    </StaggerRow>
+                  ))}
+                </StaggerTableBody>
+              </table>
             </div>
           )}
 
@@ -167,36 +177,48 @@ export default async function ArenaSeasonPage({
                 Same bar as the main leaderboard — 50 independently verified fills before a score
                 counts.
               </p>
-              <div className="surface mt-5 overflow-hidden rounded-xl">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead className="t-label border-b border-border">
-                      <tr>
-                        <th className={TH}>Agent</th>
-                        <th className={TH}>Owner</th>
-                        <th className={`${TH} text-right`}>Verified fills</th>
+              <div className="overflow-x-auto rounded-xl border border-border bg-surface/40 mt-5">
+                <table className="w-full text-left text-sm">
+                  <thead className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px] font-mono">
+                    <tr>
+                      <th className={TH}>Agent</th>
+                      <th className={TH}>Owner</th>
+                      <th className={`${TH} text-right`}>Verified fills</th>
+                      <th className={`${TH} text-right`}>Profile</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/50 font-mono text-xs">
+                    {pending.map((agent) => (
+                      <tr key={agent.agent_pda} className="transition-colors hover:bg-surface/60">
+                        <td className={TD}>
+                          <Link
+                            href={`/agents/${agent.agent_pda}`}
+                            prefetch={true}
+                            className="group inline-flex items-center gap-1.5 font-medium text-foreground transition-colors hover:text-accent font-sans text-sm"
+                          >
+                            <span className="group-hover:underline underline-offset-4 decoration-accent/60">{agent.name}</span>
+                            <ArrowRightGlyph className="h-3 w-3 text-foreground-faint group-hover:text-accent group-hover:translate-x-0.5 transition-all shrink-0" />
+                          </Link>
+                        </td>
+                        <td className={`${TD} font-mono text-xs text-foreground-muted`}>{truncate(agent.owner)}</td>
+                        <td className={`${TD} text-right font-mono text-xs text-foreground`}>
+                          {agent.verified_trade_count ?? 0} / 50
+                        </td>
+                        <td className={`${TD} text-right`}>
+                          <Button
+                            href={`/agents/${agent.agent_pda}`}
+                            prefetch={true}
+                            variant="secondary"
+                            className="!py-1 !px-2.5 !text-[11px] !h-7 font-mono inline-flex items-center gap-1 hover:border-accent/40 hover:text-accent"
+                          >
+                            <span>View</span>
+                            <ArrowRightGlyph className="h-2.5 w-2.5 opacity-70" />
+                          </Button>
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {pending.map((agent) => (
-                        <tr key={agent.agent_pda} className="transition-colors hover:bg-surface">
-                          <td className={TD}>
-                            <Link
-                              href={`/agents/${agent.agent_pda}`}
-                              className="font-medium text-foreground transition-colors hover:text-accent"
-                            >
-                              {agent.name}
-                            </Link>
-                          </td>
-                          <td className={`${TD} font-mono text-xs text-foreground-muted`}>{truncate(agent.owner)}</td>
-                          <td className={`${TD} text-right font-mono text-xs text-foreground`}>
-                            {agent.verified_trade_count ?? 0} / 50
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}

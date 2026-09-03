@@ -14,7 +14,7 @@ import {
 } from "@/lib/leaderboardApi";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { XGlyph, InfoGlyph, CheckGlyph } from "@/components/ui/StatusGlyphs";
+import { XGlyph, InfoGlyph, CheckGlyph, ArrowRightGlyph } from "@/components/ui/StatusGlyphs";
 import { StaggerTableBody, StaggerRow } from "@/components/motion/StaggerTable";
 
 const MIN_TRADES_FOR_ELIGIBILITY = 50;
@@ -205,6 +205,14 @@ export function LeaderboardClient({
 
       {/* ── Content Area: Matches Image 1 with soft translucent borders ── */}
       <div className={`mt-6 transition-opacity duration-150 ${isSwitching ? "opacity-75" : "opacity-100"}`}>
+        {/* Helper Hint Bar */}
+        <div className="mb-3 flex items-center justify-between font-mono text-[11px] text-foreground-faint px-1">
+          <span className="inline-flex items-center gap-2">
+            <InfoGlyph className="h-3.5 w-3.5 text-foreground-muted shrink-0" />
+            <span>Click any agent to inspect verified fills, Sharpe metrics, and live copy trading.</span>
+          </span>
+        </div>
+
         {/* Ranked Table (when agents qualify) */}
         {ranked.length > 0 && (
           <div className="surface overflow-hidden rounded-xl">
@@ -220,6 +228,7 @@ export function LeaderboardClient({
                     <th className={`${TH} text-right`}>Sharpe</th>
                     <th className={`${TH} text-right`}>ROI</th>
                     <th className={`${TH} text-right`}>Max DD</th>
+                    <th className={`${TH} text-right`}>Profile</th>
                   </tr>
                 </thead>
                 <StaggerTableBody className="divide-y divide-border">
@@ -231,9 +240,13 @@ export function LeaderboardClient({
                       <td className={TD}>
                         <Link
                           href={`/agents/${agent.agent_pda}`}
-                          className="font-medium text-foreground transition-colors hover:text-accent"
+                          prefetch={true}
+                          className="group inline-flex items-center gap-1.5 font-semibold text-foreground transition-colors hover:text-accent"
                         >
-                          {agent.name}
+                          <span className="group-hover:underline underline-offset-4 decoration-accent/60">
+                            {agent.name}
+                          </span>
+                          <ArrowRightGlyph className="h-3 w-3 text-foreground-faint group-hover:text-accent group-hover:translate-x-0.5 transition-all shrink-0" />
                         </Link>
                         <div className="font-mono text-[0.6875rem] text-foreground-faint">
                           {agent.agent_id}
@@ -274,6 +287,17 @@ export function LeaderboardClient({
                       <td className={`${TD} text-right font-mono text-xs tabular-nums text-foreground-muted`}>
                         {formatMetric(agent.max_drawdown_pct, "%")}
                       </td>
+                      <td className={`${TD} text-right`}>
+                        <Button
+                          href={`/agents/${agent.agent_pda}`}
+                          prefetch={true}
+                          variant="secondary"
+                          className="!py-1 !px-2.5 !text-[11px] !h-7 font-mono inline-flex items-center gap-1 hover:border-accent/40 hover:text-accent"
+                        >
+                          <span>View</span>
+                          <ArrowRightGlyph className="h-2.5 w-2.5 opacity-70" />
+                        </Button>
+                      </td>
                     </StaggerRow>
                   ))}
                 </StaggerTableBody>
@@ -307,6 +331,7 @@ export function LeaderboardClient({
                       <th className={`${TH} text-center`}>Registry count</th>
                       <th className={`${TH} text-right`}>Sharpe</th>
                       <th className={`${TH} text-right`}>ROI</th>
+                      <th className={`${TH} text-right`}>Profile</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -315,9 +340,13 @@ export function LeaderboardClient({
                         <td className={TD}>
                           <Link
                             href={`/agents/${agent.agent_pda}`}
-                            className="font-medium text-foreground transition-colors hover:text-accent"
+                            prefetch={true}
+                            className="group inline-flex items-center gap-1.5 font-semibold text-foreground transition-colors hover:text-accent"
                           >
-                            {agent.name}
+                            <span className="group-hover:underline underline-offset-4 decoration-accent/60">
+                              {agent.name}
+                            </span>
+                            <ArrowRightGlyph className="h-3 w-3 text-foreground-faint group-hover:text-accent group-hover:translate-x-0.5 transition-all shrink-0" />
                           </Link>
                           <div className="font-mono text-[0.6875rem] text-foreground-faint">
                             {agent.agent_id}
@@ -364,6 +393,17 @@ export function LeaderboardClient({
                           className={`${TD} text-right font-mono text-xs ${signClass(agent.roi_pct)}`}
                         >
                           {formatMetric(agent.roi_pct, "%")}
+                        </td>
+                        <td className={`${TD} text-right`}>
+                          <Button
+                            href={`/agents/${agent.agent_pda}`}
+                            prefetch={true}
+                            variant="secondary"
+                            className="!py-1 !px-2.5 !text-[11px] !h-7 font-mono inline-flex items-center gap-1 hover:border-accent/40 hover:text-accent"
+                          >
+                            <span>View</span>
+                            <ArrowRightGlyph className="h-2.5 w-2.5 opacity-70" />
+                          </Button>
                         </td>
                       </tr>
                     ))}

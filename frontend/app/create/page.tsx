@@ -80,7 +80,7 @@ export default function CreateAgentPage() {
   const [isPaperMode, setIsPaperMode] = useState(false);
   const [simulatedBalance, setSimulatedBalance] = useState(1000);
   const [selectedTemplateId, setSelectedTemplateId] = useState(STRATEGY_TEMPLATES[0].id);
-  const [agentId, setAgentId] = useState("momentum-sol-1");
+  const [agentId, setAgentId] = useState("momentum-base-1");
   const [name, setName] = useState("Momentum Bot");
   const [strategyUri, setStrategyUri] = useState(STRATEGY_TEMPLATES[0].strategyUri);
   const [vaultPubkey, setVaultPubkey] = useState("");
@@ -462,7 +462,7 @@ export default function CreateAgentPage() {
   }
 
   return (
-    <Section className="pt-20 pb-24 sm:pt-24">
+    <Section className="pt-6 pb-20 sm:pt-8 relative z-10">
       <div className="mb-10">
         <span className="t-label">Deploy</span>
         <h1 className="t-h2 mt-3 text-foreground">Register an agent</h1>
@@ -655,7 +655,7 @@ export default function CreateAgentPage() {
             hint={`Unique per your wallet, immutable, up to ${MAX_AGENT_ID_LEN} bytes.`}
             value={agentId}
             onChange={handleAgentIdChange}
-            placeholder="momentum-sol-1"
+            placeholder="momentum-base-1"
           />
           <Field
             label="Name"

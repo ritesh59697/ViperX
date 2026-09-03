@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { Section } from "@/components/ui/Section";
 import { RobotLogo } from "@/components/ui/RobotLogo";
+import { ExternalLinkGlyph } from "@/components/ui/StatusGlyphs";
 
 export const metadata = {
   title: "System Specs & Network Verification | ViperX",
@@ -56,8 +57,9 @@ const ARCHITECTURE_STEPS = [
 export default function SpecsPage() {
   return (
     <div className="relative flex flex-1 flex-col">
-      <Section width="wide" className="pt-10 pb-16 sm:pt-14">
-        {/* Page Header */}
+      <Section width="wide" className="pt-6 pb-20 sm:pt-8 relative z-10">
+        <div className="w-full flex flex-col gap-8 bg-background/95 backdrop-blur-[2px] p-5 sm:p-9 rounded-2xl">
+          {/* Page Header */}
         <div className="border-b border-border pb-8">
           <span className="bp-eyebrow">Technical Architecture</span>
           <h1 className="bp-display mt-4 text-foreground flex items-center gap-3">
@@ -119,9 +121,10 @@ export default function SpecsPage() {
                     href={c.explorer}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono text-[10px] text-accent hover:underline flex items-center gap-1.5"
+                    className="font-mono text-[10px] text-accent hover:underline inline-flex items-center gap-1"
                   >
-                    View in Explorer ↗
+                    <span>View in Explorer</span>
+                    <ExternalLinkGlyph className="h-3 w-3" />
                   </a>
                 </div>
                 <div className="space-y-4">
@@ -165,7 +168,7 @@ export default function SpecsPage() {
                                                               |
                                                               | (Triggers trade fills)
                                                               v
- +------------------+     (Audits & compares fills) +--------------------+
+ +------------------+     (Verifies & compares fills) +--------------------+
  |  ViperX Indexer  | <---------------------------- | Decentralized DEXs |
  | (Postgres Cache) |                               | (On-chain ledger)  |
  +------------------+                               +--------------------+
@@ -254,7 +257,7 @@ export default function SpecsPage() {
             </div>
           </div>
         </div>
-
+        </div>
       </Section>
       <SiteFooter />
     </div>

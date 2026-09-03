@@ -178,16 +178,31 @@ export interface AgentDetailResponse {
 
 export class AgentNotFoundError extends Error {}
 
-export async function fetchAgent(agentPda: string): Promise<AgentDetailResponse> {
-  const res = await fetch(`${LEADERBOARD_API_URL}/agents/${encodeURIComponent(agentPda)}`, { cache: "no-store" });
-  if (res.status === 404) {
-    throw new AgentNotFoundError("agent not found");
+export async function fetchAgent(agentPda: string, retries = 2): Promise<AgentDetailResponse> {
+  try {
+    const res = await fetch(`${LEADERBOARD_API_URL}/agents/${encodeURIComponent(agentPda)}`, {
+      next: { revalidate: 15 },
+    });
+    if (res.status === 404) {
+      throw new AgentNotFoundError("agent not found");
+    }
+    if (!res.ok) {
+      if (retries > 0 && res.status >= 500) {
+        await new Promise((r) => setTimeout(r, 600));
+        return fetchAgent(agentPda, retries - 1);
+      }
+      const body = await res.json().catch(() => ({}) as { error?: string });
+      throw new Error(body.error || `leaderboard-api returned ${res.status}`);
+    }
+    return res.json();
+  } catch (err) {
+    if (err instanceof AgentNotFoundError) throw err;
+    if (retries > 0) {
+      await new Promise((r) => setTimeout(r, 600));
+      return fetchAgent(agentPda, retries - 1);
+    }
+    throw err;
   }
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}) as { error?: string });
-    throw new Error(body.error || `leaderboard-api returned ${res.status}`);
-  }
-  return res.json();
 }
 
 /** Numeric strategy knobs a user may tune — mirrors leaderboard-api's

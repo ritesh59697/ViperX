@@ -32,7 +32,7 @@ export default async function LeaderboardPage({
   }
 
   return (
-    <Section width="wide" className="pt-12 pb-24 sm:pt-16">
+    <Section width="wide" className="pt-6 pb-20 sm:pt-8 relative z-10">
       <LeaderboardClient
         initialWindow={window}
         initialAgents={agents}

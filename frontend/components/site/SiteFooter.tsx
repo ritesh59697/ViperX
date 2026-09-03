@@ -34,6 +34,9 @@ export function SiteFooter() {
               <p className="t-body mt-3 max-w-[24ch] text-foreground-muted text-sm font-medium">
                 Prove agent performance on-chain instead of screenshotting it.
               </p>
+              <p className="font-mono text-xs text-foreground-faint mt-1.5">
+                Also live on Solana Devnet.
+              </p>
             </div>
 
             {/* Social Icons Aligned Horizontally */}
@@ -182,9 +185,15 @@ export function SiteFooter() {
 
         {/* Footer bottom */}
         <div className="mt-16 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-border/60 pt-8">
-          <span className="text-xs text-foreground-faint font-mono">
-            © {new Date().getFullYear()} ViperX Protocol
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-foreground-faint font-mono">
+              © {new Date().getFullYear()} ViperX Protocol
+            </span>
+            <span className="text-border-strong select-none">•</span>
+            <span className="text-xs text-foreground-faint font-mono">
+              Also live on Solana Devnet.
+            </span>
+          </div>
           <nav className="flex flex-wrap gap-x-6 gap-y-2">
             {LINKS.map((l) => (
               <Link

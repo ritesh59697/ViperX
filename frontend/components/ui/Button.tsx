@@ -37,6 +37,7 @@ type CommonProps = {
 type ButtonAsLink = CommonProps &
   AnchorHTMLAttributes<HTMLAnchorElement> & {
     href: string;
+    prefetch?: boolean;
   };
 
 type ButtonAsButton = CommonProps &

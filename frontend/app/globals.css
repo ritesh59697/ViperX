@@ -837,3 +837,13 @@ html {
 .button-glow {
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(255, 255, 255, 0.1);
 }
+
+@keyframes laserBeam {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(500%); }
+}
+
+.animate-laser-beam {
+  animation: laserBeam 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+

@@ -11,7 +11,7 @@ import { parseUnits, keccak256, parseAbi, Address } from "viem";
 import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { CheckGlyph, XGlyph } from "@/components/ui/StatusGlyphs";
+import { CheckGlyph, XGlyph, ExternalLinkGlyph } from "@/components/ui/StatusGlyphs";
 
 const BaseConnectButton = dynamic(
   () => import("@/components/ui/BaseConnectButton").then((mod) => mod.BaseConnectButton),
@@ -323,8 +323,9 @@ export default function TradePage() {
   };
 
   return (
-    <Section width="wide" className="pt-20 pb-24 sm:pt-24">
-      {/* Header */}
+    <Section width="wide" className="pt-6 pb-20 sm:pt-8 relative z-10">
+      <div className="w-full flex flex-col gap-8 bg-background/95 backdrop-blur-[2px] p-5 sm:p-9 rounded-2xl">
+        {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-6 mb-8">
         <div>
           <span className="t-label">Perpetual Trading</span>
@@ -410,19 +411,19 @@ export default function TradePage() {
                 <Link
                   href={`https://sepolia.basescan.org/address/${VIPER_VAULT_ADDRESS}`}
                   target="_blank"
-                  className="font-mono text-foreground hover:underline flex items-center gap-1 mt-0.5"
+                  className="font-mono text-foreground hover:underline flex items-center gap-1.5 mt-0.5"
                 >
                   <span>0x68c5...f4C7</span>
-                  <span className="text-foreground-faint text-[10px]">↗</span>
+                  <ExternalLinkGlyph className="h-2.5 w-2.5 opacity-60" />
                 </Link>
               ) : (
                 <Link
                   href={`https://explorer.solana.com/address/${SOLANA_PERP_PROGRAM_ID}?cluster=devnet`}
                   target="_blank"
-                  className="font-mono text-foreground hover:underline flex items-center gap-1 mt-0.5"
+                  className="font-mono text-foreground hover:underline flex items-center gap-1.5 mt-0.5"
                 >
                   <span>6Deo4a...WFcED</span>
-                  <span className="text-foreground-faint text-[10px]">↗</span>
+                  <ExternalLinkGlyph className="h-2.5 w-2.5 opacity-60" />
                 </Link>
               )}
             </div>
@@ -458,9 +459,10 @@ export default function TradePage() {
                   : `https://explorer.solana.com/tx/${notification.tx}?cluster=devnet`
               }
               target="_blank"
-              className="text-xs font-mono underline hover:opacity-80 shrink-0"
+              className="text-xs font-mono underline hover:opacity-80 shrink-0 inline-flex items-center gap-1"
             >
-              View on {selectedChain === "base" ? "BaseScan" : "Solana Explorer"} ↗
+              <span>View on {selectedChain === "base" ? "BaseScan" : "Solana Explorer"}</span>
+              <ExternalLinkGlyph className="h-3 w-3" />
             </Link>
           )}
         </Card>
@@ -681,9 +683,10 @@ export default function TradePage() {
                     <Link
                       href="https://sepolia.basescan.org/tx/0xe9579cb921a5994c0185746e7a310bd06cbe115f3ffb584040333ae9c8665c42"
                       target="_blank"
-                      className="text-foreground hover:underline text-[11px]"
+                      className="text-foreground hover:underline text-[11px] inline-flex items-center gap-1"
                     >
-                      0xe957...5c42 ↗
+                      <span>0xe957...5c42</span>
+                      <ExternalLinkGlyph className="h-2.5 w-2.5 opacity-70" />
                     </Link>
                   </div>
                 </div>
@@ -823,6 +826,7 @@ export default function TradePage() {
             )}
           </Card>
         </div>
+      </div>
       </div>
     </Section>
   );

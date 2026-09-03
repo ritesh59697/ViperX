@@ -243,7 +243,7 @@ export function ArenaMatchups({ entrants }: ArenaMatchupsProps) {
       }
       else if (step === 5) {
         // Anti-gaming verification check
-        const text = `Audit check: Both agents pass ViperX Wash-Trading & Anti-Gaming protocols. Verified fills confirmed.`;
+        const text = `Verification check: Both agents pass ViperX Wash-Trading & Anti-Gaming protocols. Verified testnet fills confirmed.`;
         setBattleLogs((prev) => [...prev, { timestamp: timeStr, text, type: "success", category: "audit" }]);
       }
       else if (step === totalSteps) {

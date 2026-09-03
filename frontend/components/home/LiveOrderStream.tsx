@@ -39,24 +39,25 @@ export function LiveOrderStream({ trades: initialTrades }: { trades: RecentTrade
   }, []);
 
   return (
-    <div className="bp-panel w-full p-5">
-      <div className="mb-1 flex items-center justify-between border-b border-border pb-3">
+    <div className="bp-panel w-full rounded-2xl p-4 sm:p-5 shadow-sm">
+      <div className="mb-2 flex items-center justify-between border-b border-border pb-3">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-positive opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-positive" />
           </span>
-          <span className="font-mono text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-foreground">
+          <span className="font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.16em] text-foreground">
             Recent fills / Base Sepolia
           </span>
         </div>
-        <span className="font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-foreground-faint">
+        <span className="font-mono text-[0.6875rem] font-medium uppercase tracking-[0.1em] text-foreground-faint">
           On-chain verified
         </span>
       </div>
 
       <div className="flex flex-col font-mono text-xs">
         {trades.length === 0 && (
-          <div className="flex h-full items-center justify-center px-4 text-center text-foreground-muted">
+          <div className="flex h-24 items-center justify-center px-4 text-center text-foreground-muted">
             No settled fills yet.
           </div>
         )}
@@ -82,47 +83,56 @@ export function LiveOrderStream({ trades: initialTrades }: { trades: RecentTrade
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 8, height: 0, padding: 0, border: 0 }}
                 transition={{ duration: 0.3 }}
-                className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border px-1 py-3 transition-colors hover:bg-surface gap-2.5 sm:gap-0"
+                className="flex items-center justify-between border-b border-border/50 py-3 px-1 transition-colors hover:bg-surface/50 gap-3"
               >
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                {/* Left: Side Badge + Agent Name + Market Pair + Chain Pill */}
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                   <span
-                    className={`px-1.5 py-0.5 text-[10px] font-bold tracking-[0.08em] ${
+                    className={`px-1.5 py-0.5 text-[10px] font-bold tracking-[0.08em] shrink-0 rounded ${
                       isLong
-                        ? "border border-positive/30 text-positive"
-                        : "border border-negative/30 text-negative"
+                        ? "bg-positive/10 text-positive border border-positive/30"
+                        : "bg-negative/10 text-negative border border-negative/30"
                     }`}
                   >
                     {side}
                   </span>
-                  <span className="font-medium text-foreground">{t.agentName}</span>
-                  <span className="text-[11px] text-foreground-muted">{t.marketSymbol}</span>
-                  <span className={`px-1 py-[1px] font-mono text-[9px] uppercase tracking-wider rounded ${
-                    isEvm 
-                      ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" 
-                      : "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                  }`}>
-                    {isEvm ? "Base" : "Solana"}
-                  </span>
-                  {t.onchainVerified && (
-                    <span
-                      title="Realized PnL independently confirmed against on-chain position state"
-                      className="inline-flex text-positive"
-                    >
-                      <CheckGlyph className="h-3 w-3" />
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 min-w-0">
+                    <span className="font-semibold text-foreground truncate text-xs sm:text-sm">
+                      {t.agentName}
                     </span>
-                  )}
+                    <div className="flex items-center gap-1.5 text-[11px] text-foreground-muted">
+                      <span>{t.marketSymbol}</span>
+                      <span className={`px-1.5 py-[1px] font-mono text-[9px] uppercase tracking-wider rounded font-medium ${
+                        isEvm 
+                          ? "bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30" 
+                          : "bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30"
+                      }`}>
+                        {isEvm ? "Base" : "Solana"}
+                      </span>
+                      {t.onchainVerified && (
+                        <span
+                          title="Realized PnL independently confirmed against on-chain position state"
+                          className="inline-flex text-positive shrink-0"
+                        >
+                          <CheckGlyph className="h-3 w-3" />
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto text-xs sm:text-right border-t border-border/10 pt-2 sm:border-t-0 sm:pt-0 mt-1 sm:mt-0">
-                  <span className="text-foreground-muted text-[10px] sm:text-xs">
-                    ${Number(t.sizeUsd).toFixed(0)} USD
+                {/* Right: Bold Price + Size & Time */}
+                <div className="flex flex-col items-end shrink-0 text-right font-mono">
+                  <span className="font-bold text-foreground text-xs sm:text-sm">
+                    ${Number(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
-                  <span className="font-medium text-foreground">
-                    ${Number(price).toFixed(2)}
-                  </span>
-                  <span className="text-[9px] sm:text-[10px] text-foreground-faint">
-                    {new Date(t.closedAt).toLocaleTimeString()}
-                  </span>
+                  <div className="flex items-center gap-1.5 text-[10px] text-foreground-muted">
+                    <span>${Number(t.sizeUsd).toFixed(0)} USD</span>
+                    <span className="text-foreground-faint">·</span>
+                    <span className="text-foreground-faint">
+                      {new Date(t.closedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit" })}
+                    </span>
+                  </div>
                 </div>
               </motion.a>
             );

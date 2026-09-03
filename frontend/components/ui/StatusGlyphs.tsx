@@ -51,3 +51,31 @@ export function InfoGlyph({ className = "h-3.5 w-3.5", title, ...props }: Status
     </svg>
   );
 }
+
+export function ExternalLinkGlyph({ className = "h-3.5 w-3.5", title, ...props }: StatusGlyphProps) {
+  return (
+    <svg {...BASE_PROPS} {...ariaProps(title)} className={className} {...props}>
+      <path d="M4.5 11.5 11.5 4.5M6 4.5h5.5v5.5" />
+    </svg>
+  );
+}
+
+export function ArrowCircleRightGlyph({ className = "h-4 w-4", title, ...props }: StatusGlyphProps) {
+  return (
+    <svg {...BASE_PROPS} {...ariaProps(title)} className={className} {...props}>
+      <circle cx="8" cy="8" r="6.8" />
+      <path d="M5.5 8h5" />
+      <path d="m8.5 5.5 2.5 2.5-2.5 2.5" />
+    </svg>
+  );
+}
+
+export function ChevronDownGlyph({ className = "h-3.5 w-3.5", title, ...props }: StatusGlyphProps) {
+  return (
+    <svg {...BASE_PROPS} {...ariaProps(title)} className={className} {...props}>
+      <path d="m4 6 4 4 4-4" />
+    </svg>
+  );
+}
+
+

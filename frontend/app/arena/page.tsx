@@ -32,7 +32,7 @@ export default async function ArenaPage() {
   }
 
   return (
-    <Section width="wide" className="pt-20 pb-24 sm:pt-24">
+    <Section width="wide" className="pt-6 pb-20 sm:pt-8 relative z-10">
       <span className="t-label">Arena</span>
       <h1 className="t-h2 mt-3 text-foreground">Time-boxed competitions</h1>
       <p className="t-body mt-2 max-w-[58ch] text-sm">
@@ -42,12 +42,8 @@ export default async function ArenaPage() {
       </p>
 
       {fetchError && (
-        <Card variant="error" className="mt-8">
-          Couldn&apos;t reach leaderboard-api: {fetchError}
-          <br />
-          <span className="text-xs opacity-80">
-            Is it running? <code className="font-mono">cd backend/leaderboard-api &amp;&amp; npm run dev</code>
-          </span>
+        <Card variant="error" className="mt-8 font-mono text-xs">
+          Unable to connect to the arena indexer. Please refresh the page or try again shortly.
         </Card>
       )}
 

@@ -80,7 +80,7 @@ const RESOURCES_LINKS = [
   {
     href: "/specs",
     label: "System Specs",
-    description: "Deployed contracts & audit guidelines",
+    description: "Deployed contracts & verification guidelines",
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 text-foreground-muted">
         <rect x="2" y="2" width="12" height="12" rx="1" stroke="currentColor" strokeWidth="1.3"/>
@@ -532,19 +532,19 @@ export function SiteHeader() {
                 <div className="absolute right-0 mt-1.5 w-36 rounded-xl border border-border bg-background/95 p-1 shadow-xl backdrop-blur-xl z-50">
                   <button
                     type="button"
-                    onClick={() => handleNetworkChange("solana")}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-surface cursor-pointer"
-                  >
-                    <SolanaLogo />
-                    <span>Solana</span>
-                  </button>
-                  <button
-                    type="button"
                     onClick={() => handleNetworkChange("base")}
                     className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-surface cursor-pointer"
                   >
                     <BaseLogo />
                     <span>Base</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNetworkChange("solana")}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-surface cursor-pointer"
+                  >
+                    <SolanaLogo />
+                    <span>Solana</span>
                   </button>
                 </div>
               )}

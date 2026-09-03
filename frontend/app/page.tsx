@@ -10,6 +10,7 @@ import { StrategySelector } from "@/components/create/StrategySelector";
 import { RobotLogo } from "@/components/ui/RobotLogo";
 import { VerificationProof } from "@/components/home/VerificationProof";
 import { BlueprintCard } from "@/components/ui/BlueprintCard";
+import { ArrowRightGlyph } from "@/components/ui/StatusGlyphs";
 import {
   NonCustodialIllustration,
   QuantitativeAIIllustration,
@@ -406,9 +407,10 @@ export default async function Home() {
                   <p className="bp-body mt-3">{f.flaggedReason}</p>
                   <Link
                     href={`/agents/${f.agentPda}`}
-                    className="bp-meta mt-4 inline-block !text-accent"
+                    className="bp-meta mt-4 inline-flex items-center gap-1 !text-accent hover:underline"
                   >
-                    Review trade log →
+                    <span>Review trade log</span>
+                    <ArrowRightGlyph className="h-3 w-3" />
                   </Link>
                 </div>
               ))}

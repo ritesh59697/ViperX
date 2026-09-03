@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { ArrowRightGlyph } from "@/components/ui/StatusGlyphs";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -264,9 +265,10 @@ export default function PaperTradingPage() {
     .join(" ");
 
   return (
-    <Section className="pt-20 pb-24 sm:pt-24">
-      <div className="mb-10">
-        <div className="flex items-center gap-3">
+    <Section width="wide" className="pt-6 pb-20 sm:pt-8 relative z-10">
+      <div className="w-full flex flex-col gap-8 bg-background/95 backdrop-blur-[2px] p-5 sm:p-9 rounded-2xl">
+        <div>
+          <div className="flex items-center gap-3">
           <span className="t-label">Paper Trading</span>
           <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-amber-400">
             SIMULATED — NOT REAL CAPITAL
@@ -402,8 +404,9 @@ export default function PaperTradingPage() {
             </ol>
             {closedTrades.length >= 5 && (
               <div className="mt-4">
-                <Button href="/create" variant="primary" className="w-full justify-center text-xs py-2">
-                  Deploy on Devnet →
+                <Button href="/create" variant="primary" className="w-full justify-center text-xs py-2 inline-flex items-center gap-1.5">
+                  <span>Deploy on Devnet</span>
+                  <ArrowRightGlyph className="h-3 w-3" />
                 </Button>
               </div>
             )}
@@ -572,6 +575,7 @@ export default function PaperTradingPage() {
             </Card>
           )}
         </div>
+      </div>
       </div>
     </Section>
   );

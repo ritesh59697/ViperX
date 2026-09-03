@@ -19,11 +19,11 @@ import { InteractiveChart } from "@/components/agent/InteractiveChart";
 import { CopyTradeModal } from "@/components/agent/CopyTradeModal";
 import { CopyTradingPanel } from "@/components/agent/CopyTradingPanel";
 import { TuneStrategyModal } from "@/components/agent/TuneStrategyModal";
-import { CheckGlyph } from "@/components/ui/StatusGlyphs";
+import { CheckGlyph, ExternalLinkGlyph } from "@/components/ui/StatusGlyphs";
 import { TradesTable, SnapshotsTable, TuningLogTable } from "@/components/agent/HistoryTables";
 import { TransitionToDevnetPanelLazy } from "@/components/agent/TransitionToDevnetPanelLazy";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 15;
 
 /**
  * Mirrors REAL_TRADE_PREDICATE in pnl-indexer's store.ts. mockDriver writes a
@@ -75,11 +75,11 @@ export default async function AgentProfilePage({
   }
 
   return (
-    <Section width="wide" className="pt-20 pb-24 sm:pt-24">
-      <div className="mb-8">
+    <Section width="wide" className="pt-6 pb-20 sm:pt-8 relative z-10">
+      <div className="mb-4">
         <Link
           href="/leaderboard"
-          className="inline-flex items-center gap-1.5 text-[0.8125rem] text-foreground-muted transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-xs font-mono text-foreground-muted transition-colors hover:text-foreground"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
             <path d="m15 18-6-6 6-6" />
@@ -88,14 +88,38 @@ export default async function AgentProfilePage({
         </Link>
       </div>
 
+      <div className="w-full flex flex-col gap-8 bg-background/95 backdrop-blur-[2px] p-5 sm:p-9 rounded-2xl">
+
       {fetchError && (
-        <Card variant="error">
-          Couldn&apos;t reach leaderboard-api: {fetchError}
-          <br />
-          <span className="text-xs opacity-80">
-            Is it running? <code className="font-mono">cd backend/leaderboard-api &amp;&amp; npm run dev</code>
-          </span>
-        </Card>
+        <div className="mx-auto max-w-md py-14 text-center font-mono">
+          <div className="mb-4 flex justify-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-border bg-surface text-accent">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            </div>
+          </div>
+          <h2 className="text-base font-bold text-foreground">Agent Profile Temporarily Unavailable</h2>
+          <p className="mt-2 text-xs leading-relaxed text-foreground-muted font-sans max-w-sm mx-auto">
+            The verification indexer is currently synchronizing or experiencing high traffic. Please try reconnecting in a few moments.
+          </p>
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <a
+              href={`/agents/${agentPda}`}
+              className="inline-flex h-9 items-center justify-center rounded-lg bg-accent px-5 text-xs font-semibold text-accent-foreground hover:opacity-90 active:scale-95 transition-all shadow-sm cursor-pointer"
+            >
+              Retry Connection
+            </a>
+            <Link
+              href="/leaderboard"
+              className="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-surface px-4 text-xs font-semibold text-foreground hover:bg-surface-hover transition-colors"
+            >
+              Back to Leaderboard
+            </Link>
+          </div>
+        </div>
       )}
 
       {isIndexing && (
@@ -196,7 +220,14 @@ export default async function AgentProfilePage({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {data.agent.is_paper ? "Paper Agent (no explorer)" : "Explorer ↗"}
+                {data.agent.is_paper ? (
+                  "Paper Agent (no explorer)"
+                ) : (
+                  <span className="inline-flex items-center gap-1.5">
+                    <span>Explorer</span>
+                    <ExternalLinkGlyph className="h-3 w-3" />
+                  </span>
+                )}
               </Button>
             </div>
           </div>
@@ -381,9 +412,10 @@ export default async function AgentProfilePage({
                       : `https://explorer.solana.com/address/${data.agent.agent_pda}?cluster=devnet`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono text-[10px] text-accent hover:underline"
+                    className="font-mono text-[10px] text-accent hover:underline inline-flex items-center gap-1"
                   >
-                    Verify on-chain ↗
+                    <span>Verify on-chain</span>
+                    <ExternalLinkGlyph className="h-3 w-3" />
                   </a>
                 </div>
               </div>
@@ -492,6 +524,7 @@ export default async function AgentProfilePage({
           )}
         </>
       )}
+      </div>
     </Section>
   );
 }

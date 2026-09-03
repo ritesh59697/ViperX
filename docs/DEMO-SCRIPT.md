@@ -1,179 +1,136 @@
-# ViperX — Demo Video Script
+# ViperX — 90-Second Demo Screen Recording Script
 
-Target: **4–5 minutes**. Grant reviewers watch the first 30 seconds to
-decide whether to watch the rest, so the differentiator goes early — not
-after a tour of the UI.
-
-The through-line: *anyone can claim a trading record; this system makes the
-claim checkable.* Every scene should advance that, or be cut.
+**Target Duration**: 75–90 seconds  
+**Venue**: Base Sepolia Testnet (Chain ID `84532`)  
+**URL**: `https://viper-x-lake.vercel.app` (or local `http://localhost:3000`)  
+**Connected Wallet**: Coinbase Wallet or Rainbow Wallet on Base Sepolia  
 
 ---
 
-## Before recording — setup checklist
+## 🎬 Recording Rules & Pre-Flight Checklist
 
-Do these in order. Several are easy to forget and visible on camera.
-
-1. **Reset `caution` on any agent you'll show trading.** `skillEngine`
-   ratchets it up after losing streaks; at 1.75 an agent's threshold is
-   2.75× default and it will sit silent on devnet's flat oracle, looking
-   broken rather than cautious.
-   ```sql
-   UPDATE agent_strategy_params
-   SET params = params || '{"caution": 0}'::jsonb
-   WHERE agent_pda = '<pda>';
-   ```
-2. **Start all three services** and confirm each responds:
-   `leaderboard-api` (:4000), `pnl-indexer`, frontend (:3001).
-3. **Confirm the leaderboard shows 2 ranked agents** — `curl -s
-   localhost:4000/leaderboard | jq '.ranked_count'` should return `2`.
-4. **Have a funded devnet wallet connected** in the browser if you plan to
-   show the create-agent flow live.
-5. **Pre-open the Solana explorer** on one real transaction signature, so
-   the verification beat doesn't stall on a page load.
-6. **Close the terminal tab with your RPC URL in it** — API keys end up in
-   screen recordings.
+1. **Active Network**: Ensure browser wallet is set to **Base Sepolia**. The header network pill should show `Base Sepolia`.
+2. **Wallet Selector**: Connect using **Coinbase Smart Wallet**, **Rainbow**, or a browser EVM wallet. Do not click or display Phantom in the initial 60 seconds.
+3. **No False Claims**:
+   - Do **not** claim mainnet traction or real user TVL (metrics are explicitly labeled *Base Sepolia testnet*).
+   - Do **not** claim external audits (reference *100% automated integration verification*).
+4. **Window Setup**: 1080p (1920x1080) browser window, 100% zoom, light or dark mode set cleanly, clean bookmarks bar.
 
 ---
 
-## Scene 1 — The problem (0:00–0:30)
+## ⏱️ Step-by-Step Production Beats
 
-**Screen:** the landing page hero.
-
-**Say:**
-> Every AI trading agent claims to be profitable. The evidence is usually a
-> screenshot. ViperX is a leaderboard where that claim has to survive being
-> checked against the chain.
-
-Keep this to two sentences. Do not tour the landing page.
-
----
-
-## Scene 2 — The gap that matters (0:30–1:30)
-
-This is the most important scene in the video. It is the thing no competitor
-demo shows.
-
-**Screen:** scroll to the "Claimed vs. verified" panel on the landing page.
-
-**Say:**
-> Here's the problem with putting trades on-chain and calling it proof. Our
-> registry program has a `record_trade` instruction, called by the agent's
-> own key. These three agents called it fifty times each. The registry says
-> fifty trades.
->
-> Our indexer independently checked the chain for the positions behind those
-> trades and found zero. So they hold no rank. Not because we flagged them —
-> because a rank requires fifty closes confirmed against on-chain position
-> state, and they have none.
-
-**Screen:** switch to a terminal, run:
-```bash
-curl -s "localhost:4000/leaderboard?all=true" | jq '.agents[] | {agent_id, trade_count, verified_trade_count, rank}'
+```
+0:00 ──────── 0:10 ──────── 0:25 ──────── 0:50 ──────── 1:20 ──────── 1:30
+ Hero         Register     USDC Fill    Claimed vs     One-Liner
+ Base Arena   Agent (1 Tx) Verified     Verified Gap   Close
 ```
 
-**Say:**
-> Claimed fifty. Verified zero. Rank null. That's the whole idea.
+---
+
+### Beat 1: Hero & Problem (0:00 – 0:10)
+**Screen**:
+- Start directly on the Home Page (`/`).
+- Cursor rests near the hero section showing:
+  - **H1**: `The arena for trading agents on Base`
+  - **Subhead**: `Ranked on settled USDC fills, not screenshots. Solana is a second venue.`
+  - **Badge**: `Base Sepolia Testnet`
+
+**On-Screen Caption**:
+> **ViperX: The Arena for Trading Agents on Base**  
+> Self-reported track records are gameable. We rank agents on settled on-chain fills.
+
+**Spoken Script (Founder)**:
+> *"Today, AI trading agents rank themselves with screenshots and self-reported spreadsheets that anyone can spoof. ViperX is the on-chain proof layer for trading agents on Base. We rank agents exclusively on settled USDC fills."*
 
 ---
 
-## Scene 3 — What a real record looks like (1:30–2:15)
+### Beat 2: Register Agent in One Transaction (0:10 – 0:25)
+**Screen**:
+- Click primary CTA button: **"Register agent on Base"** (routes to `/create`).
+- Point out the active network selector defaulted to **Base Sepolia**.
+- Strategy preset selected: `Trend Following (Base EVM)`.
+- Agent ID prefilled: `momentum-base-1`.
+- Click **"Register Agent on Base Sepolia"**.
+- Confirm transaction in Rainbow / Coinbase Wallet modal.
+- Transaction confirms within ~2 seconds; green confirmation badge displays:
+  - `Transaction confirmed on Base Sepolia. Your agent account is live and indexing.`
 
-**Screen:** the leaderboard page.
+**On-Screen Caption**:
+> **Non-Custodial Agent Registration (Base Sepolia)**  
+> 1 on-chain transaction · Zero custodial transfer · Live indexing activated
 
-**Say:**
-> Two agents cleared the gate. Fifty verified fills each, ranked on a
-> risk-adjusted Sharpe rather than raw PnL — so a lucky high-leverage bet
-> can't outrank real risk management.
->
-> Two is a small number for a leaderboard. That's what fifty independently
-> verified fills actually costs.
-
-**Screen:** click into a ranked agent's profile. Show trade history and the
-PnL chart.
-
-**Say:**
-> Every row here is a real devnet transaction.
-
-**Screen:** click one transaction through to the Solana explorer.
-
-Let it load fully and pause a beat. This is the "don't take our word for it"
-moment and it should breathe.
+**Spoken Script (Founder)**:
+> *"Registering an agent takes a single transaction. The owner deploys the agent identity to Base Sepolia, pre-sets risk bounds, and grants delegated execution authority. No funds leave the user's custody."*
 
 ---
 
-## Scene 4 — Verification, and catching a liar (2:15–3:15)
+### Beat 3: One USDC Fill on Base Sepolia — Verified (0:25 – 0:50)
+**Screen**:
+- Navigate to `/trade` (or open the live trades section on the dashboard).
+- Show the market selector: `ETH-PERP` / `BTC-PERP` backed by `ViperVault` and Pyth Oracle.
+- Submit a 10 USDC position open/close or trigger a testnet fill through the execution runtime.
+- Show the settled fill appear with:
+  - Timestamp, Market (`ETH-PERP`), Collateral (`10.00 USDC`), Settled PnL.
+  - Click the **"BaseScan"** link to inspect the on-chain transaction hash on `sepolia.basescan.org`.
+  - Highlight the verification status: `✓ Verified on-chain (Pyth / ViperVault)`.
 
-**Screen:** the flagged-agents panel on the landing page, or:
-```bash
-curl -s localhost:4000/flagged-agents | jq
-```
+**On-Screen Caption**:
+> **Settled USDC Fills · Pyth Oracle Pricing**  
+> Fills settle in native USDC on Base Sepolia. The indexer verifies position deltas directly on-chain.
 
-**Say:**
-> The indexer doesn't just count fills — it reads each closed position's
-> settled PnL directly from Velocity's on-chain state and compares it to
-> what the runtime reported about itself.
->
-> This agent reported profits of nine thousand nine hundred ninety-nine
-> dollars. On-chain settled PnL was zero. The divergence got flagged and the
-> agent is excluded from ranking.
-
-**Say (important — don't skip):**
-> We also flag sub-ten-second round trips and trades under five dollars.
-> Those are heuristics — an attacker patient enough to hold for eleven
-> seconds gets past the timing rule. They raise the cost of gaming. The
-> verification gate is what actually makes the leaderboard mean something.
-
-Stating a limitation on camera builds more credibility with a technical
-reviewer than another feature would.
+**Spoken Script (Founder)**:
+> *"When the agent's strategy loop executes, trades settle in native testnet USDC directly against the ViperVault contract using Pyth oracle mark prices. The background indexer verifies the fill against on-chain contract events—not the bot's private logs."*
 
 ---
 
-## Scene 5 — Non-custodial and the circuit breaker (3:15–4:00)
+### Beat 4: Claimed vs. Verified Table (0:50 – 1:20)
+**Screen**:
+- Navigate back to Home (`/`) or `/leaderboard` and scroll to the **"Claimed vs. verified"** card (`VerificationProof.tsx`).
+- Hover over the unranked agent row:
+  - **Agent**: `spoofer-bot-01` (or testnet agent with discrepancy).
+  - **Claimed Fills**: `50` (self-reported in agent state).
+  - **Verified Fills**: `0` (actual on-chain settlements).
+  - **Discrepancy**: `+50 unverified`.
+  - **Status**: `Unranked · Gate: 50 verified fills required`.
+- Contrast with a ranked agent showing `51/51 verified fills` and a live risk-adjusted Sharpe score.
 
-**Screen:** the create-agent flow's fund-and-delegate step.
+**On-Screen Caption**:
+> **Anti-Gaming Gate: 50 Verified Fills Required**  
+> 50 claimed fills + 0 on-chain settled fills = UNRANKED.  
+> Screenshots and loop-called counters cannot game the leaderboard.
 
-**Say:**
-> Deploying an agent takes two delegations: one lets our runtime trade your
-> Velocity vault, one lets it update your agent's on-chain record. Neither
-> grants withdrawal. We verified that directly — a delegate attempting a
-> withdrawal is rejected by Velocity's own program.
->
-> The runtime can also pause a misbehaving agent on-chain, and *only* pause
-> it. Un-pausing requires the owner's signature. A compromised runtime key
-> can silence your agent; it can never resurrect it, retire it, or move your
-> funds.
-
-If you have the terminal output from the circuit-breaker verification run,
-showing `source: active / follower: paused` here is strong. Optional.
-
----
-
-## Scene 6 — Close (4:00–4:30)
-
-**Screen:** back to the leaderboard.
-
-**Say:**
-> Registry, execution runtime, independent verifier, ranked leaderboard —
-> all live on Solana devnet, all verified with real transactions.
->
-> This works on Solana specifically because an agent trading continuously
-> with per-trade on-chain accounting is only economically coherent where
-> transactions cost nothing and confirm instantly.
->
-> The code is open. Every number in this demo is a live API call away.
+**Spoken Script (Founder)**:
+> *"Here is the anti-gaming wedge in action. This agent's self-reported counter claims 50 closed trades. On any other leaderboard, it would be ranked number one. On ViperX, our independent indexer verified zero on-chain settlements. Because it hasn't passed the 50 verified fills gate, it sits completely unranked. Claimed performance means nothing without cryptographic settlement."*
 
 ---
 
-## Things to avoid on camera
+### Beat 5: Close on One-Liner (1:20 – 1:30)
+**Screen**:
+- Return to hero view or zoom on protocol summary footer.
+- Show live links:
+  - Primary Venue: `Base Sepolia`
+  - Secondary Venue: `Also live on Solana Devnet`
+- Display founder watermark: `Ritesh (@Ritesh5969) · github.com/ritesh59697/viperx`
 
-- **Don't show the pending-verification table without explaining it.** One
-  row shows `roi 9999.00%` — the tampered self-report from the divergence
-  test. Unexplained it looks like a bug; explained (Scene 4) it's the
-  strongest moment in the demo. Never let a reviewer find it first.
-- **Don't run a live trade** unless you've confirmed the oracle is moving.
-  Devnet's SOL-PERP price is nearly flat, so a momentum strategy can sit
-  silent indefinitely. Show recorded trades instead.
-- **Don't claim "24/7 uptime" or round trade counts.** The real numbers
-  (182 trades, 128 verified, 11 agents, 2 ranked) are on the site and a
-  reviewer can check them.
-- **Don't call the heuristics airtight.** See Scene 4.
+**On-Screen Caption**:
+> **ViperX**  
+> On-chain proof layer for AI trading agents on Base.  
+> Testnet live: viper-x-lake.vercel.app
+
+**Spoken Script (Founder)**:
+> *"ViperX is the on-chain proof layer for AI trading agents on Base. We rank agents on settled USDC fills, not screenshots. Testnet contracts and live UI are open source and live today."*
+
+---
+
+## 📋 Quick Teleprompter Sheet (Full Voiceover)
+
+> *"Today, AI trading agents rank themselves with screenshots and self-reported spreadsheets that anyone can spoof. ViperX is the on-chain proof layer for trading agents on Base. We rank agents exclusively on settled USDC fills.*
+>
+> *Registering an agent takes a single transaction. The owner deploys the agent identity to Base Sepolia, pre-sets risk bounds, and grants delegated execution authority. No funds leave the user's custody.*
+>
+> *When the agent's strategy loop executes, trades settle in native testnet USDC directly against the ViperVault contract using Pyth oracle mark prices. The background indexer verifies the fill against on-chain contract events—not the bot's private logs.*
+>
+> *Here is the anti-gaming wedge in action. This agent's self-reported counter claims 50 closed trades. On any other leaderboard, it would be ranked number one. On ViperX, our independent indexer verified zero on-chain settlements. Because it hasn't passed the 50 verified fills gate, it sits completely unranked. Claimed performance means nothing without cryptographic settlement.*
+>
+> *ViperX is the on-chain proof layer for AI trading agents on Base. We rank agents on settled USDC fills, not screenshots. Testnet contracts and live UI are open source and live today."*

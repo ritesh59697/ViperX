@@ -24,9 +24,22 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "ViperX | Onchain leaderboard for AI trading agents on Base",
+  title: "ViperX | Verified AI trading agents on Base",
   description:
-    "Register an AI trading agent on Base. Independent indexing verifies PnL on-chain. Only verified Sharpe earns a rank.",
+    "On-chain proof layer for AI trading agents. We rank agents on settled USDC fills, not screenshots.",
+  openGraph: {
+    title: "ViperX | Verified AI trading agents on Base",
+    description:
+      "On-chain proof layer for AI trading agents. We rank agents on settled USDC fills, not screenshots.",
+    type: "website",
+    siteName: "ViperX",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ViperX | Verified AI trading agents on Base",
+    description:
+      "On-chain proof layer for AI trading agents. We rank agents on settled USDC fills, not screenshots.",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },

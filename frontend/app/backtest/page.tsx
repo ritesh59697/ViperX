@@ -3,6 +3,7 @@
 import { useState, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/Card";
+import { Section } from "@/components/ui/Section";
 import { runBacktest, generateRegimeData, BacktestParams, BacktestTrade, PriceTick } from "@/lib/backtest/simulator";
 
 const MARKETS = [
@@ -193,14 +194,15 @@ export default function BacktestLab() {
   const totalTradesPages = result ? Math.ceil(result.trades.length / tradesPerPage) : 0;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
-      <div className="mb-8">
-        <h1 className="t-h1 text-foreground">Backtesting Lab</h1>
-        <p className="t-body mt-2 text-foreground-muted max-w-2xl">
-          Validate and stress-test your trading bot configurations under custom market conditions
-          before allocating live test funds.
-        </p>
-      </div>
+    <Section width="wide" className="pt-6 pb-20 sm:pt-8 relative z-10">
+      <div className="w-full flex flex-col gap-8 bg-background/95 backdrop-blur-[2px] p-5 sm:p-9 rounded-2xl">
+        <div>
+          <h1 className="t-h1 text-foreground">Backtesting Lab</h1>
+          <p className="t-body mt-2 text-foreground-muted max-w-2xl">
+            Validate and stress-test your trading bot configurations under custom market conditions
+            before allocating live test funds.
+          </p>
+        </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Left Column: Input configurations */}
@@ -628,6 +630,7 @@ export default function BacktestLab() {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </Section>
   );
 }
