@@ -284,14 +284,6 @@ export function SiteHeader() {
             </ul>
           </nav>
 
-          {/* Network status */}
-          <div className="border-t border-border px-5 py-3 flex items-center gap-2">
-            <span className={`h-1.5 w-1.5 rounded-full ${selectedNetwork === "solana" ? "bg-[#9945FF] shadow-[0_0_8px_#9945ff]" : "bg-[#0052FF] shadow-[0_0_8px_#0052ff]"}`} />
-            <span className="font-mono text-xs text-foreground-faint">
-              {selectedNetwork === "solana" ? "solana devnet" : "base sepolia"} · live
-            </span>
-          </div>
-
           {/* Mobile Menu Footer */}
           <div className="border-t border-border px-5 py-4 bg-background-elevated/40 flex flex-col gap-3">
             {/* Socials / Github / Home */}
