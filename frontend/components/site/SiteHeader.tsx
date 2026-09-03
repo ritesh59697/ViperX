@@ -431,17 +431,17 @@ export function SiteHeader() {
                       : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
                   }`}
                 >
-                  <div className="rounded-xl border border-border-strong bg-white dark:bg-[#16171b] p-2 shadow-2xl shadow-black/15 dark:shadow-black/70">
+                  <div className="rounded-xl border border-border-strong bg-background-elevated-solid p-2 shadow-2xl shadow-black/15">
                     {TOOLS_LINKS.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href}
                         onClick={() => setToolsDropdownOpen(false)}
-                        className={`flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-neutral-100 dark:hover:bg-white/5 ${
-                          pathname === link.href ? "bg-neutral-100 dark:bg-white/5" : ""
+                        className={`flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface-hover ${
+                          pathname === link.href ? "bg-surface" : ""
                         }`}
                       >
-                        <div className="mt-0.5">{link.icon}</div>
+                        <div className="mt-0.5 text-foreground-muted">{link.icon}</div>
                         <div>
                           <p className="text-sm font-medium text-foreground">
                             {link.label}
@@ -486,17 +486,17 @@ export function SiteHeader() {
                       : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
                   }`}
                 >
-                  <div className="rounded-xl border border-border-strong bg-white dark:bg-[#16171b] p-2 shadow-2xl shadow-black/15 dark:shadow-black/70">
+                  <div className="rounded-xl border border-border-strong bg-background-elevated-solid p-2 shadow-2xl shadow-black/15">
                     {RESOURCES_LINKS.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href}
                         onClick={() => setResourcesDropdownOpen(false)}
-                        className={`flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-neutral-100 dark:hover:bg-white/5 ${
-                          pathname === link.href ? "bg-neutral-100 dark:bg-white/5" : ""
+                        className={`flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface-hover ${
+                          pathname === link.href ? "bg-surface" : ""
                         }`}
                       >
-                        <div className="mt-0.5">{link.icon}</div>
+                        <div className="mt-0.5 text-foreground-muted">{link.icon}</div>
                         <div>
                           <p className="text-sm font-medium text-foreground">
                             {link.label}
@@ -527,7 +527,7 @@ export function SiteHeader() {
               <button
                 type="button"
                 onClick={() => setNetworkDropdownOpen((v) => !v)}
-                className="inline-flex h-9 items-center gap-2 rounded-full border border-border bg-white dark:bg-[#16171b] px-3.5 text-xs font-semibold text-foreground transition-colors hover:border-border-strong cursor-pointer shadow-xs"
+                className="inline-flex h-9 items-center gap-2 rounded-full border border-border bg-background-elevated-solid px-3.5 text-xs font-semibold text-foreground transition-colors hover:border-border-strong cursor-pointer shadow-xs"
               >
                 {selectedNetwork === "solana" ? (
                   <>
@@ -552,13 +552,13 @@ export function SiteHeader() {
                 <ChevronDown open={networkDropdownOpen} />
               </button>
               {networkDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-border-strong bg-white dark:bg-[#16171b] p-1.5 shadow-2xl shadow-black/15 dark:shadow-black/70 z-50 divide-y divide-border/40">
+                <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-border-strong bg-background-elevated-solid p-1.5 shadow-2xl shadow-black/15 z-50 divide-y divide-border/40">
                   <div className="py-0.5 space-y-0.5">
                     <button
                       type="button"
                       onClick={() => handleNetworkChange("base")}
-                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-colors hover:bg-neutral-100 dark:hover:bg-white/5 cursor-pointer ${
-                        selectedNetwork === "base" ? "text-foreground bg-neutral-100 dark:bg-white/5" : "text-foreground-muted"
+                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-colors hover:bg-surface-hover cursor-pointer ${
+                        selectedNetwork === "base" ? "text-foreground bg-surface" : "text-foreground-muted"
                       }`}
                     >
                       <span className="flex items-center gap-2.5">
@@ -570,8 +570,8 @@ export function SiteHeader() {
                     <button
                       type="button"
                       onClick={() => handleNetworkChange("solana")}
-                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-colors hover:bg-neutral-100 dark:hover:bg-white/5 cursor-pointer ${
-                        selectedNetwork === "solana" ? "text-foreground bg-neutral-100 dark:bg-white/5" : "text-foreground-muted"
+                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-colors hover:bg-surface-hover cursor-pointer ${
+                        selectedNetwork === "solana" ? "text-foreground bg-surface" : "text-foreground-muted"
                       }`}
                     >
                       <span className="flex items-center gap-2.5">
@@ -583,8 +583,8 @@ export function SiteHeader() {
                     <button
                       type="button"
                       onClick={() => handleNetworkChange("all")}
-                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-colors hover:bg-neutral-100 dark:hover:bg-white/5 cursor-pointer ${
-                        selectedNetwork === "all" ? "text-foreground bg-neutral-100 dark:bg-white/5" : "text-foreground-muted"
+                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-colors hover:bg-surface-hover cursor-pointer ${
+                        selectedNetwork === "all" ? "text-foreground bg-surface" : "text-foreground-muted"
                       }`}
                     >
                       <span className="flex items-center gap-2.5">
