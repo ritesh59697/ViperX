@@ -119,6 +119,36 @@ export function SiteHeader() {
   const networkDropdownRef = useRef<HTMLDivElement>(null);
   const toolsDropdownRef = useRef<HTMLDivElement>(null);
   const resourcesDropdownRef = useRef<HTMLDivElement>(null);
+  const toolsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const resourcesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleToolsEnter = () => {
+    if (toolsTimeoutRef.current) clearTimeout(toolsTimeoutRef.current);
+    if (resourcesTimeoutRef.current) clearTimeout(resourcesTimeoutRef.current);
+    setResourcesDropdownOpen(false);
+    setToolsDropdownOpen(true);
+  };
+
+  const handleToolsLeave = () => {
+    if (toolsTimeoutRef.current) clearTimeout(toolsTimeoutRef.current);
+    toolsTimeoutRef.current = setTimeout(() => {
+      setToolsDropdownOpen(false);
+    }, 220);
+  };
+
+  const handleResourcesEnter = () => {
+    if (resourcesTimeoutRef.current) clearTimeout(resourcesTimeoutRef.current);
+    if (toolsTimeoutRef.current) clearTimeout(toolsTimeoutRef.current);
+    setToolsDropdownOpen(false);
+    setResourcesDropdownOpen(true);
+  };
+
+  const handleResourcesLeave = () => {
+    if (resourcesTimeoutRef.current) clearTimeout(resourcesTimeoutRef.current);
+    resourcesTimeoutRef.current = setTimeout(() => {
+      setResourcesDropdownOpen(false);
+    }, 220);
+  };
 
   // Close ALL dropdowns + mobile menu on route change
   useEffect(() => {
@@ -126,7 +156,16 @@ export function SiteHeader() {
     setToolsDropdownOpen(false);
     setResourcesDropdownOpen(false);
     setNetworkDropdownOpen(false);
+    if (toolsTimeoutRef.current) clearTimeout(toolsTimeoutRef.current);
+    if (resourcesTimeoutRef.current) clearTimeout(resourcesTimeoutRef.current);
   }, [pathname]);
+
+  useEffect(() => {
+    return () => {
+      if (toolsTimeoutRef.current) clearTimeout(toolsTimeoutRef.current);
+      if (resourcesTimeoutRef.current) clearTimeout(resourcesTimeoutRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const updateNetwork = () => {
@@ -360,16 +399,21 @@ export function SiteHeader() {
                 );
               })}
 
-              {/* Tools dropdown - automatic hover slide card */}
+              {/* Tools dropdown with seamless hover bridge & click-toggle */}
               <div
                 className="relative"
                 ref={toolsDropdownRef}
-                onMouseEnter={() => setToolsDropdownOpen(true)}
-                onMouseLeave={() => setToolsDropdownOpen(false)}
+                onMouseEnter={handleToolsEnter}
+                onMouseLeave={handleToolsLeave}
               >
                 <button
                   type="button"
-                  className={`flex items-center gap-1.5 px-2 py-1 text-sm font-medium transition-colors ${
+                  onClick={() => {
+                    if (toolsTimeoutRef.current) clearTimeout(toolsTimeoutRef.current);
+                    setToolsDropdownOpen((v) => !v);
+                    setResourcesDropdownOpen(false);
+                  }}
+                  className={`flex items-center gap-1.5 px-2 py-1 text-sm font-medium transition-colors cursor-pointer ${
                     isToolsActive || toolsDropdownOpen
                       ? "text-foreground"
                       : "text-foreground-muted hover:text-foreground"
@@ -379,43 +423,52 @@ export function SiteHeader() {
                   <ChevronDown open={toolsDropdownOpen} />
                 </button>
 
+                {/* Dropdown Container with invisible hover bridge padding (pt-2 instead of empty mt-1.5) */}
                 <div
-                  className={`absolute left-0 top-full mt-1.5 w-72 rounded-xl border border-border bg-background/95 p-2 shadow-2xl backdrop-blur-xl transition-all duration-200 ease-out origin-top-left z-[70] ${
+                  className={`absolute left-0 top-full pt-2 w-72 z-[70] transition-all duration-200 ease-out origin-top-left ${
                     toolsDropdownOpen
                       ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
                       : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
                   }`}
                 >
-                  {TOOLS_LINKS.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={`flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface ${
-                        pathname === link.href ? "bg-surface" : ""
-                      }`}
-                    >
-                      <div className="mt-0.5">{link.icon}</div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          {link.label}
-                        </p>
-                        <p className="mt-0.5 text-xs text-foreground-muted leading-tight">{link.description}</p>
-                      </div>
-                    </Link>
-                  ))}
+                  <div className="rounded-xl border border-border bg-background-elevated/98 p-2 shadow-2xl backdrop-blur-2xl">
+                    {TOOLS_LINKS.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setToolsDropdownOpen(false)}
+                        className={`flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface ${
+                          pathname === link.href ? "bg-surface" : ""
+                        }`}
+                      >
+                        <div className="mt-0.5">{link.icon}</div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">
+                            {link.label}
+                          </p>
+                          <p className="mt-0.5 text-xs text-foreground-muted leading-tight">{link.description}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Resources dropdown - automatic hover slide card */}
+              {/* Resources dropdown with seamless hover bridge & click-toggle */}
               <div
                 className="relative"
                 ref={resourcesDropdownRef}
-                onMouseEnter={() => setResourcesDropdownOpen(true)}
-                onMouseLeave={() => setResourcesDropdownOpen(false)}
+                onMouseEnter={handleResourcesEnter}
+                onMouseLeave={handleResourcesLeave}
               >
                 <button
                   type="button"
-                  className={`flex items-center gap-1.5 px-2 py-1 text-sm font-medium transition-colors ${
+                  onClick={() => {
+                    if (resourcesTimeoutRef.current) clearTimeout(resourcesTimeoutRef.current);
+                    setResourcesDropdownOpen((v) => !v);
+                    setToolsDropdownOpen(false);
+                  }}
+                  className={`flex items-center gap-1.5 px-2 py-1 text-sm font-medium transition-colors cursor-pointer ${
                     isResourcesActive || resourcesDropdownOpen
                       ? "text-foreground"
                       : "text-foreground-muted hover:text-foreground"
@@ -425,30 +478,34 @@ export function SiteHeader() {
                   <ChevronDown open={resourcesDropdownOpen} />
                 </button>
 
+                {/* Dropdown Container with invisible hover bridge padding (pt-2 instead of empty mt-1.5) */}
                 <div
-                  className={`absolute left-0 top-full mt-1.5 w-72 rounded-xl border border-border bg-background/95 p-2 shadow-2xl backdrop-blur-xl transition-all duration-200 ease-out origin-top-left z-[70] ${
+                  className={`absolute left-0 top-full pt-2 w-72 z-[70] transition-all duration-200 ease-out origin-top-left ${
                     resourcesDropdownOpen
                       ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
                       : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
                   }`}
                 >
-                  {RESOURCES_LINKS.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={`flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface ${
-                        pathname === link.href ? "bg-surface" : ""
-                      }`}
-                    >
-                      <div className="mt-0.5">{link.icon}</div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          {link.label}
-                        </p>
-                        <p className="mt-0.5 text-xs text-foreground-muted leading-tight">{link.description}</p>
-                      </div>
-                    </Link>
-                  ))}
+                  <div className="rounded-xl border border-border bg-background-elevated/98 p-2 shadow-2xl backdrop-blur-2xl">
+                    {RESOURCES_LINKS.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setResourcesDropdownOpen(false)}
+                        className={`flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface ${
+                          pathname === link.href ? "bg-surface" : ""
+                        }`}
+                      >
+                        <div className="mt-0.5">{link.icon}</div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">
+                            {link.label}
+                          </p>
+                          <p className="mt-0.5 text-xs text-foreground-muted leading-tight">{link.description}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
             </nav>
