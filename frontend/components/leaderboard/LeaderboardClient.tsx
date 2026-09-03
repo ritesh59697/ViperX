@@ -51,7 +51,7 @@ export function LeaderboardClient({
   initialError,
 }: LeaderboardClientProps) {
   const [selectedWindow, setSelectedWindow] = useState<LeaderboardWindow>(initialWindow);
-  const [activeChain, setActiveChain] = useState<"all" | "base" | "solana">("base");
+  const [activeChain, setActiveChain] = useState<"base" | "solana">("base");
   const [cache, setCache] = useState<Partial<Record<LeaderboardWindow, LeaderboardAgent[]>>>({
     [initialWindow]: initialAgents,
   });
@@ -63,8 +63,8 @@ export function LeaderboardClient({
     setMounted(true);
     const update = () => {
       const saved = localStorage.getItem("viperx-active-chain");
-      if (saved === "solana" || saved === "base" || saved === "all") {
-        setActiveChain(saved as "all" | "base" | "solana");
+      if (saved === "solana" || saved === "base") {
+        setActiveChain(saved as "base" | "solana");
       } else {
         setActiveChain("base");
       }
@@ -137,9 +137,7 @@ export function LeaderboardClient({
   );
 
   const rawAgents = cache[selectedWindow] ?? cache[initialWindow] ?? [];
-  const agents = activeChain === "all"
-    ? rawAgents
-    : rawAgents.filter((a) => getAgentChain(a) === activeChain);
+  const agents = rawAgents.filter((a) => getAgentChain(a) === activeChain);
   const ranked = agents.filter((a) => a.onchain_verified);
   const pending = agents.filter((a) => !a.onchain_verified);
 

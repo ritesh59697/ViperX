@@ -111,7 +111,7 @@ const ALL_MOBILE_LINKS = [
 export function SiteHeader() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [selectedNetwork, setSelectedNetwork] = useState<"solana" | "base" | "all">("base");
+  const [selectedNetwork, setSelectedNetwork] = useState<"solana" | "base">("base");
   const [networkDropdownOpen, setNetworkDropdownOpen] = useState(false);
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
   const [resourcesDropdownOpen, setResourcesDropdownOpen] = useState(false);
@@ -170,8 +170,8 @@ export function SiteHeader() {
   useEffect(() => {
     const updateNetwork = () => {
       const saved = localStorage.getItem("viperx-active-chain");
-      if (saved === "solana" || saved === "base" || saved === "all") {
-        setSelectedNetwork(saved as "solana" | "base" | "all");
+      if (saved === "solana" || saved === "base") {
+        setSelectedNetwork(saved as "solana" | "base");
       } else {
         setSelectedNetwork("base");
       }
@@ -201,7 +201,7 @@ export function SiteHeader() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleNetworkChange = (network: "solana" | "base" | "all") => {
+  const handleNetworkChange = (network: "solana" | "base") => {
     setSelectedNetwork(network);
     localStorage.setItem("viperx-active-chain", network);
     window.dispatchEvent(new Event("viperx-chain-changed"));
@@ -240,7 +240,7 @@ export function SiteHeader() {
             {/* Network selector */}
             <div className="px-5 py-4 border-b border-border">
               <div className="flex gap-2">
-                {(["base", "solana", "all"] as const).map((net) => (
+                {(["base", "solana"] as const).map((net) => (
                   <button
                     key={net}
                     type="button"
@@ -253,16 +253,10 @@ export function SiteHeader() {
                   >
                     {net === "solana" ? (
                       <SolanaLogo className="h-3.5 w-3.5" />
-                    ) : net === "base" ? (
-                      <BaseLogo className="h-3.5 w-3.5 rounded-xs" />
                     ) : (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-foreground shrink-0">
-                        <circle cx="12" cy="12" r="10" />
-                        <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
-                        <path d="M2 12h20" />
-                      </svg>
+                      <BaseLogo className="h-3.5 w-3.5 rounded-xs" />
                     )}
-                    {net === "solana" ? "Solana" : net === "base" ? "Base" : "All"}
+                    {net === "solana" ? "Solana" : "Base"}
                   </button>
                 ))}
               </div>
@@ -515,9 +509,9 @@ export function SiteHeader() {
             {/* Network pulse — desktop only */}
             <span className="hidden items-center gap-1.5 font-mono text-xs text-foreground-faint lg:inline-flex">
               <span className={`h-1.5 w-1.5 rounded-full ${
-                selectedNetwork === "solana" ? "bg-[#9945FF]" : selectedNetwork === "base" ? "bg-[#0052FF]" : "bg-foreground"
+                selectedNetwork === "solana" ? "bg-[#9945FF]" : "bg-[#0052FF]"
               }`} />
-              {selectedNetwork === "solana" ? "solana devnet" : selectedNetwork === "base" ? "base sepolia" : "multi-chain"}
+              {selectedNetwork === "solana" ? "solana devnet" : "base sepolia"}
             </span>
 
             <ThemeToggle />
@@ -534,25 +528,16 @@ export function SiteHeader() {
                     <SolanaLogo className="h-4 w-4 shrink-0" />
                     <span>Solana</span>
                   </>
-                ) : selectedNetwork === "base" ? (
+                ) : (
                   <>
                     <BaseLogo className="h-4 w-4 shrink-0 rounded-xs" />
                     <span>Base</span>
-                  </>
-                ) : (
-                  <>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-foreground shrink-0">
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
-                      <path d="M2 12h20" />
-                    </svg>
-                    <span>All Networks</span>
                   </>
                 )}
                 <ChevronDown open={networkDropdownOpen} />
               </button>
               {networkDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-border-strong bg-background-elevated-solid p-1.5 shadow-2xl shadow-black/15 z-50 divide-y divide-border/40">
+                <div className="absolute right-0 mt-2 w-40 rounded-2xl border border-border-strong bg-background-elevated-solid p-1.5 shadow-2xl shadow-black/15 z-50">
                   <div className="py-0.5 space-y-0.5">
                     <button
                       type="button"
@@ -579,23 +564,6 @@ export function SiteHeader() {
                         <span>Solana</span>
                       </span>
                       {selectedNetwork === "solana" && <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleNetworkChange("all")}
-                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-colors hover:bg-surface-hover cursor-pointer ${
-                        selectedNetwork === "all" ? "text-foreground bg-surface" : "text-foreground-muted"
-                      }`}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-foreground shrink-0">
-                          <circle cx="12" cy="12" r="10" />
-                          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
-                          <path d="M2 12h20" />
-                        </svg>
-                        <span>All Networks</span>
-                      </span>
-                      {selectedNetwork === "all" && <span className="h-1.5 w-1.5 rounded-full bg-foreground" />}
                     </button>
                   </div>
                 </div>
