@@ -425,17 +425,17 @@ export function SiteHeader() {
                       : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
                   }`}
                 >
-                  <div className="rounded-xl border border-border-strong bg-background-elevated-solid p-2 shadow-2xl shadow-black/15">
+                  <div className="rounded-xl border border-border bg-background/95 p-2 shadow-2xl backdrop-blur-xl">
                     {TOOLS_LINKS.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href}
                         onClick={() => setToolsDropdownOpen(false)}
-                        className={`flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface-hover ${
+                        className={`flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface ${
                           pathname === link.href ? "bg-surface" : ""
                         }`}
                       >
-                        <div className="mt-0.5 text-foreground-muted">{link.icon}</div>
+                        <div className="mt-0.5">{link.icon}</div>
                         <div>
                           <p className="text-sm font-medium text-foreground">
                             {link.label}
@@ -480,17 +480,17 @@ export function SiteHeader() {
                       : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
                   }`}
                 >
-                  <div className="rounded-xl border border-border-strong bg-background-elevated-solid p-2 shadow-2xl shadow-black/15">
+                  <div className="rounded-xl border border-border bg-background/95 p-2 shadow-2xl backdrop-blur-xl">
                     {RESOURCES_LINKS.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href}
                         onClick={() => setResourcesDropdownOpen(false)}
-                        className={`flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface-hover ${
+                        className={`flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface ${
                           pathname === link.href ? "bg-surface" : ""
                         }`}
                       >
-                        <div className="mt-0.5 text-foreground-muted">{link.icon}</div>
+                        <div className="mt-0.5">{link.icon}</div>
                         <div>
                           <p className="text-sm font-medium text-foreground">
                             {link.label}
@@ -521,51 +521,39 @@ export function SiteHeader() {
               <button
                 type="button"
                 onClick={() => setNetworkDropdownOpen((v) => !v)}
-                className="inline-flex h-9 items-center gap-2 rounded-full border border-border bg-background-elevated-solid px-3.5 text-xs font-semibold text-foreground transition-colors hover:border-border-strong cursor-pointer shadow-xs"
+                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-background-elevated px-3 text-xs font-semibold text-foreground transition-colors hover:border-border-strong cursor-pointer"
               >
                 {selectedNetwork === "solana" ? (
                   <>
-                    <SolanaLogo className="h-4 w-4 shrink-0" />
+                    <SolanaLogo />
                     <span>Solana</span>
                   </>
                 ) : (
                   <>
-                    <BaseLogo className="h-4 w-4 shrink-0 rounded-xs" />
+                    <BaseLogo />
                     <span>Base</span>
                   </>
                 )}
                 <ChevronDown open={networkDropdownOpen} />
               </button>
               {networkDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 rounded-2xl border border-border-strong bg-background-elevated-solid p-1.5 shadow-2xl shadow-black/15 z-50">
-                  <div className="py-0.5 space-y-0.5">
-                    <button
-                      type="button"
-                      onClick={() => handleNetworkChange("base")}
-                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-colors hover:bg-surface-hover cursor-pointer ${
-                        selectedNetwork === "base" ? "text-foreground bg-surface" : "text-foreground-muted"
-                      }`}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <BaseLogo className="h-4 w-4 shrink-0 rounded-xs" />
-                        <span>Base</span>
-                      </span>
-                      {selectedNetwork === "base" && <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleNetworkChange("solana")}
-                      className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-colors hover:bg-surface-hover cursor-pointer ${
-                        selectedNetwork === "solana" ? "text-foreground bg-surface" : "text-foreground-muted"
-                      }`}
-                    >
-                      <span className="flex items-center gap-2.5">
-                        <SolanaLogo className="h-4 w-4 shrink-0" />
-                        <span>Solana</span>
-                      </span>
-                      {selectedNetwork === "solana" && <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />}
-                    </button>
-                  </div>
+                <div className="absolute right-0 mt-1.5 w-36 rounded-xl border border-border bg-background/95 p-1 shadow-xl backdrop-blur-xl z-50">
+                  <button
+                    type="button"
+                    onClick={() => handleNetworkChange("solana")}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-surface cursor-pointer"
+                  >
+                    <SolanaLogo />
+                    <span>Solana</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNetworkChange("base")}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-surface cursor-pointer"
+                  >
+                    <BaseLogo />
+                    <span>Base</span>
+                  </button>
                 </div>
               )}
             </div>
