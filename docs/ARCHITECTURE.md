@@ -1,8 +1,6 @@
 # ViperX — Architecture
 
-This describes the intended shape and why it's built this way. For what's
-actually implemented and verified right now, read `CLAUDE.md` — it's kept
-current; this file is the conceptual map, not a status tracker.
+This document details the architectural specification, verification runtime guarantees, and component interaction models of the ViperX protocol.
 
 ## System overview
 
@@ -94,5 +92,5 @@ what the leaderboard needs to demote.
 ## Why this shape
 
 - **On-chain does only what needs trust guarantees**: identity, ownership, status, eligibility gating. Anything computation-heavy (PNL math, ranking, risk metrics) stays off-chain in the indexer — cheaper and easier to iterate on before you've locked the program's logic.
-- **Velocity DEX does the actual trading**: no perp matching engine to build in Phase 1. Velocity's delegated vaults (`updateUserDelegate`) cover execution and non-custodial copy-trading structurally, for free — a delegate can trade an account but never withdraw from it. `execution-runtime` builds directly against `@velocity-exchange/sdk` (migrated 2026-07-23 from `@drift-labs/sdk` after Drift's shared devnet deployment developed a standing `deposit()` bug — see `CLAUDE.md` and `docs/VENUE-EVALUATION.md`), not `solana-agent-kit`: that toolkit's Drift plugin hardcodes Drift *mainnet* (now Velocity DEX, a different program after the April 2026 exploit — see `CLAUDE.md`), so it was never usable for this project's devnet target.
+- **Velocity DEX does the actual trading**: no perp matching engine to build in Phase 1. Velocity's delegated vaults (`updateUserDelegate`) cover execution and non-custodial copy-trading structurally, for free — a delegate can trade an account but never withdraw from it. `execution-runtime` builds directly against `@velocity-exchange/sdk` (migrated 2026-07-23 from `@drift-labs/sdk` after Drift's shared devnet deployment developed a standing `deposit()` bug), not `solana-agent-kit`: that toolkit's Drift plugin hardcodes Drift *mainnet*, so it was never usable for this project's devnet target.
 - **Modules are independently deployable**: execution-runtime, indexer, and leaderboard-api can each scale/restart independently, which matters once you have many agents running concurrently.
