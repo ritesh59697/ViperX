@@ -1,0 +1,207 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import {
+  ArenaSeasonDetail,
+  ArenaSeasonNotFoundError,
+  fetchArenaSeason,
+  LeaderboardAgent,
+} from "@/lib/leaderboardApi";
+import { Section } from "@/components/ui/Section";
+import { Card } from "@/components/ui/Card";
+import { StaggerTableBody, StaggerRow } from "@/components/motion/StaggerTable";
+import { EnterArenaModal } from "@/components/arena/EnterArenaModal";
+import { ArenaMatchups } from "@/components/arena/ArenaMatchups";
+
+export const dynamic = "force-dynamic";
+
+function formatDate(value: string): string {
+  return new Date(value).toLocaleString();
+}
+
+function formatMetric(value: string | null, suffix = ""): string {
+  if (value === null) return "—";
+  const n = Number(value);
+  return Number.isFinite(n) ? `${n.toFixed(2)}${suffix}` : "—";
+}
+
+function truncate(address: string): string {
+  return `${address.slice(0, 4)}..${address.slice(-4)}`;
+}
+
+const TH = "px-4 py-3 font-medium";
+const TD = "px-4 py-3.5";
+
+export default async function ArenaSeasonPage({
+  params,
+}: {
+  params: Promise<{ seasonId: string }>;
+}) {
+  const { seasonId: seasonIdRaw } = await params;
+  const seasonId = Number(seasonIdRaw);
+
+  let data: ArenaSeasonDetail | null = null;
+  let fetchError: string | null = null;
+  if (!Number.isInteger(seasonId)) {
+    notFound();
+  }
+  try {
+    data = await fetchArenaSeason(seasonId);
+  } catch (err) {
+    if (err instanceof ArenaSeasonNotFoundError) {
+      notFound();
+    }
+    fetchError = err instanceof Error ? err.message : "Failed to reach leaderboard-api.";
+  }
+
+  const ranked: LeaderboardAgent[] = data ? data.entrants.filter((a) => a.onchain_verified) : [];
+  const pending: LeaderboardAgent[] = data ? data.entrants.filter((a) => !a.onchain_verified) : [];
+
+  return (
+    <Section width="wide" className="pt-20 pb-24 sm:pt-24">
+      <div className="mb-8">
+        <Link
+          href="/arena"
+          className="inline-flex items-center gap-1.5 text-[0.8125rem] text-foreground-muted transition-colors hover:text-foreground"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+          Back to arena
+        </Link>
+      </div>
+
+      {fetchError && (
+        <Card variant="error">
+          Couldn&apos;t reach leaderboard-api: {fetchError}
+          <br />
+          <span className="text-xs opacity-80">
+            Is it running? <code className="font-mono">cd backend/leaderboard-api &amp;&amp; npm run dev</code>
+          </span>
+        </Card>
+      )}
+
+      {data && (
+        <>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="t-h2 text-foreground">{data.season.name}</h1>
+                <span className="rounded-full border border-border px-2.5 py-0.5 text-[0.6875rem] font-medium capitalize text-foreground-muted">
+                  {data.season.status}
+                </span>
+              </div>
+              <p className="mt-1.5 text-xs text-foreground-faint flex items-center gap-1.5 font-mono">
+                <span>{formatDate(data.season.starts_at)}</span>
+                <span className="text-foreground-faint lowercase">to</span>
+                <span>{formatDate(data.season.ends_at)}</span>
+              </p>
+            </div>
+
+            {data.season.status !== "ended" && <EnterArenaModal seasonId={data.season.id} />}
+          </div>
+
+          <ArenaMatchups entrants={data.entrants} />
+
+          {ranked.length === 0 && (
+            <Card variant="muted" className="mt-8">
+              No entrant has qualified yet — same 50-verified-fill bar the main leaderboard uses.
+            </Card>
+          )}
+
+          {ranked.length > 0 && (
+            <div className="surface mt-8 overflow-hidden rounded-xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="t-label border-b border-border">
+                    <tr>
+                      <th className={TH}>#</th>
+                      <th className={TH}>Agent</th>
+                      <th className={TH}>Owner</th>
+                      <th className={`${TH} text-right`}>Sharpe</th>
+                      <th className={`${TH} text-right`}>ROI</th>
+                      <th className={`${TH} text-right`}>Max DD</th>
+                    </tr>
+                  </thead>
+                  <StaggerTableBody className="divide-y divide-border">
+                    {ranked.map((agent) => (
+                      <StaggerRow key={agent.agent_pda} className="transition-colors hover:bg-surface">
+                        <td className={`${TD} font-mono text-xs text-foreground-faint`}>{agent.rank}</td>
+                        <td className={TD}>
+                          <Link
+                            href={`/agents/${agent.agent_pda}`}
+                            className="font-medium text-foreground transition-colors hover:text-accent"
+                          >
+                            {agent.name}
+                          </Link>
+                          {agent.wash_trading_flagged && (
+                            <span
+                              className="mt-1 block text-[0.6875rem] font-medium text-negative"
+                              title={agent.flagged_reason || "Flagged for wash trading patterns"}
+                            >
+                              Flagged
+                            </span>
+                          )}
+                        </td>
+                        <td className={`${TD} font-mono text-xs text-foreground-muted`}>{truncate(agent.owner)}</td>
+                        <td className={`${TD} text-right font-mono text-xs font-medium text-foreground`}>
+                          {formatMetric(agent.sharpe_like)}
+                        </td>
+                        <td className={`${TD} text-right font-mono text-xs font-medium text-foreground`}>
+                          {formatMetric(agent.roi_pct, "%")}
+                        </td>
+                        <td className={`${TD} text-right font-mono text-xs text-foreground-muted`}>
+                          {formatMetric(agent.max_drawdown_pct, "%")}
+                        </td>
+                      </StaggerRow>
+                    ))}
+                  </StaggerTableBody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {pending.length > 0 && (
+            <div className="mt-12">
+              <h2 className="t-label text-foreground-muted">Entered, not yet ranked</h2>
+              <p className="t-body mt-2 max-w-[68ch] text-sm">
+                Same bar as the main leaderboard — 50 independently verified fills before a score
+                counts.
+              </p>
+              <div className="surface mt-5 overflow-hidden rounded-xl">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead className="t-label border-b border-border">
+                      <tr>
+                        <th className={TH}>Agent</th>
+                        <th className={TH}>Owner</th>
+                        <th className={`${TH} text-right`}>Verified fills</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {pending.map((agent) => (
+                        <tr key={agent.agent_pda} className="transition-colors hover:bg-surface">
+                          <td className={TD}>
+                            <Link
+                              href={`/agents/${agent.agent_pda}`}
+                              className="font-medium text-foreground transition-colors hover:text-accent"
+                            >
+                              {agent.name}
+                            </Link>
+                          </td>
+                          <td className={`${TD} font-mono text-xs text-foreground-muted`}>{truncate(agent.owner)}</td>
+                          <td className={`${TD} text-right font-mono text-xs text-foreground`}>
+                            {agent.verified_trade_count ?? 0} / 50
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </Section>
+  );
+}

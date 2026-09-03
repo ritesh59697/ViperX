@@ -1,0 +1,838 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Palette — monochrome base, one accent.
+   Colour is a signal here, not decoration: blue means "interactive or good",
+   red means "loss or excluded", and everything else is greyscale. If a new
+   element doesn't need to signal one of those, it stays grey.
+
+   NOTE: --background must stay in sync with PALETTES in
+   components/ui/DitherField.tsx, which paints the same colour on its canvas.
+--------------------------------------------------------------------------- */
+:root {
+  /* Tells the browser to paint its own UI (scrollbars, native form controls,
+     autofill, the pre-paint canvas) to match. Without it those stay light in
+     dark mode and flash white on load. */
+  color-scheme: light;
+
+  --background: #f7f7f8;
+  --background-elevated: rgba(255, 255, 255, 0.88);
+  --background-elevated-hover: rgba(255, 255, 255, 0.96);
+  /* Opaque twin of --background-elevated, for cards whose contents the dither
+     field must not show through. See .surface-solid. */
+  --background-elevated-solid: #ffffff;
+  --background-muted: rgba(15, 17, 21, 0.045);
+
+  --foreground: #14161a;
+  --foreground-muted: #4a4f59;
+  --foreground-faint: #5f656f;
+
+  --border: rgba(15, 17, 21, 0.1);
+  --border-strong: rgba(15, 17, 21, 0.18);
+
+  /* Two accent roles, because one value can't serve both on a dark surface:
+     as text it must be light enough to clear 4.5:1 against the background,
+     as a fill under white text it must be dark enough to clear 4.5:1 the
+     other way. Moving one number always broke the other. --accent is the
+     text/border/decorative role, --accent-fill is the white-text-on-it role. */
+  --accent: #d0200a;
+  --accent-fill: #d0200a;
+  --accent-secondary: #14161a;
+  --accent-emerald: #0f9d69;
+  /* #0f9d69 measured only 3.47:1 on white, and ROI figures are rendered in it
+     at 12px. #0b7d53 clears 5.16:1 on white / 4.82:1 on the page background.
+     The dark-mode #10b981 already passes at 7.8:1 and is left alone. */
+  --positive: #0b7d53;
+  --negative: #d0200a;
+
+  --surface: rgba(15, 17, 21, 0.04);
+  --surface-hover: rgba(15, 17, 21, 0.07);
+
+  /* Vertical rhythm. Sections step through these rather than ad-hoc mt-24. */
+  --space-section: 7rem;
+  --space-block: 3rem;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: #0a0a0b;
+  --background-elevated: rgba(22, 23, 27, 0.82);
+  --background-elevated-hover: rgba(32, 34, 40, 0.9);
+  --background-elevated-solid: #16171b;
+  --background-muted: rgba(255, 255, 255, 0.06);
+
+  --foreground: #f2f3f5;
+  --foreground-muted: #b6bcc7;
+  --foreground-faint: #99a0ac;
+
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.2);
+
+  /* #f42601 measured 4.37:1 as text on --background-elevated (needs 4.5) and
+     only 4.10:1 under white text as a fill. #f83a18 clears 4.78:1 as text;
+     the fill role drops back to the light-mode red for 5.39:1 under white. */
+  --accent: #f83a18;
+  --accent-fill: #d0200a;
+  --accent-secondary: #f2f3f5;
+  --accent-emerald: #10b981;
+  --positive: #10b981;
+  /* Same text-role reasoning as --accent: this is read as text ("Flagged",
+     "SHORT", error copy), so it needs the lighter value to clear 4.5:1. */
+  --negative: #f83a18;
+
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.09);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-elevated: var(--background-elevated);
+  --color-background-elevated-hover: var(--background-elevated-hover);
+  --color-background-elevated-solid: var(--background-elevated-solid);
+  --color-background-muted: var(--background-muted);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-faint: var(--foreground-faint);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-fill: var(--accent-fill);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-accent-emerald: var(--accent-emerald);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+
+  --font-sans: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, monospace;
+  --font-serif: var(--font-fraunces), Georgia, serif;
+}
+
+/* The DitherField canvas paints the real background; body stays transparent so
+   it shows through. The colour here is only a pre-paint / no-WebGL fallback. */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+html {
+  scrollbar-color: var(--border-strong) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ---------------------------------------------------------------------------
+   Type scale — one ramp, used everywhere. Headings are sans and tightly
+   tracked; the reference sites get their "professional" read from restraint
+   in size and weight, not from a display face.
+--------------------------------------------------------------------------- */
+.t-display {
+  font-size: clamp(2.75rem, 6vw, 4.5rem);
+  line-height: 1.03;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+}
+
+.t-h2 {
+  font-size: clamp(1.875rem, 3.4vw, 2.625rem);
+  line-height: 1.12;
+  letter-spacing: -0.028em;
+  font-weight: 600;
+}
+
+.t-h3 {
+  font-size: 1.1875rem;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+
+/* Lead paragraph — sits under a display or h2. */
+.t-lead {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--foreground-muted);
+}
+
+.t-body {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--foreground-muted);
+}
+
+/* Supporting copy inside cards and grids, where measure is short. */
+.t-body-sm {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--foreground-muted);
+}
+
+/* Small uppercase section marker — replaces the old pill badges. */
+.t-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--foreground-faint);
+}
+
+/* Big number for the protocol stats bar. */
+.t-stat {
+  font-family: var(--font-mono);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+
+/* ---------------------------------------------------------------------------
+   Surfaces — translucent on purpose, so the dither field stays visible
+   through the whole page instead of being boxed out by opaque cards.
+--------------------------------------------------------------------------- */
+.surface {
+  background: var(--background-elevated);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px) saturate(115%);
+  -webkit-backdrop-filter: blur(12px) saturate(115%);
+}
+
+/* Same card treatment as .surface, but fully opaque. For content that has to be
+   read against a flat field rather than through one — the chart's gridlines and
+   trend line sit at low contrast by design, and the dither field showing
+   through the plot area competes with them. Apply alongside .surface; this rule
+   comes later, so its background wins. */
+.surface-solid {
+  background: var(--background-elevated-solid);
+}
+
+.surface-hover {
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+/* Hover must stay at least as opaque as the resting state. --surface-hover is
+   a near-transparent tint meant for bare elements (table rows); using it here
+   replaced the card's solid background and let the dither field show straight
+   through the copy on hover. */
+.surface-hover:hover {
+  border-color: var(--border-strong);
+  background: var(--background-elevated-hover);
+}
+
+/* A hairline that fades out at both ends — used as the section divider. */
+.rule {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   BLUEPRINT — the landing page's technical/Swiss layer.
+
+   Everything here is prefixed `bp-` and used only by app/page.tsx. It is
+   deliberately additive: the shared `.t-*` and `.surface` tokens above are
+   used by /create, /leaderboard and /agents, so this style is expressed as new
+   classes rather than by redefining those and changing every page at once.
+
+   The look: visible grid, hairline everything, square corners, monospace for
+   all supporting copy, and exactly one accent. Emphasis comes from rules and
+   alignment, not from radius, shadow or fill.
+--------------------------------------------------------------------------- */
+
+/* Bracketed monospace section marker — [LIKE THIS]. The brackets are generated
+   so the JSX stays readable and they can never be forgotten on one instance. */
+.bp-eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.bp-eyebrow::before {
+  content: "[";
+  margin-right: 0.35em;
+}
+.bp-eyebrow::after {
+  content: "]";
+  margin-left: 0.35em;
+}
+
+/* Display and section headings: uppercase, tightly leaded, set in multiple
+   short lines. The leading is deliberately below 1 so stacked lines read as a
+   single block of texture rather than as separate sentences. */
+.bp-display {
+  font-size: clamp(2.25rem, 5.6vw, 4.25rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.bp-h2 {
+  font-size: clamp(1.625rem, 3.2vw, 2.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.018em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.bp-h3 {
+  font-size: 0.9375rem;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* The second line of a two-tone heading, dropped to grey. */
+.bp-dim {
+  color: var(--foreground-faint);
+}
+
+/* All supporting copy on this page is monospace, at a size that keeps a long
+   measure readable. */
+.bp-body {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.75;
+  color: var(--foreground-muted);
+}
+
+.bp-meta {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--foreground-faint);
+}
+
+/* Vertical rail in the left gutter: a hairline plus a tick every 48px, the
+   drafting-paper margin the reference runs down its full height. Hidden below
+   `lg` where there is no gutter left to put it in.
+   Left only — the right gutter belongs to `.bp-rail` (the section index)
+   below, and two columns of ticks down the same margin read as clutter.
+   39.5rem = half of Section's `wide` measure (76rem) plus a 1.5rem gutter, so
+   it sits just outside the content column rather than through it. */
+.bp-rails::before,
+.bp-rails::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 9px;
+  pointer-events: none;
+  display: none;
+  background:
+    linear-gradient(var(--border), var(--border)) no-repeat,
+    repeating-linear-gradient(to bottom, var(--border) 0 1px, transparent 1px 48px);
+  background-size:
+    1px 100%,
+    100% 100%;
+}
+.bp-rails::before {
+  left: max(1.5rem, calc(50% - 44rem));
+}
+.bp-rails::after {
+  right: max(1.5rem, calc(50% - 44rem));
+}
+@media (min-width: 1024px) {
+  .bp-rails::before,
+  .bp-rails::after {
+    display: block;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Section index rail — fixed to the right gutter, one tick per section.
+
+   Ticks appear from `lg`; the labels only from 1440px, because below that the
+   gutter is narrower than the words and they would either clip or sit on top
+   of the full-width grids. Hovering any item reveals its label at any size,
+   over an opaque chip so it stays legible if it does overlap content.
+--------------------------------------------------------------------------- */
+.bp-rail {
+  position: fixed;
+  top: 50%;
+  right: 1.25rem;
+  z-index: 30;
+  display: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.625rem;
+  transform: translateY(-50%);
+}
+@media (min-width: 1024px) {
+  .bp-rail {
+    display: flex;
+  }
+}
+
+.bp-rail-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+.bp-rail-label {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--foreground-faint);
+  opacity: 0;
+  transform: translateX(0.25rem);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    color 0.25s ease;
+}
+.bp-rail-item[data-active] .bp-rail-label {
+  color: var(--accent);
+}
+/* Hover reveal needs the chip because at <1440 the label overhangs content. */
+.bp-rail-item:hover .bp-rail-label,
+.bp-rail-item:focus-visible .bp-rail-label {
+  opacity: 1;
+  transform: none;
+  color: var(--foreground);
+  background: var(--background);
+  box-shadow: 0 0 0 0.25rem var(--background);
+}
+@media (min-width: 1440px) {
+  .bp-rail-item[data-active] .bp-rail-label {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.bp-rail-tick {
+  display: block;
+  width: 0.75rem;
+  height: 1px;
+  background: var(--border-strong);
+  transition:
+    width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 0.3s ease;
+}
+.bp-rail-item:hover .bp-rail-tick {
+  width: 1.25rem;
+  background: var(--foreground);
+}
+.bp-rail-item[data-active] .bp-rail-tick {
+  width: 1.5rem;
+  background: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Step showcase — numbered index and the diagram field beside it.
+--------------------------------------------------------------------------- */
+
+/* Fine dot field behind the diagram. Sized in px rather than em so the grid
+   stays a constant physical texture regardless of the type around it. */
+.bp-dots {
+  background-image: radial-gradient(var(--border-strong) 0.5px, transparent 0.5px);
+  background-size: 12px 12px;
+}
+
+/* Cursor-reactive layer: the same grid in accent, at a larger dot radius,
+   revealed only through a soft mask that follows the pointer. Cheaper than a
+   canvas — one composited layer and two custom properties per move — and it
+   degrades to nothing when the pointer never enters. Parked off-canvas by
+   default so it can't flash at 0,0 before the first mousemove. */
+.bp-dots-live::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(var(--accent) 0.9px, transparent 0.9px);
+  background-size: 12px 12px;
+  opacity: 0.7;
+  -webkit-mask-image: radial-gradient(
+    circle 110px at var(--mx, -1000px) var(--my, -1000px),
+    #000,
+    transparent 72%
+  );
+  mask-image: radial-gradient(
+    circle 110px at var(--mx, -1000px) var(--my, -1000px),
+    #000,
+    transparent 72%
+  );
+}
+/* No pointer to track on touch, and the mask would sit wherever the last tap
+   landed — so the layer is desktop-only. */
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .bp-dots-live::after {
+    display: none;
+  }
+}
+
+/* Index rows: inactive rows drop to faint, the active row goes full weight.
+   The rule's width never changes — only its colour — so switching steps can't
+   reflow the column. */
+.bp-step-n,
+.bp-step-label {
+  color: var(--foreground-faint);
+  transition: color 0.25s ease;
+}
+.bp-step-rule {
+  background: var(--border);
+  transition: background-color 0.25s ease;
+}
+.bp-step:hover .bp-step-n,
+.bp-step:hover .bp-step-label {
+  color: var(--foreground);
+}
+.bp-step:hover .bp-step-rule {
+  background: var(--border-strong);
+}
+.bp-step[data-active] .bp-step-n,
+.bp-step[data-active] .bp-step-label {
+  color: var(--foreground);
+}
+.bp-step[data-active] .bp-step-rule {
+  background: var(--accent);
+}
+
+/* Diagrams are stacked and cross-faded. The inactive ones keep their box so
+   the frame never resizes mid-swap; `visibility` is what takes them out of the
+   accessibility tree and off the hit-testing path once faded. */
+.bp-figure {
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.97) rotate(-2deg);
+  transition:
+    opacity 0.45s ease,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+    visibility 0s linear 0.45s;
+}
+.bp-figure[data-active] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 0.45s ease,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+    visibility 0s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bp-figure {
+    transition: opacity 0.01s linear, visibility 0s linear 0.01s;
+    transform: none;
+  }
+  .bp-figure[data-active] {
+    transition: opacity 0.01s linear, visibility 0s;
+  }
+  .bp-step-n,
+  .bp-step-label,
+  .bp-step-rule {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Corner crop marks — four L-shaped registration marks floating just outside
+   a block, drawn as eight 1px gradient arms on a single pseudo-element (a
+   border would draw all four sides; there is no "corners only" border).
+   They tighten inward on hover where the marked element is interactive.
+--------------------------------------------------------------------------- */
+.bp-crop {
+  position: relative;
+}
+.bp-crop::after {
+  content: "";
+  position: absolute;
+  inset: -0.875rem;
+  pointer-events: none;
+  --arm: 0.875rem;
+  --crop: var(--border-strong);
+  background:
+    linear-gradient(var(--crop), var(--crop)) left top / var(--arm) 1px no-repeat,
+    linear-gradient(var(--crop), var(--crop)) left top / 1px var(--arm) no-repeat,
+    linear-gradient(var(--crop), var(--crop)) right top / var(--arm) 1px no-repeat,
+    linear-gradient(var(--crop), var(--crop)) right top / 1px var(--arm) no-repeat,
+    linear-gradient(var(--crop), var(--crop)) left bottom / var(--arm) 1px no-repeat,
+    linear-gradient(var(--crop), var(--crop)) left bottom / 1px var(--arm) no-repeat,
+    linear-gradient(var(--crop), var(--crop)) right bottom / var(--arm) 1px no-repeat,
+    linear-gradient(var(--crop), var(--crop)) right bottom / 1px var(--arm) no-repeat;
+  /* Only `inset` animates. --arm/--crop are unregistered custom properties, so
+     they step rather than tween; registering them via @property to smooth the
+     colour swap isn't worth the extra surface for a 0.3s hover. */
+  transition: inset 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.bp-crop-hover:hover::after {
+  inset: -0.5rem;
+  --crop: var(--accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .bp-crop::after,
+  .bp-rail-tick,
+  .bp-rail-label {
+    transition: none;
+  }
+}
+
+/* Hairline-divided cell grid. Borders are drawn on the top and left of every
+   cell and clipped by the container's own overflow, so interior rules never
+   double up and the outer edge stays a single hairline regardless of how many
+   columns survive the current breakpoint. */
+.bp-grid {
+  display: grid;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.bp-grid > * {
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  margin-top: -1px;
+  margin-left: -1px;
+}
+
+/* A square-cornered panel. Translucent for the same reason `.surface` is: the
+   dither field has to stay visible behind the page. */
+.bp-panel {
+  background: var(--background-elevated);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px) saturate(115%);
+  -webkit-backdrop-filter: blur(12px) saturate(115%);
+}
+
+/* The inverted block. Always dark, in both themes — it is a deliberate tonal
+   break in the page, not a themed surface. The dot matrix is the halftone
+   texture the reference uses on its imagery. */
+.bp-invert {
+  --foreground: #f2f3f5;
+  --foreground-muted: #9aa0ab;
+  /* #6f7681 measured 4.32:1 on this island's #0a0a0b, and bp-meta status
+     labels ("Complete", "In progress", "Upcoming") render in it at 11px.
+     #787f8a clears 4.90:1 and is barely distinguishable from the original. */
+  --foreground-faint: #787f8a;
+  /* This section is always dark, so the background tokens must be dark too —
+     otherwise in light mode `var(--background)` leaks the page's light value and
+     anything keyed to it (e.g. .bp-bar--dark's text) becomes invisible. */
+  --background: #0a0a0b;
+  --background-muted: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.16);
+  --border-strong: rgba(255, 255, 255, 0.28);
+  --background-elevated: rgba(255, 255, 255, 0.03);
+  /* `.surface-hover:hover` reads this, and it's easy to miss overriding: in
+     light mode it's rgba(255, 255, 255, 0.96), which paints a hovered card
+     inside this always-dark island nearly opaque white — with --foreground
+     also white here, the text goes white-on-white. */
+  --background-elevated-hover: rgba(255, 255, 255, 0.07);
+  /* Same leak, one line further: the accent and semantic colours are tuned per
+     surface too, so an always-dark island needs the dark-mode values. In light
+     mode the eyebrows here were painting #d0200a on near-black at 3.67:1.
+     --accent-fill is deliberately NOT overridden — it carries white text, so
+     the darker red stays correct on any surface. */
+  --accent: #f83a18;
+  --positive: #10b981;
+  --negative: #f83a18;
+  position: relative;
+  background-color: #0a0a0b;
+  color: var(--foreground);
+}
+.bp-invert::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+  background-size: 4px 4px;
+  -webkit-mask-image: linear-gradient(to bottom, black, transparent 55%);
+  mask-image: linear-gradient(to bottom, black, transparent 55%);
+}
+
+/* Full-bleed accent CTA bar — the reference's loudest element, and the only
+   place on the page that carries a solid accent fill. */
+.bp-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.9375rem 1.25rem;
+  /* White label on the bar, so this is the fill role, not the text role. */
+  background: var(--accent-fill);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: filter 0.35s cubic-bezier(0.32, 0.72, 0, 1), transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.bp-bar:hover {
+  filter: brightness(1.08);
+}
+.bp-bar:active {
+  transform: scale(0.995);
+}
+.bp-bar--dark {
+  background: var(--foreground);
+  color: var(--background);
+}
+.bp-bar > .bp-bar-arrow {
+  transition: transform 0.2s ease;
+}
+.bp-bar:hover > .bp-bar-arrow {
+  transform: translateX(0.25rem);
+}
+
+/* Oversized footer wordmark, clipped so it bleeds off the bottom edge the way
+   the reference's does. The negative margin is in `em`, so it scales with the
+   clamped font-size and the crop stays proportional at every viewport — a
+   fixed pixel height would swallow the whole word on mobile. */
+.bp-wordmark {
+  display: block;
+  width: 100%;
+  margin-bottom: 0;
+  font-size: clamp(4rem, 19vw, 16rem);
+  line-height: 0.74;
+  letter-spacing: -0.05em;
+  font-weight: 700;
+  text-transform: lowercase;
+  color: var(--foreground);
+  opacity: 0.08;
+  user-select: none;
+  /* The wrapper's overflow-hidden hard-clips this box. Dissolve to
+     transparent by 60% so nothing solid is left for the clip to slice. */
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 32%, transparent 60%);
+  mask-image: linear-gradient(to bottom, black 0%, black 32%, transparent 60%);
+}
+
+/* ---------------------------------------------------------------------------
+   Wallet adapter overrides — the vendored button doesn't inherit any of the
+   above, so it has to be restyled to match the header pills.
+--------------------------------------------------------------------------- */
+.wallet-adapter-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: transparent !important;
+  border: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
+  font-family: var(--font-sans) !important;
+  height: 2.375rem !important;
+  padding: 0 1.125rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  border-radius: 9999px !important;
+  transition: border-color 0.2s ease, background-color 0.2s ease !important;
+}
+.wallet-adapter-button:not([disabled]):hover {
+  background-color: var(--surface) !important;
+  border-color: var(--border-strong) !important;
+}
+.wallet-adapter-button .wallet-adapter-button-start-icon,
+.wallet-adapter-button .wallet-adapter-button-end-icon,
+.wallet-adapter-button .wallet-adapter-button-start-icon img,
+.wallet-adapter-button .wallet-adapter-button-end-icon img {
+  width: 1rem !important;
+  height: 1rem !important;
+  display: inline-flex !important;
+}
+.wallet-adapter-modal-wrapper {
+  background: var(--background) !important;
+  color: var(--foreground) !important;
+}
+.wallet-adapter-modal-button-close {
+  background: var(--surface) !important;
+}
+.wallet-adapter-modal-title {
+  color: var(--foreground) !important;
+}
+.wallet-adapter-dropdown-list {
+  background: var(--background) !important;
+  border: 1px solid var(--border);
+}
+.wallet-adapter-dropdown-list-item {
+  background: transparent !important;
+  color: var(--foreground) !important;
+}
+
+/* --- SERENE BRAND CUSTOM UTILITIES --- */
+.font-serene-logo {
+  font-family: var(--font-serene-logo), cursive;
+}
+.font-serene-serif {
+  font-family: var(--font-serene-serif), serif;
+}
+.font-serene-sans {
+  font-family: var(--font-serene-sans), sans-serif;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.01);
+  background-blend-mode: luminosity;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: none;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.4px;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%,
+    rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
+    rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.text-glow {
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.4), 0 0 80px rgba(255, 255, 255, 0.2), 0 0 120px rgba(255, 255, 255, 0.1);
+}
+
+.button-glow {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(255, 255, 255, 0.1);
+}
