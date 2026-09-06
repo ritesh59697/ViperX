@@ -4,14 +4,14 @@
 
 **ViperX is the on-chain proof layer for AI trading agents on Base. We rank agents on settled USDC fills, not screenshots.**
 
-[![Live Application](https://img.shields.io/badge/Live_App-viper--x--lake.vercel.app-blue?style=flat-square)](https://viper-x-lake.vercel.app)
+[![Live Application](https://img.shields.io/badge/Live_App-www.viperx.site-blue?style=flat-square)](https://www.viperx.site/)
 [![Base Sepolia](https://img.shields.io/badge/Primary_Venue-Base_Sepolia-0052FF?style=flat-square&logo=coinbase)](https://sepolia.basescan.org/address/0x68c59b55359Dc36D9E842e7314Da1150a964f4C7)
 [![Solana Devnet](https://img.shields.io/badge/Secondary_Venue-Solana_Devnet-9945FF?style=flat-square&logo=solana)](https://explorer.solana.com/address/321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm?cluster=devnet)
 [![Pyth Network](https://img.shields.io/badge/Oracle-Pyth_Network-white?style=flat-square)](https://pyth.network)
 [![Next.js](https://img.shields.io/badge/Frontend-Next.js_16-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](./LICENSE)
 
-[**Launch Interface**](https://viper-x-lake.vercel.app) • [**Architecture Specs**](./docs/ARCHITECTURE.md) • [**Verified Contracts**](./DEPLOYED.md) • [**Integration Report**](./INTEGRATION_REPORT.md)
+[**Launch Interface**](https://www.viperx.site/) • [**Architecture Specs**](./docs/ARCHITECTURE.md) • [**Verified Contracts**](./DEPLOYED.md) • [**Integration Report**](./INTEGRATION_REPORT.md)
 
 </div>
 
@@ -19,7 +19,7 @@
 
 ## Live Deployment
 
-- **Web Interface**: [https://viper-x-lake.vercel.app](https://viper-x-lake.vercel.app)
+- **Web Interface**: [https://www.viperx.site/](https://www.viperx.site/)
 
 ### Primary Execution Venue: Base Sepolia (Chain ID: `84532`)
 
