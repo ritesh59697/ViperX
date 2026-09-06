@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { PnlSnapshotRecord } from "@/lib/leaderboardApi";
 import { Card } from "@/components/ui/Card";
 
 type MetricMode = "pnl" | "roi" | "drawdown";
+type TimeRange = "24h" | "7d" | "30d" | "all";
 
 const MODES: { key: MetricMode; label: string }[] = [
   { key: "pnl", label: "Realized PnL" },
@@ -12,15 +13,18 @@ const MODES: { key: MetricMode; label: string }[] = [
   { key: "drawdown", label: "Max Drawdown" },
 ];
 
-const HEIGHT = 260;
-const FALLBACK_WIDTH = 720;
-const PAD = { top: 18, right: 16, bottom: 28, left: 56 };
+const TIME_RANGES: { key: TimeRange; label: string }[] = [
+  { key: "24h", label: "24H" },
+  { key: "7d", label: "7D" },
+  { key: "30d", label: "30D" },
+  { key: "all", label: "ALL" },
+];
 
-/**
- * "Nice" round tick values covering [min, max], plus the number of decimals
- * needed to print them without rounding a tick away from its own gridline
- * (a 0.025 step labelled "0.03" puts the text off the line it belongs to).
- */
+const HEIGHT = 280;
+const FALLBACK_WIDTH = 1100;
+// CoinGecko style: Left is flush, Right has generous space for Y-axis numbers & pinned live pill
+const PAD = { top: 22, right: 68, bottom: 28, left: 16 };
+
 function niceTicks(min: number, max: number, count = 4): { ticks: number[]; decimals: number } {
   const span = max - min;
   if (!isFinite(span) || span <= 0) return { ticks: [min], decimals: 2 };
@@ -41,10 +45,6 @@ function niceTicks(min: number, max: number, count = 4): { ticks: number[]; deci
   return { ticks, decimals };
 }
 
-/**
- * Monotone cubic path — smooths the line without ever overshooting a real data
- * point, so it can't invent a peak or trough the PNL data doesn't have.
- */
 function monotonePath(pts: { x: number; y: number }[]): string {
   const n = pts.length;
   if (n < 2) return "";
@@ -79,38 +79,83 @@ function monotonePath(pts: { x: number; y: number }[]): string {
 
 export function InteractiveChart({ snapshots }: { snapshots: PnlSnapshotRecord[] }) {
   const [mode, setMode] = useState<MetricMode>("pnl");
+  const [timeRange, setTimeRange] = useState<TimeRange>("all");
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
-  // Fallback keeps the chart drawable if the container can't be measured
-  // (SSR, a hidden/collapsed ancestor, no ResizeObserver).
-  const [width, setWidth] = useState(FALLBACK_WIDTH);
+  const [width, setWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const roRef = useRef<ResizeObserver | null>(null);
 
-  // Render the SVG at true CSS-pixel size so the viewBox maps 1:1. Without
-  // this the chart has to stretch to fill its box, which distorts stroke
-  // widths, dashes, and circles non-uniformly.
-  useEffect(() => {
-    const el = containerRef.current;
+  const containerCallbackRef = useCallback((el: HTMLDivElement | null) => {
+    if (roRef.current) {
+      roRef.current.disconnect();
+      roRef.current = null;
+    }
+
+    containerRef.current = el;
     if (!el) return;
+
     const measure = () => {
       const w = el.getBoundingClientRect().width;
-      setWidth(w > 0 ? w : FALLBACK_WIDTH);
+      if (w > 0) {
+        setWidth(Math.round(w));
+      }
     };
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
+
     measure();
-    // Backstop for cases the observer alone misses — the card animating in,
-    // or web fonts landing after mount and reflowing the row.
-    const frame = requestAnimationFrame(measure);
-    window.addEventListener("resize", measure);
+
+    if (typeof ResizeObserver !== "undefined") {
+      const ro = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const w = entry.contentRect.width;
+          if (w > 0) {
+            setWidth(Math.round(w));
+          }
+        }
+      });
+      ro.observe(el);
+      roRef.current = ro;
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        const w = containerRef.current.getBoundingClientRect().width;
+        if (w > 0) setWidth(Math.round(w));
+      }
+    };
+    window.addEventListener("resize", handleResize);
     return () => {
-      observer.disconnect();
-      cancelAnimationFrame(frame);
-      window.removeEventListener("resize", measure);
+      window.removeEventListener("resize", handleResize);
+      if (roRef.current) {
+        roRef.current.disconnect();
+      }
     };
   }, []);
 
-  const chronological = useMemo(() => [...snapshots].reverse(), [snapshots]);
+  const chartWidth = width > 0 ? width : FALLBACK_WIDTH;
+
+  // Filter snapshots by selected timeframe
+  const filteredSnapshots = useMemo(() => {
+    if (snapshots.length <= 2 || timeRange === "all") {
+      return snapshots;
+    }
+
+    const latestMs = new Date(snapshots[0]?.snapshot_at || Date.now()).getTime();
+    const durations = {
+      "24h": 24 * 60 * 60 * 1000,
+      "7d": 7 * 24 * 60 * 60 * 1000,
+      "30d": 30 * 24 * 60 * 60 * 1000,
+    };
+    const cutoff = latestMs - durations[timeRange];
+
+    const filtered = snapshots.filter((s) => new Date(s.snapshot_at).getTime() >= cutoff);
+    // Keep at least 2 data points for rendering
+    return filtered.length >= 2 ? filtered : snapshots.slice(0, Math.min(10, snapshots.length));
+  }, [snapshots, timeRange]);
+
+  const chronological = useMemo(() => [...filteredSnapshots].reverse(), [filteredSnapshots]);
 
   const { values, format } = useMemo(() => {
     const wrap =
@@ -131,25 +176,18 @@ export function InteractiveChart({ snapshots }: { snapshots: PnlSnapshotRecord[]
   );
 
   const geometry = useMemo(() => {
-    if (values.length < 2 || width <= 0) return null;
+    if (values.length < 2 || chartWidth <= 0) return null;
 
-    const plotW = Math.max(width - PAD.left - PAD.right, 1);
+    const plotW = Math.max(chartWidth - PAD.left - PAD.right, 1);
     const plotH = HEIGHT - PAD.top - PAD.bottom;
 
     const dataMin = Math.min(...values);
     const dataMax = Math.max(...values);
-    // A perfectly flat series has no range; give it a synthetic one so the
-    // line sits mid-box instead of pinning to an edge.
     const pad = (dataMax - dataMin || Math.abs(dataMax) || 1) * 0.15;
     const min = dataMin - pad;
     const max = dataMax + pad;
     const range = max - min;
 
-    // Ordinal (per-snapshot) x spacing, not a linear time scale. Snapshot
-    // cadence is bursty — a true time axis crushes a whole trading session into
-    // a few pixels next to an idle gap. Ticks are anchored to real data points
-    // so every label still names the exact snapshot sitting under it, and long
-    // gaps get their own marker below rather than being silently smoothed over.
     const xAt = (i: number) => PAD.left + (i / (values.length - 1)) * plotW;
     const yAt = (v: number) => PAD.top + plotH - ((v - min) / range) * plotH;
 
@@ -157,26 +195,13 @@ export function InteractiveChart({ snapshots }: { snapshots: PnlSnapshotRecord[]
     const line = monotonePath(pts);
     const area = `${line} L ${pts[pts.length - 1].x.toFixed(2)},${PAD.top + plotH} L ${pts[0].x.toFixed(2)},${PAD.top + plotH} Z`;
 
-    // ~130px per label, or they collide on narrow screens.
-    const tickCount = Math.max(2, Math.min(5, values.length, Math.floor(plotW / 130)));
+    const tickCount = Math.max(2, Math.min(5, values.length, Math.floor(plotW / 120)));
     const timeTicks = Array.from({ length: tickCount }, (_, n) => {
       const i = Math.round((n / (tickCount - 1 || 1)) * (values.length - 1));
       return { i, x: xAt(i), t: times[i] };
     });
 
     const totalSpan = times[times.length - 1] - times[0];
-    // Flag any interval eating >20% of the total span — the "nothing happened
-    // here" stretches an ordinal axis would otherwise hide.
-    const gaps: { x: number; hours: number }[] = [];
-    if (isFinite(totalSpan) && totalSpan > 0) {
-      for (let i = 1; i < times.length; i++) {
-        const d = times[i] - times[i - 1];
-        if (d / totalSpan > 0.2) {
-          gaps.push({ x: (xAt(i - 1) + xAt(i)) / 2, hours: d / 3_600_000 });
-        }
-      }
-    }
-
     const { ticks, decimals } = niceTicks(min, max, 4);
 
     return {
@@ -187,13 +212,12 @@ export function InteractiveChart({ snapshots }: { snapshots: PnlSnapshotRecord[]
       plotW,
       plotH,
       timeTicks,
-      gaps,
       spansMonths: isFinite(totalSpan) && totalSpan > 30 * 24 * 60 * 60 * 1000,
       ticks: ticks.filter((t) => t >= min && t <= max),
       tickDecimals: decimals,
       zeroY: min <= 0 && max >= 0 ? yAt(0) : null,
     };
-  }, [values, times, width]);
+  }, [values, times, chartWidth]);
 
   if (snapshots.length < 2) {
     return (
@@ -205,6 +229,7 @@ export function InteractiveChart({ snapshots }: { snapshots: PnlSnapshotRecord[]
 
   const latestVal = values[values.length - 1];
   const isPositive = mode === "drawdown" ? latestVal <= 5 : latestVal >= 0;
+  // Vibrant Bloomberg / CoinGecko colors
   const color = isPositive ? "var(--positive)" : "var(--negative)";
 
   const activeIndex = hoverIndex ?? values.length - 1;
@@ -225,11 +250,10 @@ export function InteractiveChart({ snapshots }: { snapshots: PnlSnapshotRecord[]
     });
   };
 
-  // Points are unevenly spaced on a time axis, so snap to the nearest by x.
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
     if (!geometry || !svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * width;
+    const x = ((e.clientX - rect.left) / (rect.width || 1)) * chartWidth;
 
     let nearest = 0;
     let best = Infinity;
@@ -243,8 +267,6 @@ export function InteractiveChart({ snapshots }: { snapshots: PnlSnapshotRecord[]
     setHoverIndex(nearest);
   };
 
-  // Date alone collapses to the same label several times over when most
-  // snapshots land in one session, so keep the time unless the span is long.
   const formatTick = (t: number) =>
     new Date(t).toLocaleString(undefined, {
       month: "short",
@@ -253,63 +275,91 @@ export function InteractiveChart({ snapshots }: { snapshots: PnlSnapshotRecord[]
     });
 
   const hoverX = hoverIndex !== null && geometry ? geometry.pts[hoverIndex].x : 0;
+  const hoverY = hoverIndex !== null && geometry ? geometry.pts[hoverIndex].y : 0;
+  const latestPt = geometry ? geometry.pts[geometry.pts.length - 1] : null;
 
   return (
     <Card className="surface-solid mb-8 p-5">
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
+      {/* ── CoinGecko Style Header ───────────────────────────────────────── */}
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground-faint">
+          <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-foreground-faint">
             Performance Trajectory
           </span>
-          <div className="mt-1.5 flex items-baseline gap-3">
+          <div className="mt-1 flex items-baseline gap-3">
             <div
-              className="font-mono text-3xl font-bold tabular-nums leading-none"
+              className="font-mono text-3xl font-bold tabular-nums leading-none tracking-tight"
               style={{ color }}
             >
               {format(activeVal)}
             </div>
             {deltaPct !== null && mode !== "drawdown" && (
               <span
-                className="font-mono text-xs tabular-nums"
+                className="font-mono text-xs font-semibold tabular-nums"
                 style={{ color: delta >= 0 ? "var(--positive)" : "var(--negative)" }}
               >
-                {delta >= 0 ? "▲" : "▼"} {Math.abs(deltaPct).toFixed(1)}%
+                {delta >= 0 ? "+" : ""}
+                {deltaPct.toFixed(1)}%
               </span>
             )}
           </div>
           <div className="mt-1 font-mono text-[11px] text-foreground-faint">
-            {hoverIndex !== null ? dateAt(activeIndex) : `Latest · ${values.length} snapshots`}
+            {hoverIndex !== null ? dateAt(activeIndex) : `Latest · ${values.length} data points`}
           </div>
         </div>
 
-        <div className="flex rounded-lg border border-border bg-background-muted p-0.5 font-mono text-[11px]">
-          {MODES.map((m) => (
-            <button
-              key={m.key}
-              onClick={() => {
-                setMode(m.key);
-                setHoverIndex(null);
-              }}
-              className={`rounded-md px-3 py-1.5 transition-colors ${
-                mode === m.key
-                  ? "bg-background-elevated text-foreground font-semibold shadow-sm"
-                  : "text-foreground-faint hover:text-foreground"
-              }`}
-            >
-              {m.label}
-            </button>
-          ))}
+        {/* Controls: Modes & Timeframe Selectors */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Timeframe Selector */}
+          <div className="inline-flex rounded-lg border border-border bg-surface p-0.5 shadow-2xs font-mono text-[11px]">
+            {TIME_RANGES.map((tr) => (
+              <button
+                key={tr.key}
+                onClick={() => {
+                  setTimeRange(tr.key);
+                  setHoverIndex(null);
+                }}
+                className={`rounded px-2.5 py-1 font-semibold transition-colors cursor-pointer ${
+                  timeRange === tr.key
+                    ? "bg-foreground/10 text-foreground dark:bg-white/15"
+                    : "text-foreground-muted hover:text-foreground"
+                }`}
+              >
+                {tr.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Metric Selector */}
+          <div className="inline-flex rounded-lg border border-border bg-surface p-0.5 shadow-2xs font-mono text-[11px]">
+            {MODES.map((m) => (
+              <button
+                key={m.key}
+                onClick={() => {
+                  setMode(m.key);
+                  setHoverIndex(null);
+                }}
+                className={`rounded px-2.5 py-1 font-semibold transition-colors cursor-pointer ${
+                  mode === m.key
+                    ? "bg-foreground/10 text-foreground dark:bg-white/15"
+                    : "text-foreground-muted hover:text-foreground"
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div ref={containerRef} className="relative w-full select-none" style={{ height: HEIGHT }}>
+      {/* ── Chart Canvas ─────────────────────────────────────────────────── */}
+      <div ref={containerCallbackRef} className="relative w-full select-none" style={{ height: HEIGHT }}>
         {geometry && (
           <svg
             ref={svgRef}
-            width={width}
-            height={HEIGHT}
-            viewBox={`0 0 ${width} ${HEIGHT}`}
-            className="block max-w-full cursor-crosshair"
+            viewBox={`0 0 ${chartWidth} ${HEIGHT}`}
+            className="block w-full h-full cursor-crosshair"
+            style={{ width: "100%", height: HEIGHT }}
             onMouseMove={handleMouseMove}
             onMouseLeave={() => setHoverIndex(null)}
             role="img"
@@ -317,12 +367,58 @@ export function InteractiveChart({ snapshots }: { snapshots: PnlSnapshotRecord[]
           >
             <defs>
               <linearGradient id={`chart-fill-${mode}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" style={{ stopColor: color, stopOpacity: 0.22 }} />
-                <stop offset="100%" style={{ stopColor: color, stopOpacity: 0 }} />
+                <stop offset="0%" stopColor={color} stopOpacity={0.25} />
+                <stop offset="50%" stopColor={color} stopOpacity={0.06} />
+                <stop offset="100%" stopColor={color} stopOpacity={0} />
               </linearGradient>
             </defs>
 
-            {/* Vertical gridlines at the labelled snapshots */}
+            {/* Horizontal gridlines with Right-Aligned Y-Axis Labels */}
+            {geometry.ticks.map((t) => {
+              const y = geometry.yAt(t);
+              return (
+                <g key={t}>
+                  {t !== 0 && (
+                    <line
+                      x1={PAD.left}
+                      y1={y}
+                      x2={chartWidth - PAD.right}
+                      y2={y}
+                      className="stroke-border"
+                      strokeWidth={1}
+                      strokeDasharray="2 3"
+                      opacity={0.65}
+                    />
+                  )}
+                  {/* Y-Axis Value on the Right */}
+                  <text
+                    x={chartWidth - PAD.right + 8}
+                    y={y}
+                    textAnchor="start"
+                    dominantBaseline="middle"
+                    className="fill-foreground-faint font-mono"
+                    fontSize={10}
+                  >
+                    {format(t, geometry.tickDecimals)}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Emphasized Zero baseline */}
+            {geometry.zeroY !== null && (
+              <line
+                x1={PAD.left}
+                y1={geometry.zeroY}
+                x2={chartWidth - PAD.right}
+                y2={geometry.zeroY}
+                className="stroke-foreground/30"
+                strokeWidth={1}
+                strokeDasharray="3 3"
+              />
+            )}
+
+            {/* Subtle Vertical Gridlines at Date Ticks */}
             {geometry.timeTicks.slice(1, -1).map((tick) => (
               <line
                 key={tick.i}
@@ -332,71 +428,12 @@ export function InteractiveChart({ snapshots }: { snapshots: PnlSnapshotRecord[]
                 y2={PAD.top + geometry.plotH}
                 className="stroke-border"
                 strokeWidth={1}
+                strokeDasharray="2 3"
+                opacity={0.4}
               />
             ))}
 
-            {/* Idle-gap markers — x is per-snapshot, so long dead stretches
-                would otherwise be invisible */}
-            {geometry.gaps.map((gap) => (
-              <g key={gap.x} className="fill-foreground-faint">
-                <line
-                  x1={gap.x}
-                  y1={PAD.top}
-                  x2={gap.x}
-                  y2={PAD.top + geometry.plotH}
-                  className="stroke-foreground/20"
-                  strokeWidth={1}
-                  strokeDasharray="2 4"
-                />
-                <text x={gap.x} y={PAD.top - 6} textAnchor="middle" className="font-mono" fontSize={9}>
-                  {gap.hours >= 48
-                    ? `${Math.round(gap.hours / 24)}d gap`
-                    : `${Math.round(gap.hours)}h gap`}
-                </text>
-              </g>
-            ))}
-
-            {/* Horizontal gridlines at round values, with axis labels */}
-            {geometry.ticks.map((t) => (
-              <g key={t}>
-                {/* Skip at zero — the emphasised zero baseline is drawn below */}
-                {t !== 0 && (
-                  <line
-                    x1={PAD.left}
-                    y1={geometry.yAt(t)}
-                    x2={width - PAD.right}
-                    y2={geometry.yAt(t)}
-                    className="stroke-border"
-                    strokeWidth={1}
-                  />
-                )}
-                <text
-                  x={PAD.left - 10}
-                  y={geometry.yAt(t)}
-                  textAnchor="end"
-                  dominantBaseline="middle"
-                  className="fill-foreground-faint font-mono"
-                  fontSize={10}
-                >
-                  {format(t, geometry.tickDecimals)}
-                </text>
-              </g>
-            ))}
-
-            {/* Zero baseline, emphasised over the plain gridlines */}
-            {geometry.zeroY !== null && (
-              <line
-                x1={PAD.left}
-                y1={geometry.zeroY}
-                x2={width - PAD.right}
-                y2={geometry.zeroY}
-                className="stroke-foreground/25"
-                strokeWidth={1}
-                strokeDasharray="3 3"
-              />
-            )}
-
-            {/* X-axis time labels */}
+            {/* Bottom X-axis Time Labels */}
             {geometry.timeTicks.map((tick, n) => (
               <text
                 key={tick.i}
@@ -410,14 +447,16 @@ export function InteractiveChart({ snapshots }: { snapshots: PnlSnapshotRecord[]
               </text>
             ))}
 
+            {/* Smooth Rich Gradient Area Fill */}
             <path d={geometry.area} fill={`url(#chart-fill-${mode})`} />
 
+            {/* Main Smooth Price Curve */}
             <path
-              key={mode}
+              key={`${mode}-${timeRange}`}
               d={geometry.line}
               fill="none"
               style={{ stroke: color }}
-              strokeWidth={2}
+              strokeWidth={2.2}
               strokeLinecap="round"
               strokeLinejoin="round"
               pathLength={1}
@@ -427,52 +466,126 @@ export function InteractiveChart({ snapshots }: { snapshots: PnlSnapshotRecord[]
                 attributeName="stroke-dashoffset"
                 from="1"
                 to="0"
-                dur="0.55s"
+                dur="0.45s"
                 calcMode="spline"
                 keySplines="0.4 0 0.2 1"
                 fill="freeze"
               />
             </path>
 
+            {/* ── CoinGecko Signature: Pinned Live Value Badge on Right Axis ── */}
+            {latestPt && hoverIndex === null && (
+              <g>
+                {/* Horizontal dotted guide line connecting latest point to axis */}
+                <line
+                  x1={latestPt.x}
+                  y1={latestPt.y}
+                  x2={chartWidth - PAD.right + 2}
+                  y2={latestPt.y}
+                  stroke={color}
+                  strokeWidth={1}
+                  strokeDasharray="2 2"
+                  opacity={0.6}
+                />
+                {/* Glowing live dot at current price */}
+                <circle cx={latestPt.x} cy={latestPt.y} r={7} fill={color} opacity={0.2} />
+                <circle cx={latestPt.x} cy={latestPt.y} r={3.5} fill={color} />
+
+                {/* Pinned Pill Badge on the Right Axis */}
+                <g transform={`translate(${chartWidth - PAD.right + 4}, ${latestPt.y - 9})`}>
+                  <rect
+                    width={PAD.right - 8}
+                    height={18}
+                    rx={4}
+                    fill={color}
+                  />
+                  <text
+                    x={(PAD.right - 8) / 2}
+                    y={12.5}
+                    textAnchor="middle"
+                    fill="#ffffff"
+                    className="font-mono text-[10px] font-bold"
+                  >
+                    {format(latestVal, 2)}
+                  </text>
+                </g>
+              </g>
+            )}
+
+            {/* ── Active Hover Crosshair ── */}
             {hoverIndex !== null && (
               <g pointerEvents="none">
+                {/* Vertical Crosshair */}
                 <line
                   x1={hoverX}
                   y1={PAD.top}
                   x2={hoverX}
                   y2={PAD.top + geometry.plotH}
-                  stroke="var(--foreground-muted)"
+                  stroke="currentColor"
+                  className="text-foreground"
                   opacity={0.3}
                   strokeWidth={1}
                   strokeDasharray="3 3"
                 />
-                <circle cx={hoverX} cy={geometry.pts[hoverIndex].y} r={7} fill={color} opacity={0.18} />
+                {/* Horizontal Crosshair */}
+                <line
+                  x1={PAD.left}
+                  y1={hoverY}
+                  x2={chartWidth - PAD.right + 2}
+                  y2={hoverY}
+                  stroke="currentColor"
+                  className="text-foreground"
+                  opacity={0.3}
+                  strokeWidth={1}
+                  strokeDasharray="3 3"
+                />
+                {/* Cursor Dot */}
+                <circle cx={hoverX} cy={hoverY} r={7} fill={color} opacity={0.2} />
                 <circle
                   cx={hoverX}
-                  cy={geometry.pts[hoverIndex].y}
+                  cy={hoverY}
                   r={3.5}
                   style={{ fill: "var(--background)", stroke: color }}
                   strokeWidth={2}
                 />
+                {/* Hover Value Badge on Right Axis */}
+                <g transform={`translate(${chartWidth - PAD.right + 4}, ${hoverY - 9})`}>
+                  <rect
+                    width={PAD.right - 8}
+                    height={18}
+                    rx={4}
+                    fill="currentColor"
+                    className="text-foreground"
+                  />
+                  <text
+                    x={(PAD.right - 8) / 2}
+                    y={12.5}
+                    textAnchor="middle"
+                    fill="var(--background)"
+                    className="font-mono text-[10px] font-bold"
+                  >
+                    {format(values[hoverIndex], 2)}
+                  </text>
+                </g>
               </g>
             )}
           </svg>
         )}
 
-        {/* Tooltip — HTML so it can use the app's real surface styling */}
+        {/* Floating Tooltip Pill */}
         {geometry && hoverIndex !== null && (
           <div
-            className="pointer-events-none absolute z-10 whitespace-nowrap rounded-md border border-border bg-background-elevated px-2.5 py-1.5 font-mono text-[11px] shadow-lg backdrop-blur"
+            className="pointer-events-none absolute z-10 whitespace-nowrap rounded-lg border border-border bg-surface px-3 py-1.5 font-mono text-xs shadow-xl backdrop-blur"
             style={{
-              left: Math.min(Math.max(hoverX, 60), width - 60),
-              top: Math.max(geometry.pts[hoverIndex].y - 52, 0),
+              left: Math.min(Math.max(hoverX, 70), chartWidth - PAD.right - 70),
+              top: Math.max(hoverY - 54, 4),
               transform: "translateX(-50%)",
             }}
           >
-            <div className="font-semibold tabular-nums" style={{ color }}>
+            <div className="font-bold tabular-nums" style={{ color }}>
               {format(values[hoverIndex])}
             </div>
-            <div className="text-foreground-faint">{dateAt(hoverIndex)}</div>
+            <div className="text-[10px] text-foreground-faint">{dateAt(hoverIndex)}</div>
           </div>
         )}
       </div>

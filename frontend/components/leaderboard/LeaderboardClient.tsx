@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { XGlyph, InfoGlyph, CheckGlyph, ArrowRightGlyph } from "@/components/ui/StatusGlyphs";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
 import { StaggerTableBody, StaggerRow } from "@/components/motion/StaggerTable";
 
 const MIN_TRADES_FOR_ELIGIBILITY = 50;
@@ -181,9 +182,9 @@ export function LeaderboardClient({
           <button
             type="button"
             onClick={() => setIsRankingModalOpen(true)}
-            className="group inline-flex items-center gap-1.5 text-xs text-foreground-faint transition-colors hover:text-foreground cursor-pointer"
+            className="group inline-flex items-center gap-2 text-xs text-foreground-faint transition-colors hover:text-foreground cursor-pointer"
           >
-            <InfoGlyph className="h-3.5 w-3.5 text-foreground-faint transition-colors group-hover:text-accent" />
+            <InfoGlyph className="h-3.5 w-3.5 shrink-0 text-foreground-faint transition-colors group-hover:text-accent" />
             <span className="underline decoration-border-strong underline-offset-4 transition-colors group-hover:decoration-accent">
               How ranking works
             </span>
@@ -205,13 +206,7 @@ export function LeaderboardClient({
 
       {/* ── Content Area: Matches Image 1 with soft translucent borders ── */}
       <div className={`mt-6 transition-opacity duration-150 ${isSwitching ? "opacity-75" : "opacity-100"}`}>
-        {/* Helper Hint Bar */}
-        <div className="mb-3 flex items-center justify-between font-mono text-[11px] text-foreground-faint px-1">
-          <span className="inline-flex items-center gap-2">
-            <InfoGlyph className="h-3.5 w-3.5 text-foreground-muted shrink-0" />
-            <span>Click any agent to inspect verified fills, Sharpe metrics, and live copy trading.</span>
-          </span>
-        </div>
+        {/* Helper Hint Bar (Removed, merged into table header) */}
 
         {/* Ranked Table (when agents qualify) */}
         {ranked.length > 0 && (
@@ -221,7 +216,12 @@ export function LeaderboardClient({
                 <thead className="t-label border-b border-border">
                   <tr>
                     <th className={TH}>#</th>
-                    <th className={TH}>Agent</th>
+                    <th className={TH}>
+                      <div className="flex items-center gap-1.5">
+                        Agent
+                        <InfoTooltip position="bottom" align="left" content="Click any agent to inspect verified fills, Sharpe metrics, and live copy trading." />
+                      </div>
+                    </th>
                     <th className={TH}>Owner</th>
                     <th className={TH}>Status</th>
                     <th className={TH}>Trades</th>
@@ -324,7 +324,12 @@ export function LeaderboardClient({
                 <table className="w-full text-left text-sm">
                   <thead className="t-label border-b border-border">
                     <tr>
-                      <th className={TH}>Agent</th>
+                      <th className={TH}>
+                        <div className="flex items-center gap-1.5">
+                          Agent
+                          <InfoTooltip position="bottom" align="left" content="Click any agent to inspect verified fills, Sharpe metrics, and live copy trading." />
+                        </div>
+                      </th>
                       <th className={TH}>Owner</th>
                       <th className={TH}>Status</th>
                       <th className={`${TH} text-center`}>Verified fills</th>

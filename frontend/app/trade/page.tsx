@@ -624,48 +624,56 @@ export default function TradePage() {
             {activeTab === "liquidity" && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl border border-border bg-background">
-                    <span className="t-label text-[10px]">Total Pool Capital</span>
-                    <div className="text-lg font-bold font-mono text-foreground mt-1">$500,000.00</div>
-                    <div className="text-[11px] text-foreground-faint font-mono mt-0.5">ERC-4626 Vault</div>
+                  <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                    <div className="rounded-lg bg-white p-4 dark:bg-[#0a0a0a]">
+                      <span className="t-label text-[10px]">Total Pool Capital</span>
+                      <div className="text-lg font-bold font-mono text-foreground mt-1">$500,000.00</div>
+                      <div className="text-[11px] text-foreground-faint font-mono mt-0.5">ERC-4626 Vault</div>
+                    </div>
                   </div>
-                  <div className="p-4 rounded-xl border border-border bg-background">
-                    <span className="t-label text-[10px]">Estimated APY</span>
-                    <div className="text-lg font-bold font-mono text-positive mt-1">18.40%</div>
-                    <div className="text-[11px] text-foreground-faint font-mono mt-0.5">Fees + Borrow Rates</div>
+                  <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                    <div className="rounded-lg bg-white p-4 dark:bg-[#0a0a0a]">
+                      <span className="t-label text-[10px]">Estimated APY</span>
+                      <div className="text-lg font-bold font-mono text-positive mt-1">18.40%</div>
+                      <div className="text-[11px] text-foreground-faint font-mono mt-0.5">Fees + Borrow Rates</div>
+                    </div>
                   </div>
-                  <div className="p-4 rounded-xl border border-border bg-background">
-                    <span className="t-label text-[10px]">Your vLP Balance</span>
-                    <div className="text-lg font-bold font-mono text-foreground mt-1">{lpSharesBalance} vLP</div>
-                    <div className="text-[11px] text-foreground-faint font-mono mt-0.5">Redeemable for USDC</div>
+                  <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                    <div className="rounded-lg bg-white p-4 dark:bg-[#0a0a0a]">
+                      <span className="t-label text-[10px]">Your vLP Balance</span>
+                      <div className="text-lg font-bold font-mono text-foreground mt-1">{lpSharesBalance} vLP</div>
+                      <div className="text-[11px] text-foreground-faint font-mono mt-0.5">Redeemable for USDC</div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl border border-border bg-background flex flex-col sm:flex-row items-center gap-4">
-                  <div className="flex-1 w-full">
-                    <label className="t-label text-[10px] block mb-1.5">
-                      Deposit USDC to Mint vLP Shares
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        value={lpDepositAmount}
-                        onChange={(e) => setLpDepositAmount(e.target.value)}
-                        placeholder="500.00"
-                        className="w-full rounded-lg border border-border bg-surface px-3.5 py-2 text-sm font-mono text-foreground outline-none focus:border-accent"
-                      />
-                      <span className="absolute right-3 top-2.5 text-xs font-mono text-foreground-faint">
-                        USDC
-                      </span>
+                <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                  <div className="rounded-lg bg-white p-4 dark:bg-[#0a0a0a] flex flex-col sm:flex-row items-center gap-4">
+                    <div className="flex-1 w-full">
+                      <label className="t-label text-[10px] block mb-1.5">
+                        Deposit USDC to Mint vLP Shares
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          value={lpDepositAmount}
+                          onChange={(e) => setLpDepositAmount(e.target.value)}
+                          placeholder="500.00"
+                          className="w-full rounded-lg border border-border bg-surface px-3.5 py-2 text-sm font-mono text-foreground outline-none focus:border-accent"
+                        />
+                        <span className="absolute right-3 top-2.5 text-xs font-mono text-foreground-faint">
+                          USDC
+                        </span>
+                      </div>
                     </div>
+                    <Button
+                      onClick={handleDepositLp}
+                      disabled={isLpSubmitting}
+                      className="w-full sm:w-auto sm:mt-5 text-xs font-medium"
+                    >
+                      {isLpSubmitting ? "Depositing..." : "Deposit & Mint vLP"}
+                    </Button>
                   </div>
-                  <Button
-                    onClick={handleDepositLp}
-                    disabled={isLpSubmitting}
-                    className="w-full sm:w-auto sm:mt-5 text-xs font-medium"
-                  >
-                    {isLpSubmitting ? "Depositing..." : "Deposit & Mint vLP"}
-                  </Button>
                 </div>
               </div>
             )}

@@ -5,7 +5,7 @@ type Variant = "primary" | "secondary" | "outline" | "ghost";
 
 const VARIANT_CLASSES: Record<Variant, string> = {
   primary:
-    "bg-accent-fill text-white font-medium hover:bg-accent-fill/90 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none",
+    "bg-accent-fill text-white font-medium hover:bg-accent-fill/90 active:scale-[0.98] disabled:bg-neutral-200 disabled:text-neutral-400 dark:disabled:bg-[#1a1a1a] dark:disabled:text-neutral-600 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100",
   // Carries a resting background, not just a border: these pills sit over the
   // dither field, and a transparent fill let it show through the label. Uses
   // --background-elevated (the same token `.surface` uses) rather than

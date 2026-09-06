@@ -7,10 +7,18 @@ import { ExternalLinkGlyph, ArrowCircleRightGlyph } from "@/components/ui/Status
 import type { TradeRecord, TuningHistoryEntry, PnlSnapshotRecord } from "@/lib/leaderboardApi";
 
 function isSimulated(txSignature: string | null): boolean {
-  return !txSignature || txSignature.startsWith("simulated_");
+  if (!txSignature) return true;
+  return (
+    txSignature.startsWith("simulated_") ||
+    txSignature.startsWith("evm_sim_") ||
+    txSignature.startsWith("paper_") ||
+    txSignature.includes("_sim_") ||
+    txSignature.includes("mock")
+  );
 }
 
-function explorerUrl(txSignature: string): string {
+function explorerUrl(txSignature: string): string | null {
+  if (isSimulated(txSignature)) return null;
   return txSignature.startsWith("0x")
     ? `https://sepolia.basescan.org/tx/${txSignature}`
     : `https://explorer.solana.com/tx/${txSignature}?cluster=devnet`;
@@ -99,9 +107,9 @@ export function TradesTable({ trades }: { trades: TradeRecord[] }) {
                   <p className="line-clamp-3 text-xs leading-relaxed hover:line-clamp-none transition-all">
                     {trade.reason}
                   </p>
-                  {trade.tx_signature && !isSimulated(trade.tx_signature) && (
+                  {trade.tx_signature && !isSimulated(trade.tx_signature) && explorerUrl(trade.tx_signature) && (
                     <a
-                      href={explorerUrl(trade.tx_signature)}
+                      href={explorerUrl(trade.tx_signature)!}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-[10px] text-accent hover:underline self-end inline-flex items-center gap-1 mt-0.5"
@@ -118,21 +126,22 @@ export function TradesTable({ trades }: { trades: TradeRecord[] }) {
       </div>
 
       {/* Desktop Table (>= md) */}
-      <div className="hidden md:block overflow-x-auto rounded-xl border border-border bg-surface/40">
-        <table className="w-full min-w-[780px] text-left text-sm">
-          <thead className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px] font-mono">
-            <tr>
-              <th className="px-4 py-3 font-medium">Market</th>
-              <th className="px-4 py-3 font-medium">Side</th>
-              <th className="px-4 py-3 font-medium">Size (USD)</th>
-              <th className="px-4 py-3 font-medium">Entry</th>
-              <th className="px-4 py-3 font-medium">Exit</th>
-              <th className="px-4 py-3 font-medium">Realized PNL</th>
-              <th className="px-4 py-3 font-medium">Opened</th>
-              <th className="px-4 py-3 font-medium">Rationale</th>
-            </tr>
-          </thead>
-          <StaggerTableBody className="font-mono text-xs">
+      <div className="hidden md:block rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+        <div className="overflow-x-auto rounded-lg bg-white dark:bg-[#0a0a0a]">
+          <table className="w-full min-w-[780px] text-left text-sm">
+            <thead className="border-b border-black/5 bg-neutral-50 text-foreground-muted uppercase tracking-wider text-[10px] font-mono dark:border-white/5 dark:bg-[#111111]">
+              <tr>
+                <th className="px-4 py-3 font-medium">Market</th>
+                <th className="px-4 py-3 font-medium">Side</th>
+                <th className="px-4 py-3 font-medium">Size (USD)</th>
+                <th className="px-4 py-3 font-medium">Entry</th>
+                <th className="px-4 py-3 font-medium">Exit</th>
+                <th className="px-4 py-3 font-medium">Realized PNL</th>
+                <th className="px-4 py-3 font-medium">Opened</th>
+                <th className="px-4 py-3 font-medium">Rationale</th>
+              </tr>
+            </thead>
+            <StaggerTableBody className="font-mono text-xs">
             {visibleTrades.map((trade) => (
               <StaggerRow
                 key={trade.tx_signature ?? `${trade.market_symbol}-${trade.opened_at}`}
@@ -157,11 +166,11 @@ export function TradesTable({ trades }: { trades: TradeRecord[] }) {
                 <td className="px-4 py-3 text-foreground-muted whitespace-nowrap">{formatDate(trade.opened_at)}</td>
                 <td className="px-4 py-3 font-sans text-xs text-foreground-muted max-w-[240px] truncate whitespace-normal" title={trade.reason || "N/A"}>
                   {trade.reason || "N/A"}
-                  {trade.tx_signature && !isSimulated(trade.tx_signature) && (
+                  {trade.tx_signature && !isSimulated(trade.tx_signature) && explorerUrl(trade.tx_signature) && (
                     <>
                       {" "}
                       <a
-                        href={explorerUrl(trade.tx_signature)}
+                        href={explorerUrl(trade.tx_signature)!}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-foreground underline decoration-border underline-offset-2 whitespace-nowrap inline-flex items-center gap-1"
@@ -176,6 +185,7 @@ export function TradesTable({ trades }: { trades: TradeRecord[] }) {
             ))}
           </StaggerTableBody>
         </table>
+        </div>
       </div>
 
       {trades.length > visibleCount && (
@@ -251,38 +261,40 @@ export function TuningLogTable({ entries }: { entries: TuningHistoryEntry[] }) {
       </div>
 
       {/* Desktop Table (>= md) */}
-      <div className="hidden md:block overflow-x-auto rounded-xl border border-border bg-surface/40">
-        <table className="w-full min-w-[560px] text-left text-sm">
-          <thead className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px] font-mono">
-            <tr>
-              <th className="px-4 py-3 font-medium">Date</th>
-              <th className="px-4 py-3 font-medium">Param</th>
-              <th className="px-4 py-3 font-medium">Change</th>
-              <th className="px-4 py-3 font-medium">Reason</th>
-            </tr>
-          </thead>
-          <StaggerTableBody className="font-mono text-xs">
-            {visibleEntries.map((entry) => (
-              <StaggerRow
-                key={`${entry.param}-${entry.changed_at}`}
-                className="border-t border-border/50 text-foreground transition-colors hover:bg-surface/60"
-              >
-                <td className="px-4 py-3 text-foreground-muted whitespace-nowrap">{formatDate(entry.changed_at)}</td>
-                <td className="px-4 py-3 font-semibold">{entry.param}</td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="flex items-center gap-2">
-                    <span className="text-foreground-muted">{formatMetric(entry.old_value)}</span>
-                    <ArrowCircleRightGlyph className="h-3.5 w-3.5 text-accent shrink-0" />
-                    <span className="font-bold text-foreground">{formatMetric(entry.new_value)}</span>
-                  </span>
-                </td>
-                <td className="px-4 py-3 whitespace-normal font-sans text-xs text-foreground-muted">
-                  {entry.reason}
-                </td>
-              </StaggerRow>
-            ))}
-          </StaggerTableBody>
-        </table>
+      <div className="hidden md:block rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+        <div className="overflow-x-auto rounded-lg bg-white dark:bg-[#0a0a0a]">
+          <table className="w-full min-w-[560px] text-left text-sm">
+            <thead className="border-b border-black/5 bg-neutral-50 text-foreground-muted uppercase tracking-wider text-[10px] font-mono dark:border-white/5 dark:bg-[#111111]">
+              <tr>
+                <th className="px-4 py-3 font-medium">Date</th>
+                <th className="px-4 py-3 font-medium">Param</th>
+                <th className="px-4 py-3 font-medium">Change</th>
+                <th className="px-4 py-3 font-medium">Reason</th>
+              </tr>
+            </thead>
+            <StaggerTableBody className="font-mono text-xs">
+              {visibleEntries.map((entry) => (
+                <StaggerRow
+                  key={`${entry.param}-${entry.changed_at}`}
+                  className="border-t border-border/50 text-foreground transition-colors hover:bg-surface/60"
+                >
+                  <td className="px-4 py-3 text-foreground-muted whitespace-nowrap">{formatDate(entry.changed_at)}</td>
+                  <td className="px-4 py-3 font-semibold">{entry.param}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <span className="flex items-center gap-2">
+                      <span className="text-foreground-muted">{formatMetric(entry.old_value)}</span>
+                      <ArrowCircleRightGlyph className="h-3.5 w-3.5 text-accent shrink-0" />
+                      <span className="font-bold text-foreground">{formatMetric(entry.new_value)}</span>
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 whitespace-normal font-sans text-xs text-foreground-muted">
+                    {entry.reason}
+                  </td>
+                </StaggerRow>
+              ))}
+            </StaggerTableBody>
+          </table>
+        </div>
       </div>
 
       {entries.length > visibleCount && (
@@ -310,31 +322,33 @@ export function SnapshotsTable({ snapshots }: { snapshots: PnlSnapshotRecord[] }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="overflow-x-auto rounded-xl border border-border bg-surface/40">
-        <table className="w-full min-w-[620px] text-left text-sm">
-          <thead className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px] font-mono">
-            <tr>
-              <th className="px-4 py-3 font-medium">Snapshot</th>
-              <th className="px-4 py-3 font-medium">Realized PNL</th>
-              <th className="px-4 py-3 font-medium">Unrealized PNL</th>
-              <th className="px-4 py-3 font-medium">ROI</th>
-              <th className="px-4 py-3 font-medium">Max drawdown</th>
-              <th className="px-4 py-3 font-medium">Sharpe-like</th>
-            </tr>
-          </thead>
-          <StaggerTableBody className="font-mono text-xs">
-            {visibleSnapshots.map((snap) => (
-              <StaggerRow key={snap.snapshot_at} className="border-t border-border/50 text-foreground transition-colors hover:bg-surface/60">
-                <td className="px-4 py-3 text-foreground-muted whitespace-nowrap">{formatDate(snap.snapshot_at)}</td>
-                <td className="px-4 py-3 font-semibold">{formatMetric(snap.realized_pnl)}</td>
-                <td className="px-4 py-3">{formatMetric(snap.unrealized_pnl)}</td>
-                <td className="px-4 py-3">{formatMetric(snap.roi_pct, "%")}</td>
-                <td className="px-4 py-3">{formatMetric(snap.max_drawdown_pct, "%")}</td>
-                <td className="px-4 py-3 font-semibold">{formatMetric(snap.sharpe_like)}</td>
-              </StaggerRow>
-            ))}
-          </StaggerTableBody>
-        </table>
+      <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+        <div className="overflow-x-auto rounded-lg bg-white dark:bg-[#0a0a0a]">
+          <table className="w-full min-w-[620px] text-left text-sm">
+            <thead className="border-b border-black/5 bg-neutral-50 text-foreground-muted uppercase tracking-wider text-[10px] font-mono dark:border-white/5 dark:bg-[#111111]">
+              <tr>
+                <th className="px-4 py-3 font-medium">Snapshot</th>
+                <th className="px-4 py-3 font-medium">Realized PNL</th>
+                <th className="px-4 py-3 font-medium">Unrealized PNL</th>
+                <th className="px-4 py-3 font-medium">ROI</th>
+                <th className="px-4 py-3 font-medium">Max drawdown</th>
+                <th className="px-4 py-3 font-medium">Sharpe-like</th>
+              </tr>
+            </thead>
+            <StaggerTableBody className="font-mono text-xs">
+              {visibleSnapshots.map((snap) => (
+                <StaggerRow key={snap.snapshot_at} className="border-t border-border/50 text-foreground transition-colors hover:bg-surface/60">
+                  <td className="px-4 py-3 text-foreground-muted whitespace-nowrap">{formatDate(snap.snapshot_at)}</td>
+                  <td className="px-4 py-3 font-semibold">{formatMetric(snap.realized_pnl)}</td>
+                  <td className="px-4 py-3">{formatMetric(snap.unrealized_pnl)}</td>
+                  <td className="px-4 py-3">{formatMetric(snap.roi_pct, "%")}</td>
+                  <td className="px-4 py-3">{formatMetric(snap.max_drawdown_pct, "%")}</td>
+                  <td className="px-4 py-3 font-semibold">{formatMetric(snap.sharpe_like)}</td>
+                </StaggerRow>
+              ))}
+            </StaggerTableBody>
+          </table>
+        </div>
       </div>
 
       {snapshots.length > visibleCount && (

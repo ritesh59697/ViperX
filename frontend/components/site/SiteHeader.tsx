@@ -7,6 +7,10 @@ import dynamicImport from "next/dynamic";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { BaseLogo } from "@/components/ui/BaseLogo";
 import { SolanaLogo } from "@/components/ui/SolanaLogo";
+import { ExternalLinkGlyph } from "@/components/ui/StatusGlyphs";
+import { GlobalSearchModal } from "@/components/site/GlobalSearchModal";
+import { ScrolledNavbar } from "@/components/site/ScrolledNavbar";
+import { BrandLogoMenu } from "@/components/site/BrandLogoMenu";
 
 const WalletMultiButton = dynamicImport(
   () => import("@solana/wallet-adapter-react-ui").then((mod) => mod.WalletMultiButton),
@@ -67,9 +71,10 @@ const TOOLS_LINKS = [
 // Resources dropdown items
 const RESOURCES_LINKS = [
   {
-    href: "/docs",
+    href: "https://docs.viperx.site",
     label: "Documentation",
     description: "ViperX core protocol & architecture specs",
+    external: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 text-foreground-muted">
         <path d="M3 2h7l4 4v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="currentColor" strokeWidth="1.3"/>
@@ -78,9 +83,10 @@ const RESOURCES_LINKS = [
     ),
   },
   {
-    href: "/specs",
+    href: "https://docs.viperx.site/security/smart-contracts",
     label: "System Specs",
     description: "Deployed contracts & verification guidelines",
+    external: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 text-foreground-muted">
         <rect x="2" y="2" width="12" height="12" rx="1" stroke="currentColor" strokeWidth="1.3"/>
@@ -89,9 +95,10 @@ const RESOURCES_LINKS = [
     ),
   },
   {
-    href: "/guides",
+    href: "https://docs.viperx.site/quickstart",
     label: "User Guides",
     description: "Prerequisites, parameters, and quickstarts",
+    external: true,
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 text-foreground-muted">
         <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.3"/>
@@ -103,9 +110,9 @@ const RESOURCES_LINKS = [
 
 // Mobile: flatten all links for the slide-down menu
 const ALL_MOBILE_LINKS = [
-  ...PRIMARY_LINKS,
-  ...TOOLS_LINKS.map(({ href, label }) => ({ href, label })),
-  ...RESOURCES_LINKS.map(({ href, label }) => ({ href, label })),
+  ...PRIMARY_LINKS.map(({ href, label }) => ({ href, label, external: false })),
+  ...TOOLS_LINKS.map(({ href, label }) => ({ href, label, external: false })),
+  ...RESOURCES_LINKS.map(({ href, label, external }) => ({ href, label, external: !!external })),
 ];
 
 export function SiteHeader() {
@@ -115,12 +122,45 @@ export function SiteHeader() {
   const [networkDropdownOpen, setNetworkDropdownOpen] = useState(false);
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
   const [resourcesDropdownOpen, setResourcesDropdownOpen] = useState(false);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const networkDropdownRef = useRef<HTMLDivElement>(null);
   const toolsDropdownRef = useRef<HTMLDivElement>(null);
   const resourcesDropdownRef = useRef<HTMLDivElement>(null);
   const toolsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const resourcesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const isAgentProfilePage = Boolean(pathname?.startsWith("/agents/"));
+
+  // Track window scroll ONLY on agent profile pages (/agents/[agentPda])
+  useEffect(() => {
+    if (!isAgentProfilePage) {
+      setIsScrolled(false);
+      return;
+    }
+
+    const handleScroll = () => {
+      const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+      // Trigger when scrolling past the top hero summary of the agent profile page (~200px)
+      setIsScrolled(scrollY > 200);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isAgentProfilePage]);
+
+  // Global keyboard shortcut for search modal (⌘K / Ctrl+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchModalOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const handleToolsEnter = () => {
     if (toolsTimeoutRef.current) clearTimeout(toolsTimeoutRef.current);
@@ -269,6 +309,8 @@ export function SiteHeader() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
+                    target={link.external ? "_blank" : undefined}
+                    rel={link.external ? "noopener noreferrer" : undefined}
                     onClick={() => setMobileOpen(false)}
                     className={`block rounded-xl px-5 py-3.5 text-base font-semibold transition-all ${
                       pathname === link.href
@@ -292,21 +334,33 @@ export function SiteHeader() {
                 <Link href="/" onClick={() => setMobileOpen(false)} className="hover:text-foreground">
                   Home
                 </Link>
-                <Link href="/docs" onClick={() => setMobileOpen(false)} className="hover:text-foreground">
+                <a
+                  href="https://docs.viperx.site"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileOpen(false)}
+                  className="hover:text-foreground"
+                >
                   Docs
-                </Link>
-                <Link href="/specs" onClick={() => setMobileOpen(false)} className="hover:text-foreground">
+                </a>
+                <a
+                  href="https://docs.viperx.site/security/smart-contracts"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileOpen(false)}
+                  className="hover:text-foreground"
+                >
                   Specs
-                </Link>
+                </a>
               </div>
               <div className="flex items-center justify-between text-xs font-mono text-foreground-faint pt-1 border-t border-border/10">
                 <a
-                  href="https://x.com/ritesh5969"
+                  href="https://x.com/ViperX_site"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-foreground"
                 >
-                  Twitter
+                  X
                 </a>
                 <a
                   href="https://github.com/ritesh59697/ViperX"
@@ -353,18 +407,16 @@ export function SiteHeader() {
         </div>
       )}
 
-      <header className="sticky top-0 z-[65] w-full border-b border-border bg-background/85 backdrop-blur-xl">
+      <header
+        className={`sticky top-0 z-[65] w-full border-b border-border bg-background/85 backdrop-blur-xl transition-all duration-300 ease-in-out ${
+          isAgentProfilePage && isScrolled
+            ? "-translate-y-full opacity-0 pointer-events-none"
+            : "translate-y-0 opacity-100 pointer-events-auto"
+        }`}
+      >
         <div className="mx-auto flex h-16 w-full max-w-[76rem] items-center gap-6 px-6">
 
-          <Link
-            href="/"
-            onClick={() => setMobileOpen(false)}
-            style={{ touchAction: "manipulation" }}
-            className="flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-70"
-          >
-            <img src="/viperx-logo-option-1-exact-logo.png" alt="ViperX Logo" className="h-8 w-8 object-contain" />
-            <span className="text-lg font-semibold tracking-tight text-foreground">ViperX</span>
-          </Link>
+          <BrandLogoMenu onAction={() => setMobileOpen(false)} />
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-2 md:flex">
@@ -477,15 +529,20 @@ export function SiteHeader() {
                       <Link
                         key={link.href}
                         href={link.href}
+                        target={link.external ? "_blank" : undefined}
+                        rel={link.external ? "noopener noreferrer" : undefined}
                         onClick={() => setResourcesDropdownOpen(false)}
-                        className={`flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface ${
+                        className={`group flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface ${
                           pathname === link.href ? "bg-surface" : ""
                         }`}
                       >
                         <div className="mt-0.5">{link.icon}</div>
                         <div>
-                          <p className="text-sm font-medium text-foreground">
-                            {link.label}
+                          <p className="text-sm font-medium text-foreground flex items-center gap-1.5">
+                            <span>{link.label}</span>
+                            {link.external && (
+                              <ExternalLinkGlyph className="h-3 w-3 text-foreground-faint transition-transform duration-150 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                            )}
                           </p>
                           <p className="mt-0.5 text-xs text-foreground-muted leading-tight">{link.description}</p>
                         </div>
@@ -505,6 +562,36 @@ export function SiteHeader() {
               }`} />
               {selectedNetwork === "solana" ? "solana devnet" : "base sepolia"}
             </span>
+
+            {/* Search Trigger Button — Mintlify style with ⌘K badge */}
+            <button
+              type="button"
+              onClick={() => setSearchModalOpen(true)}
+              className="hidden sm:flex items-center gap-2 rounded-full border border-border bg-background-elevated px-3 py-1.5 text-xs text-foreground-muted hover:border-border-strong hover:text-foreground transition-all cursor-pointer shadow-2xs"
+              title="Search protocol, agents & docs (⌘K)"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <span className="font-medium">Search</span>
+              <kbd className="inline-flex items-center rounded border border-border/80 bg-background px-1 text-[9px] font-mono text-foreground-faint">
+                ⌘K
+              </kbd>
+            </button>
+
+            {/* Mobile Search Icon Button */}
+            <button
+              type="button"
+              onClick={() => setSearchModalOpen(true)}
+              aria-label="Open search"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-background-elevated text-foreground-muted hover:text-foreground transition-colors sm:hidden"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+            </button>
 
             <ThemeToggle />
 
@@ -562,21 +649,31 @@ export function SiteHeader() {
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
               aria-controls="mobile-nav"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:bg-surface md:hidden"
+              className="relative flex h-9 w-9 shrink-0 flex-col items-center justify-center gap-[4px] rounded-full border border-border text-foreground transition-colors hover:bg-surface md:hidden cursor-pointer"
             >
-              {mobileOpen ? (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-5 w-5">
-                  <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-                </svg>
-              ) : (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-5 w-5">
-                  <path d="M3 6h18" /><path d="M3 12h18" /><path d="M3 18h18" />
-                </svg>
-              )}
+              <span className={`block h-[1.5px] w-4 rounded-full bg-current transition-all duration-300 ease-out ${mobileOpen ? "translate-y-[5.5px] rotate-45" : ""}`} />
+              <span className={`block h-[1.5px] w-4 rounded-full bg-current transition-all duration-300 ease-out ${mobileOpen ? "opacity-0 translate-x-2" : "opacity-100 translate-x-0"}`} />
+              <span className={`block h-[1.5px] w-4 rounded-full bg-current transition-all duration-300 ease-out ${mobileOpen ? "-translate-y-[5.5px] -rotate-45" : ""}`} />
             </button>
           </div>
         </div>
       </header>
+
+      {/* ── Scrolled Secondary Navbar (Agent Profile Pages Only) ─────────── */}
+      {isAgentProfilePage && (
+        <ScrolledNavbar
+          isVisible={isScrolled}
+          onOpenSearch={() => setSearchModalOpen(true)}
+          selectedNetwork={selectedNetwork}
+          onNetworkChange={handleNetworkChange}
+        />
+      )}
+
+      {/* ── Mintlify Global Command Palette Search Modal ─────────────────── */}
+      <GlobalSearchModal
+        isOpen={searchModalOpen}
+        onClose={() => setSearchModalOpen(false)}
+      />
     </>
   );
 }

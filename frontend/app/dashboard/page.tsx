@@ -16,6 +16,7 @@ import {
 import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { GridLoader } from "@/components/ui/GridLoader";
 
 const BaseConnectButton = dynamicImport(
   () => import("@/components/ui/BaseConnectButton").then((mod) => mod.BaseConnectButton),
@@ -43,12 +44,29 @@ export default function DashboardPage() {
   const [followers, setFollowers] = useState<CopyRelationship[]>([]);
   const [unfollowingPda, setUnfollowingPda] = useState<string | null>(null);
 
+  const [queryAddress, setQueryAddress] = useState<string | null>(null);
+
   // Wallets
   const { publicKey: solPublicKey, signMessage: solSignMessage } = useWallet();
   const { address: evmAddress } = useAccount();
   const { signMessageAsync: evmSignMessage } = useSignMessage();
 
-  const connectedAddress = activeChain === "solana" ? solPublicKey?.toBase58() : evmAddress;
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const qp = new URLSearchParams(window.location.search);
+      const qWallet = qp.get("wallet") || qp.get("address");
+      if (qWallet) {
+        setQueryAddress(qWallet);
+        if (qWallet.startsWith("0x")) {
+          setActiveChain("base");
+        } else if (qWallet.length >= 32 && qWallet.length <= 44) {
+          setActiveChain("solana");
+        }
+      }
+    }
+  }, []);
+
+  const connectedAddress = (activeChain === "solana" ? solPublicKey?.toBase58() : evmAddress) || queryAddress;
 
   useEffect(() => {
     const updateNetwork = () => {
@@ -141,75 +159,88 @@ export default function DashboardPage() {
           </div>
 
           {connectedAddress && (
-            <div className="flex flex-col gap-1 font-mono text-xs sm:text-right bg-surface/50 border border-border/60 rounded-xl p-3 sm:px-4">
-              <span className="text-foreground-muted text-[11px]">Connected Wallet</span>
-              <span className="font-semibold text-foreground tracking-wide">{shortenedAddress}</span>
-              <span className="text-[10px] text-foreground-faint uppercase tracking-wider font-semibold">
-                {activeChain === "solana" ? "Solana Devnet" : "Base Sepolia"}
-              </span>
+            <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+              <div className="flex flex-col gap-1 font-mono text-xs sm:text-right rounded-lg bg-white p-3 sm:px-4 dark:bg-[#0a0a0a]">
+                <span className="text-foreground-muted text-[11px]">Connected Wallet</span>
+                <span className="font-semibold text-foreground tracking-wide">{shortenedAddress}</span>
+                <span className="text-[10px] text-foreground-faint uppercase tracking-wider font-semibold">
+                  {activeChain === "solana" ? "Solana Devnet" : "Base Sepolia"}
+                </span>
+              </div>
             </div>
           )}
         </div>
 
-        {!connectedAddress && (
-          <div className="py-16 text-center font-mono text-sm text-foreground-muted bg-surface/30 rounded-xl border border-border">
-            Connect your wallet using the button in the top-right corner to initialize this workspace.
-          </div>
-        )}
-
         {connectedAddress && (
           <div className="space-y-10">
-            {/* Quick Stats Grid */}
+            {/* Quick Stats Grid — ReactBits Compound Card Styling */}
             <div className="grid gap-4 sm:grid-cols-3">
-              <div className="bg-surface/50 border border-border hover:border-border-strong p-5 font-mono rounded-xl transition-all duration-300 relative overflow-hidden group flex items-start justify-between shadow-xs">
-                <div className="flex flex-col">
-                  <span className="t-label text-[10px] uppercase tracking-wider text-foreground-faint">Bots Deployed</span>
-                  <span className="mt-2 block text-3xl font-bold text-foreground tracking-tight">{agents.length}</span>
-                </div>
-                <div className="p-2.5 rounded-lg bg-background/80 border border-border group-hover:border-border-strong transition-colors">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent shrink-0">
-                    <path d="M12 8V4H8" />
-                    <rect width="16" height="12" x="4" y="8" rx="2" />
-                    <path d="M9 13h.01" />
-                    <path d="M15 13h.01" />
-                    <path d="M12 17v1" />
-                    <path d="M8 21h8" />
-                  </svg>
-                </div>
-              </div>
-              <div className="bg-surface/50 border border-border hover:border-border-strong p-5 font-mono rounded-xl transition-all duration-300 relative overflow-hidden group flex items-start justify-between shadow-xs">
-                <div className="flex flex-col">
-                  <span className="t-label text-[10px] uppercase tracking-wider text-foreground-faint">Copy Subscriptions</span>
-                  <span className="mt-2 block text-3xl font-bold text-foreground tracking-tight">{copying.length}</span>
-                </div>
-                <div className="p-2.5 rounded-lg bg-background/80 border border-border group-hover:border-border-strong transition-colors">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent shrink-0">
-                    <path d="m17 2 4 4-4 4" />
-                    <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
-                    <path d="m7 22-4-4 4-4" />
-                    <path d="M21 13v1a4 4 0 0 1-4 4H3" />
-                  </svg>
+              {/* Card 1: Bots Deployed */}
+              <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-black/10 bg-neutral-200/60 p-1 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:border-black/20 dark:border-[#262626] dark:bg-[#141414] dark:hover:border-[#383838]">
+                <div className="flex h-full flex-col justify-between rounded-lg bg-white p-5 transition-colors dark:bg-[#0a0a0a]">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-foreground-muted truncate">
+                      Bots Deployed
+                    </span>
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-black/8 bg-black/[0.03] text-accent transition-all duration-200 group-hover:border-accent/40 group-hover:bg-accent/5 dark:border-white/10 dark:bg-white/[0.04]">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                        <path d="M12 8V4H8" />
+                        <rect width="16" height="12" x="4" y="8" rx="2" />
+                        <path d="M9 13h.01" />
+                        <path d="M15 13h.01" />
+                        <path d="M12 17v1" />
+                        <path d="M8 21h8" />
+                      </svg>
+                    </div>
+                  </div>
+                  <span className="mt-3 block font-mono text-3xl font-bold tracking-tight text-foreground">{agents.length}</span>
                 </div>
               </div>
-              <div className="bg-surface/50 border border-border hover:border-border-strong p-5 font-mono rounded-xl transition-all duration-300 relative overflow-hidden group flex items-start justify-between shadow-xs">
-                <div className="flex flex-col">
-                  <span className="t-label text-[10px] uppercase tracking-wider text-foreground-faint">Your Followers</span>
-                  <span className="mt-2 block text-3xl font-bold text-foreground tracking-tight">{followers.length}</span>
+
+              {/* Card 2: Copy Subscriptions */}
+              <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-black/10 bg-neutral-200/60 p-1 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:border-black/20 dark:border-[#262626] dark:bg-[#141414] dark:hover:border-[#383838]">
+                <div className="flex h-full flex-col justify-between rounded-lg bg-white p-5 transition-colors dark:bg-[#0a0a0a]">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-foreground-muted truncate">
+                      Copy Subscriptions
+                    </span>
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-black/8 bg-black/[0.03] text-accent transition-all duration-200 group-hover:border-accent/40 group-hover:bg-accent/5 dark:border-white/10 dark:bg-white/[0.04]">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                        <path d="m17 2 4 4-4 4" />
+                        <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+                        <path d="m7 22-4-4 4-4" />
+                        <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+                      </svg>
+                    </div>
+                  </div>
+                  <span className="mt-3 block font-mono text-3xl font-bold tracking-tight text-foreground">{copying.length}</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-background/80 border border-border group-hover:border-border-strong transition-colors">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent shrink-0">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
+              </div>
+
+              {/* Card 3: Your Followers */}
+              <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-black/10 bg-neutral-200/60 p-1 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:border-black/20 dark:border-[#262626] dark:bg-[#141414] dark:hover:border-[#383838]">
+                <div className="flex h-full flex-col justify-between rounded-lg bg-white p-5 transition-colors dark:bg-[#0a0a0a]">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-foreground-muted truncate">
+                      Your Followers
+                    </span>
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-black/8 bg-black/[0.03] text-accent transition-all duration-200 group-hover:border-accent/40 group-hover:bg-accent/5 dark:border-white/10 dark:bg-white/[0.04]">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
+                    </div>
+                  </div>
+                  <span className="mt-3 block font-mono text-3xl font-bold tracking-tight text-foreground">{followers.length}</span>
                 </div>
               </div>
             </div>
 
           {loading ? (
-            <div className="flex items-center justify-center py-12 font-mono text-xs text-foreground-muted">
-              Loading workspace data...
+            <div className="flex items-center justify-center py-16">
+              <GridLoader size={50} label="Loading workspace data..." />
             </div>
           ) : error ? (
             <Card variant="error">{error}</Card>
@@ -223,64 +254,68 @@ export default function DashboardPage() {
                 </div>
 
                 {agents.filter(a => !a.isPaper).length === 0 ? (
-                  <Card variant="muted" className="py-10 text-center font-mono text-xs text-foreground-muted bg-surface/30 border border-border">
-                    No live bots registered under this wallet yet. Click &quot;Deploy Bot&quot; above to create one.
-                  </Card>
+                  <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                    <div className="rounded-lg bg-white py-10 px-4 text-center font-mono text-xs text-foreground-muted dark:bg-[#0a0a0a]">
+                      No live bots registered under this wallet yet. Click &quot;Deploy Bot&quot; above to create one.
+                    </div>
+                  </div>
                 ) : (
-                  <div className="overflow-x-auto rounded-xl border border-border bg-surface/40">
-                    <table className="w-full text-left font-mono text-xs">
-                      <thead>
-                        <tr className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px]">
-                          <th className="p-4">Agent ID</th>
-                          <th className="p-4">Name</th>
-                          <th className="p-4">Chain</th>
-                          <th className="p-4">Vault Balance</th>
-                          <th className="p-4">Trades</th>
-                          <th className="p-4">Status</th>
-                          <th className="p-4 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {agents.filter(a => !a.isPaper).map((agent) => (
-                          <tr key={agent.agentPda} className="border-b border-border/50 transition-colors hover:bg-surface/60 last:border-b-0">
-                            <td className="p-4 font-semibold text-foreground">
-                              <Link href={`/agents/${agent.agentPda}`} className="hover:underline">
-                                {agent.agentId}
-                              </Link>
-                            </td>
-                            <td className="p-4 text-foreground-muted">{agent.name}</td>
-                            <td className="p-4">
-                              <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${
-                                agent.chain === "base"
-                                  ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                                  : "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                              }`}>
-                                {agent.chain}
-                              </span>
-                            </td>
-                            <td className="p-4 text-foreground font-semibold">
-                              ${Number(agent.vaultBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </td>
-                            <td className="p-4 text-foreground-muted">{agent.tradeCount}</td>
-                            <td className="p-4">
-                              <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold ${
-                                agent.status === "Active" ? "text-positive" : "text-foreground-faint"
-                              }`}>
-                                {agent.status === "Active" && (
-                                  <span className="h-1.5 w-1.5 rounded-full bg-positive animate-pulse" />
-                                )}
-                                {agent.status}
-                              </span>
-                            </td>
-                            <td className="p-4 text-right">
-                              <Button href={`/agents/${agent.agentPda}`} variant="secondary" className="py-1 px-2.5 text-[11px]">
-                                Manage
-                              </Button>
-                            </td>
+                  <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                    <div className="overflow-x-auto rounded-lg bg-white dark:bg-[#0a0a0a]">
+                      <table className="w-full text-left font-mono text-xs">
+                        <thead>
+                          <tr className="border-b border-black/5 bg-neutral-50 text-foreground-muted uppercase tracking-wider text-[10px] dark:border-white/5 dark:bg-[#111111]">
+                            <th className="p-4">Agent ID</th>
+                            <th className="p-4">Name</th>
+                            <th className="p-4">Chain</th>
+                            <th className="p-4">Vault Balance</th>
+                            <th className="p-4">Trades</th>
+                            <th className="p-4">Status</th>
+                            <th className="p-4 text-right">Actions</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {agents.filter(a => !a.isPaper).map((agent) => (
+                            <tr key={agent.agentPda} className="border-b border-black/5 transition-colors hover:bg-neutral-50 dark:border-white/5 dark:hover:bg-white/[0.02] last:border-b-0">
+                              <td className="p-4 font-semibold text-foreground">
+                                <Link href={`/agents/${agent.agentPda}`} className="hover:underline">
+                                  {agent.agentId}
+                                </Link>
+                              </td>
+                              <td className="p-4 text-foreground-muted">{agent.name}</td>
+                              <td className="p-4">
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${
+                                  agent.chain === "base"
+                                    ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                                    : "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                                }`}>
+                                  {agent.chain}
+                                </span>
+                              </td>
+                              <td className="p-4 text-foreground font-semibold">
+                                ${Number(agent.vaultBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </td>
+                              <td className="p-4 text-foreground-muted">{agent.tradeCount}</td>
+                              <td className="p-4">
+                                <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold ${
+                                  agent.status === "Active" ? "text-positive" : "text-foreground-faint"
+                                }`}>
+                                  {agent.status === "Active" && (
+                                    <span className="h-1.5 w-1.5 rounded-full bg-positive animate-pulse" />
+                                  )}
+                                  {agent.status}
+                                </span>
+                              </td>
+                              <td className="p-4 text-right">
+                                <Button href={`/agents/${agent.agentPda}`} variant="secondary" className="py-1 px-2.5 text-[11px]">
+                                  Manage
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 )}
               </div>
@@ -297,69 +332,73 @@ export default function DashboardPage() {
                     </div>
                     <Button href="/create" className="py-1 px-3 text-xs" variant="secondary">+ Paper Bot</Button>
                   </div>
-                  <div className="rounded-xl border border-border bg-surface/50 px-4 py-3">
-                    <div className="flex items-start gap-2 text-foreground-muted">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0 text-accent">
-                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-                        <line x1="12" y1="9" x2="12" y2="13" />
-                        <line x1="12" y1="17" x2="12.01" y2="17" />
-                      </svg>
-                      <p className="font-mono text-[11px] leading-relaxed">
-                        Paper bots use live Binance prices with simulated capital. Results are permanently excluded from leaderboard rankings, verified PnL, reputation, and copy-trading.
-                      </p>
+                  <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                    <div className="rounded-lg bg-white px-4 py-3 dark:bg-[#0a0a0a]">
+                      <div className="flex items-start gap-2.5 text-foreground-muted">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0 text-accent">
+                          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                          <line x1="12" y1="9" x2="12" y2="13" />
+                          <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                        <p className="font-mono text-[11px] leading-relaxed">
+                          Paper bots use live Binance prices with simulated capital. Results are permanently excluded from leaderboard rankings, verified PnL, reputation, and copy-trading.
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <div className="overflow-x-auto rounded-xl border border-border bg-surface/40">
-                    <table className="w-full text-left font-mono text-xs">
-                      <thead>
-                        <tr className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px]">
-                          <th className="p-4">Agent ID</th>
-                          <th className="p-4">Name</th>
-                          <th className="p-4">Chain</th>
-                          <th className="p-4">Simulated Balance</th>
-                          <th className="p-4">Trades</th>
-                          <th className="p-4">Status</th>
-                          <th className="p-4 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {agents.filter(a => a.isPaper).map((agent) => (
-                          <tr key={agent.agentPda} className="border-b border-border/50 transition-colors hover:bg-surface/60 last:border-b-0">
-                            <td className="p-4 font-semibold text-foreground">
-                              <Link href={`/agents/${agent.agentPda}`} className="hover:underline">
-                                {agent.agentId}
-                              </Link>
-                            </td>
-                            <td className="p-4 text-foreground-muted">{agent.name}</td>
-                            <td className="p-4">
-                              <span className="rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] font-bold uppercase text-foreground-muted">
-                                PAPER / {agent.chain}
-                              </span>
-                            </td>
-                            <td className="p-4 font-semibold text-foreground">
-                              ${Number(agent.simulatedBalance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              <span className="ml-1 text-[9px] uppercase text-foreground-faint font-normal">simulated</span>
-                            </td>
-                            <td className="p-4 text-foreground-muted">{agent.tradeCount}</td>
-                            <td className="p-4">
-                              <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold ${
-                                agent.status === "Active" ? "text-positive" : "text-foreground-faint"
-                              }`}>
-                                {agent.status === "Active" && (
-                                  <span className="h-1.5 w-1.5 rounded-full bg-positive animate-pulse" />
-                                )}
-                                {agent.status}
-                              </span>
-                            </td>
-                            <td className="p-4 text-right">
-                              <Button href={`/agents/${agent.agentPda}`} variant="secondary" className="py-1 px-2.5 text-[11px]">
-                                View
-                              </Button>
-                            </td>
+                  <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                    <div className="overflow-x-auto rounded-lg bg-white dark:bg-[#0a0a0a]">
+                      <table className="w-full text-left font-mono text-xs">
+                        <thead>
+                          <tr className="border-b border-black/5 bg-neutral-50 text-foreground-muted uppercase tracking-wider text-[10px] dark:border-white/5 dark:bg-[#111111]">
+                            <th className="p-4">Agent ID</th>
+                            <th className="p-4">Name</th>
+                            <th className="p-4">Chain</th>
+                            <th className="p-4">Simulated Balance</th>
+                            <th className="p-4">Trades</th>
+                            <th className="p-4">Status</th>
+                            <th className="p-4 text-right">Actions</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {agents.filter(a => a.isPaper).map((agent) => (
+                            <tr key={agent.agentPda} className="border-b border-black/5 transition-colors hover:bg-neutral-50 dark:border-white/5 dark:hover:bg-white/[0.02] last:border-b-0">
+                              <td className="p-4 font-semibold text-foreground">
+                                <Link href={`/agents/${agent.agentPda}`} className="hover:underline">
+                                  {agent.agentId}
+                                </Link>
+                              </td>
+                              <td className="p-4 text-foreground-muted">{agent.name}</td>
+                              <td className="p-4">
+                                <span className="rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] font-bold uppercase text-foreground-muted">
+                                  PAPER / {agent.chain}
+                                </span>
+                              </td>
+                              <td className="p-4 font-semibold text-foreground">
+                                ${Number(agent.simulatedBalance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                <span className="ml-1 text-[9px] uppercase text-foreground-faint font-normal">simulated</span>
+                              </td>
+                              <td className="p-4 text-foreground-muted">{agent.tradeCount}</td>
+                              <td className="p-4">
+                                <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold ${
+                                  agent.status === "Active" ? "text-positive" : "text-foreground-faint"
+                                }`}>
+                                  {agent.status === "Active" && (
+                                    <span className="h-1.5 w-1.5 rounded-full bg-positive animate-pulse" />
+                                  )}
+                                  {agent.status}
+                                </span>
+                              </td>
+                              <td className="p-4 text-right">
+                                <Button href={`/agents/${agent.agentPda}`} variant="secondary" className="py-1 px-2.5 text-[11px]">
+                                  View
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               )}
@@ -371,48 +410,52 @@ export default function DashboardPage() {
                 </div>
 
                 {copying.length === 0 ? (
-                  <Card variant="muted" className="py-10 text-center font-mono text-xs text-foreground-muted bg-surface/30 border border-border">
-                    Your bots are not copy-trading any other strategy yet. Explore the leaderboard to follow top performers.
-                  </Card>
+                  <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                    <div className="rounded-lg bg-white py-10 px-4 text-center font-mono text-xs text-foreground-muted dark:bg-[#0a0a0a]">
+                      Your bots are not copy-trading any other strategy yet. Explore the leaderboard to follow top performers.
+                    </div>
+                  </div>
                 ) : (
-                  <div className="overflow-x-auto rounded-xl border border-border bg-surface/40">
-                    <table className="w-full text-left font-mono text-xs">
-                      <thead>
-                        <tr className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px]">
-                          <th className="p-4">My Follower Bot</th>
-                          <th className="p-4">Source Bot (Copied)</th>
-                          <th className="p-4">Allocated Size</th>
-                          <th className="p-4 text-right">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {copying.map((relationship) => (
-                          <tr key={`${relationship.followerAgentPda}-${relationship.sourceAgentPda}`} className="border-b border-border/50 transition-colors hover:bg-surface/60 last:border-b-0">
-                            <td className="p-4 text-foreground font-semibold">
-                              <Link href={`/agents/${relationship.followerAgentPda}`} className="hover:underline">
-                                {relationship.followerAgentId}
-                              </Link>
-                            </td>
-                            <td className="p-4 text-foreground-muted">
-                              <Link href={`/agents/${relationship.sourceAgentPda}`} className="hover:underline text-accent">
-                                {relationship.sourceAgentId}
-                              </Link>
-                            </td>
-                            <td className="p-4 text-foreground font-semibold">${Number(relationship.sizeUsd).toFixed(0)} USD</td>
-                            <td className="p-4 text-right">
-                              <Button
-                                onClick={() => handleUnfollow(relationship.followerAgentPda, relationship.sourceAgentPda)}
-                                disabled={unfollowingPda === relationship.followerAgentPda}
-                                variant="secondary"
-                                className="py-1 px-2.5 text-[11px] !text-negative hover:bg-negative/10"
-                              >
-                                {unfollowingPda === relationship.followerAgentPda ? "Cancelling..." : "Unfollow"}
-                              </Button>
-                            </td>
+                  <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                    <div className="overflow-x-auto rounded-lg bg-white dark:bg-[#0a0a0a]">
+                      <table className="w-full text-left font-mono text-xs">
+                        <thead>
+                          <tr className="border-b border-black/5 bg-neutral-50 text-foreground-muted uppercase tracking-wider text-[10px] dark:border-white/5 dark:bg-[#111111]">
+                            <th className="p-4">My Follower Bot</th>
+                            <th className="p-4">Source Bot (Copied)</th>
+                            <th className="p-4">Allocated Size</th>
+                            <th className="p-4 text-right">Action</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {copying.map((relationship) => (
+                            <tr key={`${relationship.followerAgentPda}-${relationship.sourceAgentPda}`} className="border-b border-black/5 transition-colors hover:bg-neutral-50 dark:border-white/5 dark:hover:bg-white/[0.02] last:border-b-0">
+                              <td className="p-4 text-foreground font-semibold">
+                                <Link href={`/agents/${relationship.followerAgentPda}`} className="hover:underline">
+                                  {relationship.followerAgentId}
+                                </Link>
+                              </td>
+                              <td className="p-4 text-foreground-muted">
+                                <Link href={`/agents/${relationship.sourceAgentPda}`} className="hover:underline text-accent">
+                                  {relationship.sourceAgentId}
+                                </Link>
+                              </td>
+                              <td className="p-4 text-foreground font-semibold">${Number(relationship.sizeUsd).toFixed(0)} USD</td>
+                              <td className="p-4 text-right">
+                                <Button
+                                  onClick={() => handleUnfollow(relationship.followerAgentPda, relationship.sourceAgentPda)}
+                                  disabled={unfollowingPda === relationship.followerAgentPda}
+                                  variant="secondary"
+                                  className="py-1 px-2.5 text-[11px] !text-negative hover:bg-negative/10"
+                                >
+                                  {unfollowingPda === relationship.followerAgentPda ? "Cancelling..." : "Unfollow"}
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 )}
               </div>
@@ -424,37 +467,41 @@ export default function DashboardPage() {
                 </div>
 
                 {followers.length === 0 ? (
-                  <Card variant="muted" className="py-10 text-center font-mono text-xs text-foreground-muted bg-surface/30 border border-border">
-                    No other users are copy-trading your bots yet. Build a strong track record to rank on the leaderboard and attract subscribers!
-                  </Card>
+                  <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                    <div className="rounded-lg bg-white py-10 px-4 text-center font-mono text-xs text-foreground-muted dark:bg-[#0a0a0a]">
+                      No other users are copy-trading your bots yet. Build a strong track record to rank on the leaderboard and attract subscribers!
+                    </div>
+                  </div>
                 ) : (
-                  <div className="overflow-x-auto rounded-xl border border-border bg-surface/40">
-                    <table className="w-full text-left font-mono text-xs">
-                      <thead>
-                        <tr className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px]">
-                          <th className="p-4">My Bot (Source)</th>
-                          <th className="p-4">Follower Bot Address</th>
-                          <th className="p-4">Follower Bot Name</th>
-                          <th className="p-4">Allocated Size</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {followers.map((relationship) => (
-                          <tr key={`${relationship.followerAgentPda}-${relationship.sourceAgentPda}`} className="border-b border-border/50 transition-colors hover:bg-surface/60 last:border-b-0">
-                            <td className="p-4 text-foreground font-semibold">
-                              <Link href={`/agents/${relationship.sourceAgentPda}`} className="hover:underline">
-                                {relationship.sourceAgentId}
-                              </Link>
-                            </td>
-                            <td className="p-4 font-mono text-foreground-muted">
-                              {relationship.followerAgentPda.slice(0, 8)}...{relationship.followerAgentPda.slice(-6)}
-                            </td>
-                            <td className="p-4 text-foreground-muted">{relationship.followerAgentId}</td>
-                            <td className="p-4 text-foreground font-semibold">${Number(relationship.sizeUsd).toFixed(0)} USD</td>
+                  <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                    <div className="overflow-x-auto rounded-lg bg-white dark:bg-[#0a0a0a]">
+                      <table className="w-full text-left font-mono text-xs">
+                        <thead>
+                          <tr className="border-b border-black/5 bg-neutral-50 text-foreground-muted uppercase tracking-wider text-[10px] dark:border-white/5 dark:bg-[#111111]">
+                            <th className="p-4">My Bot (Source)</th>
+                            <th className="p-4">Follower Bot Address</th>
+                            <th className="p-4">Follower Bot Name</th>
+                            <th className="p-4">Allocated Size</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {followers.map((relationship) => (
+                            <tr key={`${relationship.followerAgentPda}-${relationship.sourceAgentPda}`} className="border-b border-black/5 transition-colors hover:bg-neutral-50 dark:border-white/5 dark:hover:bg-white/[0.02] last:border-b-0">
+                              <td className="p-4 text-foreground font-semibold">
+                                <Link href={`/agents/${relationship.sourceAgentPda}`} className="hover:underline">
+                                  {relationship.sourceAgentId}
+                                </Link>
+                              </td>
+                              <td className="p-4 font-mono text-foreground-muted">
+                                {relationship.followerAgentPda.slice(0, 8)}...{relationship.followerAgentPda.slice(-6)}
+                              </td>
+                              <td className="p-4 text-foreground-muted">{relationship.followerAgentId}</td>
+                              <td className="p-4 text-foreground font-semibold">${Number(relationship.sizeUsd).toFixed(0)} USD</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 )}
               </div>
@@ -465,14 +512,14 @@ export default function DashboardPage() {
 
       {/* Disconnected State Fallback Banner */}
       {!connectedAddress && (
-        <Card variant="muted" className="mt-8 py-12 text-center font-mono text-xs bg-surface/30 border border-border">
-          <div className="max-w-md mx-auto flex flex-col items-center gap-4">
+        <div className="mt-8 rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+          <div className="flex flex-col items-center justify-center gap-4 rounded-lg bg-white p-12 text-center font-mono text-xs dark:bg-[#0a0a0a]">
             <span className="text-foreground-muted">Connect your wallet to initialize this workspace.</span>
             <div className="flex gap-4">
               {activeChain === "solana" ? <SolanaConnectButton /> : <BaseConnectButton />}
             </div>
           </div>
-        </Card>
+        </div>
       )}
       </div>
     </Section>

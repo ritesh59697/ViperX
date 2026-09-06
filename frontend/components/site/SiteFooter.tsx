@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalLinkGlyph } from "@/components/ui/StatusGlyphs";
 
 const PROGRAM_ID = "321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm";
 const BASE_REGISTRY_ADDRESS =
@@ -9,9 +10,9 @@ const LINKS = [
   { href: "/leaderboard", label: "Leaderboard" },
   { href: "/arena", label: "Arena" },
   { href: "/create", label: "Deploy Agent" },
-  { href: "/guides", label: "Guides" },
-  { href: "/docs", label: "Docs" },
-  { href: "/specs", label: "Specs" },
+  { href: "https://docs.viperx.site/quickstart", label: "Guides", external: true },
+  { href: "https://docs.viperx.site", label: "Docs", external: true },
+  { href: "https://docs.viperx.site/security/smart-contracts", label: "Specs", external: true },
 ];
 
 /**
@@ -24,29 +25,30 @@ export function SiteFooter() {
     <footer className="bp-invert relative z-10 mt-auto border-t border-border bg-background">
       <div className="mx-auto w-full max-w-[76rem] px-6 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          
+
           <div className="lg:col-span-4 flex flex-col gap-5">
             <div>
-              <Link href="/" className="inline-flex items-center gap-2.5 text-xl font-bold tracking-tight text-foreground">
-                <img src="/viperx-logo-option-1-exact-logo.png" alt="ViperX" className="h-6 w-auto object-contain" />
-                <span>ViperX</span>
+              <Link href="/" className="inline-flex items-center gap-2.5 transition-opacity hover:opacity-85">
+                <img src="/viperx-logo-light.png" alt="ViperX" className="h-7 w-auto object-contain dark:hidden" />
+                <img src="/viperx-logo-option-1-exact-logo.png" alt="ViperX" className="h-7 w-auto object-contain hidden dark:block" />
+                <span className="font-sans text-[1.18rem] font-bold tracking-tight leading-none select-none">
+                  <span className="text-foreground">Viper</span>
+                  <span className="text-accent">X</span>
+                </span>
               </Link>
               <p className="t-body mt-3 max-w-[24ch] text-foreground-muted text-sm font-medium">
-                Prove agent performance on-chain instead of screenshotting it.
-              </p>
-              <p className="font-mono text-xs text-foreground-faint mt-1.5">
-                Also live on Solana Devnet.
+                Prove agent performance on chain instead of screenshotting it.
               </p>
             </div>
 
             {/* Social Icons Aligned Horizontally */}
             <div className="flex items-center gap-4.5 text-foreground-faint">
               <a
-                href="https://x.com/ritesh5969"
+                href="https://x.com/ViperX_site"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-foreground transition-colors"
-                aria-label="Twitter"
+                aria-label="X (formerly Twitter)"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
@@ -69,7 +71,7 @@ export function SiteFooter() {
 
           {/* Right Columns: 4 link lists */}
           <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-8">
-            
+
             {/* Column 1: EXPLORE / */}
             <div>
               <h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-foreground-faint">
@@ -125,19 +127,37 @@ export function SiteFooter() {
               </h3>
               <ul className="mt-4 space-y-2.5 font-mono text-xs">
                 <li>
-                  <Link href="/docs" className="text-foreground-muted transition-colors hover:text-foreground">
-                    Documentation
-                  </Link>
+                  <a
+                    href="https://docs.viperx.site"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group text-foreground-muted transition-colors hover:text-foreground inline-flex items-center gap-1.5"
+                  >
+                    <span>Documentation</span>
+                    <ExternalLinkGlyph className="h-3 w-3 text-foreground-faint transition-transform duration-150 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  </a>
                 </li>
                 <li>
-                  <Link href="/guides" className="text-foreground-muted transition-colors hover:text-foreground">
-                    User Guides
-                  </Link>
+                  <a
+                    href="https://docs.viperx.site/quickstart"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group text-foreground-muted transition-colors hover:text-foreground inline-flex items-center gap-1.5"
+                  >
+                    <span>User Guides</span>
+                    <ExternalLinkGlyph className="h-3 w-3 text-foreground-faint transition-transform duration-150 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  </a>
                 </li>
                 <li>
-                  <Link href="/specs" className="text-foreground-muted transition-colors hover:text-foreground">
-                    System Specs
-                  </Link>
+                  <a
+                    href="https://docs.viperx.site/security/smart-contracts"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group text-foreground-muted transition-colors hover:text-foreground inline-flex items-center gap-1.5"
+                  >
+                    <span>System Specs</span>
+                    <ExternalLinkGlyph className="h-3 w-3 text-foreground-faint transition-transform duration-150 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  </a>
                 </li>
               </ul>
             </div>
@@ -199,9 +219,14 @@ export function SiteFooter() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="text-xs font-mono text-foreground-faint transition-colors hover:text-foreground-muted"
+                target={l.external ? "_blank" : undefined}
+                rel={l.external ? "noopener noreferrer" : undefined}
+                className="group text-xs font-mono text-foreground-faint transition-colors hover:text-foreground-muted inline-flex items-center gap-1"
               >
-                {l.label}
+                <span>{l.label}</span>
+                {l.external && (
+                  <ExternalLinkGlyph className="h-2.5 w-2.5 opacity-70 transition-transform duration-150 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                )}
               </Link>
             ))}
           </nav>

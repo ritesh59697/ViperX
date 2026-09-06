@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { CheckGlyph, XGlyph } from "@/components/ui/StatusGlyphs";
+import { RadarSphere } from "./RadarSphere";
 
 export type ShowcaseStep = {
   n: string;
@@ -31,7 +33,7 @@ export type ShowcaseStep = {
 const GLOWS = [
   "radial-gradient(circle at 50% 45%, color-mix(in oklab, var(--accent) 38%, transparent), transparent 68%)",
   "radial-gradient(circle at 50% 45%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 68%)",
-  "radial-gradient(circle at 50% 45%, color-mix(in oklab, var(--positive) 30%, transparent), transparent 68%)",
+  "radial-gradient(circle at 50% 45%, color-mix(in oklab, var(--accent) 32%, transparent), transparent 68%)",
 ];
 
 /** Identity: a PDA derived from a seed — nested frames, one off-axis. */
@@ -106,14 +108,20 @@ function DiagramTrack() {
 
 const DIAGRAMS = [DiagramRegister, DiagramDelegate, DiagramTrack];
 
+const STEP_MEDIA = [
+  { type: "canvas" as const },
+  { type: "video" as const, src: "/media/ai-human-connection-red.mp4" },
+  { type: "image" as const, src: "/media/stephen-okeyo-crimson-transparent.gif" },
+];
+
 export function StepShowcase({ steps }: { steps: ShowcaseStep[] }) {
   const [active, setActive] = useState(0);
   const step = steps[active];
 
   return (
-    <div className="grid gap-px lg:grid-cols-2 lg:gap-0">
+    <div className="grid gap-px lg:grid-cols-2 lg:gap-0 w-full min-w-0">
       {/* --- LEFT: copy + index ------------------------------------------- */}
-      <div className="flex flex-col lg:border-r lg:border-border lg:pr-12">
+      <div className="flex flex-col lg:border-r lg:border-border lg:pr-12 min-w-0 w-full">
         <div className="min-h-[15rem]">
           <div className="flex items-center gap-4">
             <span className="font-mono text-2xl font-bold leading-none text-accent">
@@ -126,7 +134,7 @@ export function StepShowcase({ steps }: { steps: ShowcaseStep[] }) {
           <p className="bp-body mt-4 max-w-[46ch]">{step.body}</p>
 
           {step.mock && (
-            <div className="mt-6 max-w-[22rem] space-y-2 border border-border p-3.5 font-mono text-xs">
+            <div className="mt-6 w-full max-w-[22rem] space-y-2 border border-border p-3.5 font-mono text-xs">
               {step.mock.map((m) => (
                 <div key={m.label} className="flex justify-between">
                   <span className="text-foreground-faint">{m.label}</span>
@@ -137,7 +145,7 @@ export function StepShowcase({ steps }: { steps: ShowcaseStep[] }) {
           )}
 
           {step.permissions && (
-            <div className="mt-6 max-w-[22rem] space-y-2 border border-border p-3.5 font-mono text-xs">
+            <div className="mt-6 w-full max-w-[22rem] space-y-2 border border-border p-3.5 font-mono text-xs">
               {step.permissions.map((p) => (
                 <div key={p.label} className="flex items-center gap-2">
                   <span
@@ -176,8 +184,7 @@ export function StepShowcase({ steps }: { steps: ShowcaseStep[] }) {
           )}
         </div>
 
-        {/* Numbered index. The rule keeps its length; only weight changes, so
-              the column doesn't reflow as the active row moves. */}
+        {/* Numbered index. */}
         <ul className="mt-12 border-t border-border pt-8">
           {steps.map((s, i) => (
             <li key={s.title}>
@@ -202,13 +209,9 @@ export function StepShowcase({ steps }: { steps: ShowcaseStep[] }) {
         </ul>
       </div>
 
-      {/* --- RIGHT: crop-framed diagram ------------------------------------ */}
-      {/* The pointer position is written straight to CSS custom properties
-            rather than held in state — this fires on every mousemove, and a
-            re-render per frame would be wasted work for something only CSS
-            consumes. */}
+      {/* --- RIGHT: crop-framed dynamic media diagram --------------------- */}
       <div
-        className="bp-dots bp-dots-live relative min-h-[26rem] lg:min-h-[34rem]"
+        className="bp-dots bp-dots-live relative min-h-[26rem] lg:min-h-[34rem] min-w-0 w-full"
         onMouseMove={(e) => {
           const r = e.currentTarget.getBoundingClientRect();
           e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
@@ -219,44 +222,82 @@ export function StepShowcase({ steps }: { steps: ShowcaseStep[] }) {
           e.currentTarget.style.removeProperty("--my");
         }}
       >
-        <span className="bp-meta absolute right-5 top-5 z-10">
-          {`// ${String(active + 1).padStart(3, "0")}`}
-        </span>
-
-        {/* The absolute positioning lives on this wrapper, not on `.bp-crop`.
-              `.bp-crop` sets `position: relative` at the same specificity as
-              Tailwind's `absolute` and is defined later, so it wins — putting
-              both on one element silently collapses the frame to height 0. */}
         <div className="absolute inset-8 sm:inset-12">
           <div className="bp-crop h-full w-full">
+            {/* Top-right index label: visible on mobile and desktop */}
+            <span className="bp-meta absolute -top-5 right-2 z-20 inline-flex items-center leading-none -translate-y-1/2 select-none">
+              {`// ${String(active + 1).padStart(3, "0")}`}
+            </span>
+
             {/* Calm backdrop: mutes the global dither inside the frame so the
-                  line-art reads on clean space (the Monad look) instead of
-                  competing with the noise running through the section. */}
+                line-art reads on clean space (the Monad look) instead of
+                competing with the noise running through the section. */}
             <div
               className="absolute inset-0 bg-background/72 backdrop-blur-md"
               aria-hidden="true"
             />
             <div
-              className="absolute inset-0 transition-[background-image] duration-500"
+              className="absolute inset-0 transition-[background-image] duration-500 dark:hidden"
               style={{ backgroundImage: GLOWS[active] }}
               aria-hidden="true"
             />
-            {DIAGRAMS.map((D, i) => (
-              <div
-                key={i}
-                aria-hidden={i !== active}
-                className="bp-figure absolute inset-0 flex items-center justify-center text-foreground/80"
-                data-active={i === active ? "true" : undefined}
-              >
-                <D />
-              </div>
-            ))}
+            {/* --- LIGHT MODE: Clean architectural vector wireframes (Image 1) --- */}
+            <div className="absolute inset-0 flex items-center justify-center dark:hidden">
+              {DIAGRAMS.map((D, i) => (
+                <div
+                  key={i}
+                  aria-hidden={i !== active}
+                  className="bp-figure absolute inset-0 flex items-center justify-center text-foreground/80"
+                  data-active={i === active ? "true" : undefined}
+                >
+                  <D />
+                </div>
+              ))}
+            </div>
+
+            {/* --- DARK MODE: Glowing crimson animations on pitch black --- */}
+            <div className="absolute inset-0 hidden items-center justify-center dark:flex">
+              {STEP_MEDIA.map((m, i) => (
+                <div
+                  key={i}
+                  aria-hidden={i !== active}
+                  className="bp-figure absolute inset-0 flex items-center justify-center"
+                  data-active={i === active ? "true" : undefined}
+                >
+                  {m.type === "canvas" ? (
+                    <div className="relative h-full w-full p-6 flex items-center justify-center pointer-events-none">
+                      <RadarSphere active={active === i} />
+                    </div>
+                  ) : m.type === "image" ? (
+                    <Image
+                      src={m.src}
+                      alt={step.caption}
+                      fill
+                      unoptimized
+                      className="object-contain p-6 pointer-events-none mix-blend-screen [mask-image:radial-gradient(circle_at_center,black_45%,transparent_72%)] [-webkit-mask-image:radial-gradient(circle_at_center,black_45%,transparent_72%)]"
+                      priority
+                    />
+                  ) : (
+                    <video
+                      src={m.src}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      preload="auto"
+                      className="absolute inset-0 h-full w-full object-cover object-center mix-blend-screen"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Bottom-left caption label: visible on mobile and desktop */}
+            <span className="bp-meta absolute -bottom-5 left-2 z-20 inline-flex items-center leading-none translate-y-1/2 select-none">
+              {`// ${step.caption}`}
+            </span>
           </div>
         </div>
-
-        <span className="bp-meta absolute bottom-5 left-5 z-10">
-          {`// ${step.caption}`}
-        </span>
       </div>
     </div>
   );

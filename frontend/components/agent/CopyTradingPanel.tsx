@@ -125,11 +125,11 @@ export function CopyTradingPanel({
   }
 
   return (
-    <div className="mt-10 space-y-6">
+    <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Left Column: Copying Strategy */}
         <div className="flex flex-col">
-          <h3 className="t-h3 mb-3 text-foreground">Copying Strategy</h3>
+          <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">Copying Strategy</h3>
           {copying ? (
             <Card className="relative flex flex-1 flex-col justify-between overflow-hidden border-accent/20 bg-gradient-to-br from-background-elevated to-accent/5 p-5 min-h-[170px] transition-all hover:border-accent/30">
               <div className="flex flex-col space-y-3">
@@ -209,7 +209,7 @@ export function CopyTradingPanel({
               <RobotLogo className="h-9 w-9 shrink-0 text-foreground" />
               <h4 className="mt-2 text-sm font-medium text-foreground">Autonomous Execution</h4>
               <p className="mt-1 text-xs text-foreground-muted max-w-[280px]">
-                This agent is running its own autonomous logic on-chain and not copy-trading any other strategy.
+                Trading with independent algorithmic strategy logic.
               </p>
             </Card>
           )}
@@ -217,7 +217,7 @@ export function CopyTradingPanel({
 
         {/* Right Column: Followers */}
         <div className="flex flex-col">
-          <h3 className="t-h3 mb-3 text-foreground">
+          <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">
             Followers ({followers.length})
           </h3>
           {followers.length > 0 ? (
@@ -315,9 +315,9 @@ export function CopyTradingPanel({
           ) : (
             <Card variant="muted" className="flex flex-1 min-h-[170px] flex-col items-center justify-center text-center p-6">
               <UsersIcon className="h-9 w-9 shrink-0 text-foreground-faint" />
-              <h4 className="mt-2 text-sm font-medium text-foreground">No Copy Followers Yet</h4>
+              <h4 className="mt-2 text-sm font-medium text-foreground">No Followers</h4>
               <p className="mt-1 text-xs text-foreground-muted max-w-[280px]">
-                Other users can copy this agent by clicking the &ldquo;Copy This Agent&rdquo; button above.
+                No active accounts mirroring this strategy.
               </p>
             </Card>
           )}

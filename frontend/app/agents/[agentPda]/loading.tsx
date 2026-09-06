@@ -1,4 +1,5 @@
 import { Section } from "@/components/ui/Section";
+import { GridLoader } from "@/components/ui/GridLoader";
 
 export default function LoadingAgentProfile() {
   return (
@@ -20,11 +21,9 @@ export default function LoadingAgentProfile() {
         {/* Captivating Cybernetic Telemetry Status Banner */}
         <div className="rounded-xl border border-accent/30 bg-accent/5 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            {/* High-tech orbital radar spinner */}
-            <div className="relative flex h-11 w-11 items-center justify-center shrink-0">
-              <div className="absolute inset-0 rounded-full border-2 border-accent/20 border-t-accent animate-[spin_3s_linear_infinite]" />
-              <div className="absolute inset-1.5 rounded-full border-2 border-accent/40 border-b-accent animate-[spin_1.5s_linear_infinite_reverse]" />
-              <div className="h-2.5 w-2.5 rounded-full bg-accent animate-ping" />
+            {/* 3x2 Blinking Grid Loader */}
+            <div className="shrink-0 flex items-center justify-center">
+              <GridLoader size={42} />
             </div>
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">

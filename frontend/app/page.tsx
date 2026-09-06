@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { Section } from "@/components/ui/Section";
 import { LiveOrderStream } from "@/components/home/LiveOrderStream";
@@ -10,6 +11,7 @@ import { StrategySelector } from "@/components/create/StrategySelector";
 import { RobotLogo } from "@/components/ui/RobotLogo";
 import { VerificationProof } from "@/components/home/VerificationProof";
 import { BlueprintCard } from "@/components/ui/BlueprintCard";
+import { FaqSection } from "@/components/home/FaqSection";
 import { ArrowRightGlyph } from "@/components/ui/StatusGlyphs";
 import {
   NonCustodialIllustration,
@@ -135,32 +137,7 @@ const ROADMAP = [
   },
 ];
 
-const FAQS = [
-  {
-    q: "Do you ever custody my funds?",
-    a: "No. Withdrawal authority never leaves your wallet. The runtime only holds a delegated key that can submit trades and pause your agent, nothing else.",
-  },
-  {
-    q: "How is the leaderboard ranked?",
-    a: "By Sharpe-like risk-adjusted return, not raw PNL, computed off-chain from real vault data and indexed into Postgres.",
-  },
-  {
-    q: "What stops wash trading?",
-    a: "Primarily the verification gate: a rank requires 50 closes the indexer independently confirmed against on-chain position state, so inflating the registry's trade counter earns nothing. On top of that, a $5 minimum size, a sub-10-second round-trip detector, and a check that self-reported PnL matches on-chain settled PnL flag agents out of ranking. The timing heuristics are thresholds, not proofs — a patient attacker can hold longer to avoid them, which is why the verification gate does the real work.",
-  },
-  {
-    q: "What happens if my agent misbehaves?",
-    a: "After repeated trade failures, the runtime calls authority_pause on-chain, flipping your agent to Paused. Only you, the owner, can reactivate it.",
-  },
-  {
-    q: "Is this live on mainnet?",
-    a: "Not yet. ViperX is live on Base Sepolia (and also runs on Solana devnet) while we finish verifying the execution and indexing pipelines end-to-end.",
-  },
-  {
-    q: "Can I copy-trade top agents?",
-    a: "That's Phase 2: vault delegation and mirrored subscriptions to top-ranked strategies, with performance fee splits.",
-  },
-];
+
 
 const STATUS_STYLES: Record<string, string> = {
   Complete: "text-positive",
@@ -550,29 +527,26 @@ export default async function Home() {
       <Rule />
 
       {/* --- FAQ ---------------------------------------------------------------- */}
-      <Section id="faq" width="wide" className="py-20 sm:py-24">
-        <span className="bp-eyebrow">FAQ</span>
-        <h2 className="bp-h2 mt-6 text-foreground">
-          Answers <span className="bp-dim">before you deploy</span>
-        </h2>
-
-        <div className="mt-10">
-          {FAQS.map((f) => (
-            <details key={f.q} className="group border-t border-border py-5 last:border-b">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 font-mono text-xs font-medium uppercase tracking-[0.08em] text-foreground">
-                {f.q}
-                <span className="text-base text-foreground-faint transition-transform group-open:rotate-45">
-                  +
-                </span>
-              </summary>
-              <p className="bp-body mt-4 max-w-[68ch]">{f.a}</p>
-            </details>
-          ))}
-        </div>
+      <Section id="faq" width="wide" className="py-20 sm:py-28">
+        <FaqSection />
       </Section>
 
       {/* --- BOTTOM CTA + WORDMARK ---------------------------------------------- */}
-      <div className="bp-invert">
+      <div className="bp-invert relative overflow-hidden">
+        {/* Atmospheric Swirling Vortex Backdrop */}
+        <div className="absolute inset-0 pointer-events-none opacity-25 mix-blend-screen flex items-center justify-center">
+          <Image
+            src="/media/vortex-traveler.gif"
+            alt="Cosmic trading singularity vortex"
+            fill
+            unoptimized
+            className="object-cover object-center filter contrast-125 brightness-90"
+          />
+          {/* Gradients to fade edges into dark theme background */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b] via-[#0a0a0b]/50 to-[#0a0a0b]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,#0a0a0b_90%)]" />
+        </div>
+
         <Section id="deploy" width="wide" className="relative z-10 pt-20 pb-20 sm:pt-24 sm:pb-24">
           {/* The page's one centred moment, framed by crop marks — the
               reference reserves this treatment for a single statement so it

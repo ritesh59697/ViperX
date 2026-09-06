@@ -20,7 +20,7 @@ export function Section({
   ...props
 }: HTMLAttributes<HTMLDivElement> & { width?: keyof typeof WIDTHS }) {
   return (
-    <div className="bp-rails relative flex w-full flex-col items-center px-6">
+    <div className="relative flex w-full flex-col items-center px-6">
       <div className={`w-full ${WIDTHS[width]} ${className}`.trim()} {...props} />
     </div>
   );

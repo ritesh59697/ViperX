@@ -43,6 +43,25 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
+  async redirects() {
+    return [
+      {
+        source: "/docs",
+        destination: "https://docs.viperx.site",
+        permanent: false,
+      },
+      {
+        source: "/specs",
+        destination: "https://docs.viperx.site/security/smart-contracts",
+        permanent: false,
+      },
+      {
+        source: "/guides",
+        destination: "https://docs.viperx.site/quickstart",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

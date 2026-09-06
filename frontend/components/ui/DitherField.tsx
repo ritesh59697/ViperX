@@ -243,7 +243,7 @@ export const PAGE_PALETTES: DitherPalettes = {
   // density that reads as texture on black reads as dirt on white.
   light: { bg: "#f7f7f8", ink: "#fca5a5", strength: 1.0, leftBias: 0.42, biasRamp: [0.1, 0.95] },
   // Light ink on near-black can carry more before it competes with copy.
-  dark: { bg: "#0a0a0b", ink: "#fe2e00", strength: 0.9, leftBias: 0.42, biasRamp: [0.1, 0.95] },
+  dark: { bg: "#000000", ink: "#fe2e00", strength: 0.9, leftBias: 0.42, biasRamp: [0.1, 0.95] },
 };
 
 /**
@@ -254,25 +254,25 @@ export const PAGE_PALETTES: DitherPalettes = {
  */
 export const EMBER_PALETTES: DitherPalettes = {
   light: { bg: "#f7f7f8", ink: "#fe2e00", strength: 3.2, leftBias: 0.03, biasRamp: [0.42, 1.05] },
-  dark: { bg: "#0a0a0b", ink: "#fe2e00", strength: 3.8, leftBias: 0.03, biasRamp: [0.42, 1.05] },
+  dark: { bg: "#000000", ink: "#fe2e00", strength: 3.8, leftBias: 0.03, biasRamp: [0.42, 1.05] },
 };
 
 /** Green/Solana developer theme */
 export const GREEN_PALETTES: DitherPalettes = {
   light: { bg: "#f7f7f8", ink: "#10b981", strength: 3.2, leftBias: 0.03, biasRamp: [0.42, 1.05] },
-  dark: { bg: "#0a0a0b", ink: "#14f195", strength: 3.8, leftBias: 0.03, biasRamp: [0.42, 1.05] },
+  dark: { bg: "#000000", ink: "#14f195", strength: 3.8, leftBias: 0.03, biasRamp: [0.42, 1.05] },
 };
 
 /** Purple/Neon Indigo theme */
 export const PURPLE_PALETTES: DitherPalettes = {
   light: { bg: "#f7f7f8", ink: "#6366f1", strength: 3.2, leftBias: 0.03, biasRamp: [0.42, 1.05] },
-  dark: { bg: "#0a0a0b", ink: "#9945ff", strength: 3.8, leftBias: 0.03, biasRamp: [0.42, 1.05] },
+  dark: { bg: "#000000", ink: "#9945ff", strength: 3.8, leftBias: 0.03, biasRamp: [0.42, 1.05] },
 };
 
 /** Blue/Cyan theme */
 export const BLUE_PALETTES: DitherPalettes = {
   light: { bg: "#f7f7f8", ink: "#3b82f6", strength: 3.2, leftBias: 0.03, biasRamp: [0.42, 1.05] },
-  dark: { bg: "#0a0a0b", ink: "#00bcff", strength: 3.8, leftBias: 0.03, biasRamp: [0.42, 1.05] },
+  dark: { bg: "#000000", ink: "#00bcff", strength: 3.8, leftBias: 0.03, biasRamp: [0.42, 1.05] },
 };
 
 /**
@@ -287,7 +287,7 @@ export const GLOBAL_RED_PALETTES: DitherPalettes = {
   // Dark ink dimmed from the old #fe2e00 (near-neon, read as "disturbing" against
   // near-black) to a deeper, less saturated red, plus reduced strength — quieter
   // texture instead of a competing light source.
-  dark: { bg: "#0a0a0b", ink: "#b3230f", strength: 0.45, leftBias: 0.42, biasRamp: [0.1, 0.95] },
+  dark: { bg: "#000000", ink: "#b3230f", strength: 0.45, leftBias: 0.42, biasRamp: [0.1, 0.95] },
 };
 
 /** Green global background palette. Strength matched to GLOBAL_RED_PALETTES so
@@ -296,7 +296,7 @@ export const GLOBAL_GREEN_PALETTES: DitherPalettes = {
   light: { bg: "#f7f7f8", ink: "#a7f3d0", strength: 0.72, leftBias: 0.42, biasRamp: [0.1, 0.95] },
   // Dimmed the same way as GLOBAL_RED_PALETTES.dark — deeper, less saturated ink,
   // reduced strength — so every route's dark-mode dither reads as calm texture.
-  dark: { bg: "#0a0a0b", ink: "#19ad6f", strength: 0.45, leftBias: 0.42, biasRamp: [0.1, 0.95] },
+  dark: { bg: "#000000", ink: "#19ad6f", strength: 0.45, leftBias: 0.42, biasRamp: [0.1, 0.95] },
 };
 
 /** Purple global background palette. Strength matched to GLOBAL_RED_PALETTES so
@@ -305,7 +305,7 @@ export const GLOBAL_PURPLE_PALETTES: DitherPalettes = {
   light: { bg: "#f7f7f8", ink: "#ddd6fe", strength: 0.72, leftBias: 0.42, biasRamp: [0.1, 0.95] },
   // Dimmed the same way as GLOBAL_RED_PALETTES.dark — deeper, less saturated ink,
   // reduced strength — so every route's dark-mode dither reads as calm texture.
-  dark: { bg: "#0a0a0b", ink: "#7114e3", strength: 0.45, leftBias: 0.42, biasRamp: [0.1, 0.95] },
+  dark: { bg: "#000000", ink: "#7114e3", strength: 0.45, leftBias: 0.42, biasRamp: [0.1, 0.95] },
 };
 
 /** Blue global background palette. Strength matched to GLOBAL_RED_PALETTES so
@@ -314,7 +314,7 @@ export const GLOBAL_BLUE_PALETTES: DitherPalettes = {
   light: { bg: "#f7f7f8", ink: "#bfdbfe", strength: 0.72, leftBias: 0.42, biasRamp: [0.1, 0.95] },
   // Dimmed the same way as GLOBAL_RED_PALETTES.dark — deeper, less saturated ink,
   // reduced strength — so every route's dark-mode dither reads as calm texture.
-  dark: { bg: "#0a0a0b", ink: "#1087b2", strength: 0.45, leftBias: 0.42, biasRamp: [0.1, 0.95] },
+  dark: { bg: "#000000", ink: "#1087b2", strength: 0.45, leftBias: 0.42, biasRamp: [0.1, 0.95] },
 };
 
 function compile(gl: WebGLRenderingContext, type: number, src: string) {
@@ -361,6 +361,9 @@ export function DitherField({
   pixelSize?: number;
   mouseRadius?: number;
 } = {}) {
+  // Dither effect globally hidden for testing
+  return null;
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { theme } = useTheme();
   const reducedMotion = useReducedMotion();
@@ -640,34 +643,6 @@ export function DitherField({
 }
 
 export function GlobalDither() {
-  const pathname = usePathname();
-
-  if (pathname === "/serene") {
-    return null;
-  }
-
-  // Route-specific 50% color / 50% black fluid dither backgrounds
-  let palettes = GLOBAL_RED_PALETTES;
-  
-  if (pathname === "/") {
-    palettes = GLOBAL_RED_PALETTES;      // Red for Landing Page
-  } else if (pathname === "/leaderboard") {
-    palettes = GLOBAL_GREEN_PALETTES;    // Green for Leaderboard
-  } else if (pathname === "/create") {
-    palettes = GLOBAL_PURPLE_PALETTES;   // Purple for Deploy/Create
-  } else if (pathname.startsWith("/agents/")) {
-    palettes = GLOBAL_BLUE_PALETTES;     // Blue for Agent detail page
-  }
-
-  return (
-    <DitherField
-      palettes={palettes}
-      fluid={true}
-      pixelSize={2.0}
-      texelSize={1}
-      waveSpeed={0.012}
-      waveFrequency={2.0}
-      waveAmplitude={0.4}
-    />
-  );
+  // Dither effect globally hidden for testing
+  return null;
 }

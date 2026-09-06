@@ -48,33 +48,46 @@ export default async function ArenaPage() {
       )}
 
       {!fetchError && seasons.length === 0 && (
-        <Card variant="muted" className="mt-8">
-          No arena seasons yet.
-        </Card>
+        <div className="mt-8 rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+          <div className="rounded-lg bg-white p-8 text-center font-mono text-xs text-foreground-muted dark:bg-[#0a0a0a]">
+            No arena seasons yet.
+          </div>
+        </div>
       )}
 
       {!fetchError && seasons.length > 0 && (
         <StaggerGrid className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {seasons.map((season) => (
             <StaggerItem key={season.id}>
-              <Link href={`/arena/${season.id}`}>
-                <Card className="h-full transition-colors hover:bg-surface">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium text-foreground">{season.name}</span>
-                    <span className="inline-flex items-center gap-1.5 text-[0.6875rem] uppercase tracking-wider text-foreground-faint">
-                      <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[season.status]}`} />
-                      {STATUS_LABEL[season.status]}
-                    </span>
+              <Link href={`/arena/${season.id}`} className="block h-full">
+                <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-black/10 bg-neutral-200/60 p-1 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:border-black/20 dark:border-[#262626] dark:bg-[#141414] dark:hover:border-[#383838]">
+                  <div className="flex h-full flex-col justify-between rounded-lg bg-white p-5 transition-colors dark:bg-[#0a0a0a]">
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-semibold text-foreground tracking-tight group-hover:text-accent transition-colors">{season.name}</span>
+                        <span className="inline-flex items-center gap-1.5 text-[0.6875rem] font-mono font-semibold uppercase tracking-wider text-foreground-muted">
+                          <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[season.status]}`} />
+                          {STATUS_LABEL[season.status]}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-xs text-foreground-muted flex items-center gap-1.5 font-mono">
+                        <span>{formatDate(season.starts_at)}</span>
+                        <span className="text-foreground-faint lowercase">to</span>
+                        <span>{formatDate(season.ends_at)}</span>
+                      </p>
+                    </div>
+                    <div className="mt-5 pt-3 border-t border-black/5 dark:border-white/5 flex items-center justify-between font-mono text-xs text-foreground-faint">
+                      <span>{season.entry_count} entrant{season.entry_count === 1 ? "" : "s"}</span>
+                      <span className="text-accent font-semibold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                        Enter Arena
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5 12h14" />
+                          <path d="m12 5 7 7-7 7" />
+                        </svg>
+                      </span>
+                    </div>
                   </div>
-                  <p className="mt-2 text-xs text-foreground-muted flex items-center gap-1.5 font-mono">
-                    <span>{formatDate(season.starts_at)}</span>
-                    <span className="text-foreground-faint lowercase">to</span>
-                    <span>{formatDate(season.ends_at)}</span>
-                  </p>
-                  <p className="mt-2 font-mono text-xs text-foreground-faint">
-                    {season.entry_count} entrant{season.entry_count === 1 ? "" : "s"}
-                  </p>
-                </Card>
+                </div>
               </Link>
             </StaggerItem>
           ))}

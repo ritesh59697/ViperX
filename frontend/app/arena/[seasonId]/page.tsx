@@ -101,28 +101,31 @@ export default async function ArenaSeasonPage({
           <ArenaMatchups entrants={data.entrants} />
 
           {ranked.length === 0 && (
-            <Card variant="muted" className="mt-8">
-              No entrant has qualified yet — same 50-verified-fill bar the main leaderboard uses.
-            </Card>
+            <div className="mt-8 rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+              <div className="rounded-lg bg-white p-8 text-center font-mono text-xs text-foreground-muted dark:bg-[#0a0a0a]">
+                No entrant has qualified yet — same 50-verified-fill bar the main leaderboard uses.
+              </div>
+            </div>
           )}
 
           {ranked.length > 0 && (
-            <div className="overflow-x-auto rounded-xl border border-border bg-surface/40 mt-8">
-              <table className="w-full text-left text-sm">
-                <thead className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px] font-mono">
-                  <tr>
-                    <th className={TH}>#</th>
-                    <th className={TH}>Agent</th>
-                    <th className={TH}>Owner</th>
-                    <th className={`${TH} text-right`}>Sharpe</th>
-                    <th className={`${TH} text-right`}>ROI</th>
-                    <th className={`${TH} text-right`}>Max DD</th>
-                    <th className={`${TH} text-right`}>Profile</th>
-                  </tr>
-                </thead>
-                <StaggerTableBody className="divide-y divide-border/50 font-mono text-xs">
-                  {ranked.map((agent) => (
-                    <StaggerRow key={agent.agent_pda} className="transition-colors hover:bg-surface/60">
+            <div className="mt-8 rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+              <div className="overflow-x-auto rounded-lg bg-white dark:bg-[#0a0a0a]">
+                <table className="w-full text-left text-sm">
+                  <thead className="border-b border-black/5 bg-neutral-50 text-foreground-muted uppercase tracking-wider text-[10px] font-mono dark:border-white/5 dark:bg-[#111111]">
+                    <tr>
+                      <th className={TH}>#</th>
+                      <th className={TH}>Agent</th>
+                      <th className={TH}>Owner</th>
+                      <th className={`${TH} text-right`}>Sharpe</th>
+                      <th className={`${TH} text-right`}>ROI</th>
+                      <th className={`${TH} text-right`}>Max DD</th>
+                      <th className={`${TH} text-right`}>Profile</th>
+                    </tr>
+                  </thead>
+                  <StaggerTableBody className="divide-y divide-black/5 font-mono text-xs dark:divide-white/5">
+                    {ranked.map((agent) => (
+                      <StaggerRow key={agent.agent_pda} className="transition-colors hover:bg-neutral-50 dark:hover:bg-white/[0.02]">
                       <td className={`${TD} font-mono text-xs text-foreground-faint`}>{agent.rank}</td>
                       <td className={TD}>
                         <Link
@@ -166,7 +169,8 @@ export default async function ArenaSeasonPage({
                     </StaggerRow>
                   ))}
                 </StaggerTableBody>
-              </table>
+                </table>
+              </div>
             </div>
           )}
 
@@ -177,48 +181,50 @@ export default async function ArenaSeasonPage({
                 Same bar as the main leaderboard — 50 independently verified fills before a score
                 counts.
               </p>
-              <div className="overflow-x-auto rounded-xl border border-border bg-surface/40 mt-5">
-                <table className="w-full text-left text-sm">
-                  <thead className="border-b border-border bg-surface/70 text-foreground-muted uppercase tracking-wider text-[10px] font-mono">
-                    <tr>
-                      <th className={TH}>Agent</th>
-                      <th className={TH}>Owner</th>
-                      <th className={`${TH} text-right`}>Verified fills</th>
-                      <th className={`${TH} text-right`}>Profile</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/50 font-mono text-xs">
-                    {pending.map((agent) => (
-                      <tr key={agent.agent_pda} className="transition-colors hover:bg-surface/60">
-                        <td className={TD}>
-                          <Link
-                            href={`/agents/${agent.agent_pda}`}
-                            prefetch={true}
-                            className="group inline-flex items-center gap-1.5 font-medium text-foreground transition-colors hover:text-accent font-sans text-sm"
-                          >
-                            <span className="group-hover:underline underline-offset-4 decoration-accent/60">{agent.name}</span>
-                            <ArrowRightGlyph className="h-3 w-3 text-foreground-faint group-hover:text-accent group-hover:translate-x-0.5 transition-all shrink-0" />
-                          </Link>
-                        </td>
-                        <td className={`${TD} font-mono text-xs text-foreground-muted`}>{truncate(agent.owner)}</td>
-                        <td className={`${TD} text-right font-mono text-xs text-foreground`}>
-                          {agent.verified_trade_count ?? 0} / 50
-                        </td>
-                        <td className={`${TD} text-right`}>
-                          <Button
-                            href={`/agents/${agent.agent_pda}`}
-                            prefetch={true}
-                            variant="secondary"
-                            className="!py-1 !px-2.5 !text-[11px] !h-7 font-mono inline-flex items-center gap-1 hover:border-accent/40 hover:text-accent"
-                          >
-                            <span>View</span>
-                            <ArrowRightGlyph className="h-2.5 w-2.5 opacity-70" />
-                          </Button>
-                        </td>
+              <div className="mt-5 rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                <div className="overflow-x-auto rounded-lg bg-white dark:bg-[#0a0a0a]">
+                  <table className="w-full text-left text-sm">
+                    <thead className="border-b border-black/5 bg-neutral-50 text-foreground-muted uppercase tracking-wider text-[10px] font-mono dark:border-white/5 dark:bg-[#111111]">
+                      <tr>
+                        <th className={TH}>Agent</th>
+                        <th className={TH}>Owner</th>
+                        <th className={`${TH} text-right`}>Verified fills</th>
+                        <th className={`${TH} text-right`}>Profile</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-black/5 font-mono text-xs dark:divide-white/5">
+                      {pending.map((agent) => (
+                        <tr key={agent.agent_pda} className="transition-colors hover:bg-neutral-50 dark:hover:bg-white/[0.02]">
+                          <td className={TD}>
+                            <Link
+                              href={`/agents/${agent.agent_pda}`}
+                              prefetch={true}
+                              className="group inline-flex items-center gap-1.5 font-medium text-foreground transition-colors hover:text-accent font-sans text-sm"
+                            >
+                              <span className="group-hover:underline underline-offset-4 decoration-accent/60">{agent.name}</span>
+                              <ArrowRightGlyph className="h-3 w-3 text-foreground-faint group-hover:text-accent group-hover:translate-x-0.5 transition-all shrink-0" />
+                            </Link>
+                          </td>
+                          <td className={`${TD} font-mono text-xs text-foreground-muted`}>{truncate(agent.owner)}</td>
+                          <td className={`${TD} text-right font-mono text-xs text-foreground`}>
+                            {agent.verified_trade_count ?? 0} / 50
+                          </td>
+                          <td className={`${TD} text-right`}>
+                            <Button
+                              href={`/agents/${agent.agent_pda}`}
+                              prefetch={true}
+                              variant="secondary"
+                              className="!py-1 !px-2.5 !text-[11px] !h-7 font-mono inline-flex items-center gap-1 hover:border-accent/40 hover:text-accent"
+                            >
+                              <span>View</span>
+                              <ArrowRightGlyph className="h-2.5 w-2.5 opacity-70" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}

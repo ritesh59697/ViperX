@@ -36,7 +36,7 @@ export default function GuidesPage() {
 
         <div className="grid gap-6 md:grid-cols-2">
           {steps.map((step, idx) => (
-            <Card key={idx} className="p-6">
+            <Card key={idx} interactive className="p-6">
               <span className="font-mono text-xs text-accent font-semibold">GUIDE 0{idx + 1}</span>
               <h2 className="text-base font-bold text-foreground mt-2">{step.title}</h2>
               <p className="t-body-sm text-foreground-muted mt-3 leading-relaxed text-xs">
@@ -48,10 +48,15 @@ export default function GuidesPage() {
 
         <div className="mt-4 text-center font-mono text-xs">
           <span className="text-foreground-faint">Need more advanced technical details?</span>
-          <Link href="/docs" className="ml-2 text-accent underline hover:text-accent/80 transition-colors inline-flex items-center gap-1">
+          <a
+            href="https://docs.viperx.site"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-2 text-accent underline hover:text-accent/80 transition-colors inline-flex items-center gap-1"
+          >
             <span>View Protocol Documentation</span>
             <ArrowRightGlyph className="h-3 w-3" />
-          </Link>
+          </a>
         </div>
       </div>
     </Section>

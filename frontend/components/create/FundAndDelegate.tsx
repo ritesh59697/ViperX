@@ -6,7 +6,6 @@ import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { useVelocity } from "@/hooks/useVelocity";
 import { getRegistryProgram, RUNTIME_PUBKEY } from "@/lib/registry";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
 import { CheckGlyph } from "@/components/ui/StatusGlyphs";
@@ -98,98 +97,102 @@ export function FundAndDelegate({ agentPda }: { agentPda: string }) {
 
   if (!anchorWallet) {
     return (
-      <Card variant="muted" className="mt-6 text-left">
-        Reconnect your wallet to fund and delegate this agent&apos;s trading vault.
-      </Card>
+      <div className="mt-6 rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+        <div className="rounded-lg bg-white p-4 text-left text-xs text-foreground-muted dark:bg-[#0a0a0a]">
+          Reconnect your wallet to fund and delegate this agent&apos;s trading vault.
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card variant="default" className="mt-6 flex flex-col gap-5 text-left">
-      <div>
-        <h3 className="font-mono text-sm font-semibold text-foreground">
-          3. Fund &amp; Delegate Trading Vault
-        </h3>
-        <p className="mt-1 text-xs text-foreground-muted">
-          Your agent is registered, but the execution runtime can&apos;t trade it yet. Four steps,
-          each a separate signature: you stay in control of withdrawals the whole time.
-        </p>
+    <div className="mt-6 rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+      <div className="flex flex-col gap-5 rounded-lg bg-white p-5 text-left dark:bg-[#0a0a0a]">
+        <div>
+          <h3 className="font-mono text-sm font-semibold text-foreground">
+            3. Fund &amp; Delegate Trading Vault
+          </h3>
+          <p className="mt-1 text-xs text-foreground-muted">
+            Your agent is registered, but the execution runtime can&apos;t trade it yet. Four steps,
+            each a separate signature: you stay in control of withdrawals the whole time.
+          </p>
+        </div>
+
+        <Step
+          label="Initialize Velocity account"
+          done={isInitialized}
+          disabled={isInitialized || isLoading}
+          loading={txState.action === "init" && txState.status === "signing"}
+          onClick={initializeUserAccount}
+          buttonLabel="Initialize"
+        >
+          Creates your devnet Velocity sub-account (subAccount 0): the account collateral gets
+          deposited into.
+        </Step>
+
+        <Step
+          label="Deposit SOL collateral"
+          done={hasDeposited}
+          disabled={!isInitialized || isLoading}
+          loading={txState.action === "deposit" && txState.status === "signing"}
+          onClick={() => depositSolCollateral(depositAmount)}
+          buttonLabel="Deposit"
+          input={
+            <input
+              type="text"
+              value={depositAmount}
+              onChange={(e) => setDepositAmount(e.target.value)}
+              disabled={!isInitialized}
+              className="w-20 rounded-lg border border-border bg-background px-2.5 py-1.5 font-mono text-xs text-foreground focus:border-accent focus:outline-none disabled:opacity-40"
+            />
+          }
+        >
+          SOL deposited as collateral your agent trades against on devnet.
+        </Step>
+
+        <Step
+          label="Delegate trading to runtime"
+          done={isDelegated}
+          disabled={!isInitialized || isLoading || !RUNTIME_PUBKEY}
+          loading={txState.action === "delegate" && txState.status === "signing"}
+          onClick={() => RUNTIME_PUBKEY && delegateToRuntime(RUNTIME_PUBKEY)}
+          buttonLabel="Delegate"
+        >
+          {RUNTIME_PUBKEY ? (
+            <>
+              Lets the runtime (<code className="font-mono">{shorten(RUNTIME_PUBKEY.toBase58())}</code>) open
+              and close positions on your vault: it can never withdraw.
+            </>
+          ) : (
+            <span className="text-negative">
+              Runtime pubkey not configured (NEXT_PUBLIC_RUNTIME_PUBKEY): ask the operator.
+            </span>
+          )}
+        </Step>
+
+        <Step
+          label="Authorize runtime for record_trade"
+          done={authorityState.status === "confirmed"}
+          disabled={!RUNTIME_PUBKEY || authorityState.status === "signing"}
+          loading={authorityState.status === "signing"}
+          onClick={handleAuthorizeRuntime}
+          buttonLabel="Authorize"
+        >
+          A separate, on-chain-registry-only delegation (<code className="font-mono">set_authority</code>):
+          lets the runtime bump your agent&apos;s trade count and pause it on repeated failures.
+          Can&apos;t retire, edit, or touch funds.
+        </Step>
+
+        <AnimatePresence>
+          {txState.status === "error" && (
+            <ErrorCardTransition key="tx-error">{txState.error}</ErrorCardTransition>
+          )}
+          {authorityState.status === "error" && (
+            <ErrorCardTransition key="authority-error">{authorityState.message}</ErrorCardTransition>
+          )}
+        </AnimatePresence>
       </div>
-
-      <Step
-        label="Initialize Velocity account"
-        done={isInitialized}
-        disabled={isInitialized || isLoading}
-        loading={txState.action === "init" && txState.status === "signing"}
-        onClick={initializeUserAccount}
-        buttonLabel="Initialize"
-      >
-        Creates your devnet Velocity sub-account (subAccount 0): the account collateral gets
-        deposited into.
-      </Step>
-
-      <Step
-        label="Deposit SOL collateral"
-        done={hasDeposited}
-        disabled={!isInitialized || isLoading}
-        loading={txState.action === "deposit" && txState.status === "signing"}
-        onClick={() => depositSolCollateral(depositAmount)}
-        buttonLabel="Deposit"
-        input={
-          <input
-            type="text"
-            value={depositAmount}
-            onChange={(e) => setDepositAmount(e.target.value)}
-            disabled={!isInitialized}
-            className="w-20 rounded-lg border border-border bg-background px-2.5 py-1.5 font-mono text-xs text-foreground focus:border-accent focus:outline-none disabled:opacity-40"
-          />
-        }
-      >
-        SOL deposited as collateral your agent trades against on devnet.
-      </Step>
-
-      <Step
-        label="Delegate trading to runtime"
-        done={isDelegated}
-        disabled={!isInitialized || isLoading || !RUNTIME_PUBKEY}
-        loading={txState.action === "delegate" && txState.status === "signing"}
-        onClick={() => RUNTIME_PUBKEY && delegateToRuntime(RUNTIME_PUBKEY)}
-        buttonLabel="Delegate"
-      >
-        {RUNTIME_PUBKEY ? (
-          <>
-            Lets the runtime (<code className="font-mono">{shorten(RUNTIME_PUBKEY.toBase58())}</code>) open
-            and close positions on your vault: it can never withdraw.
-          </>
-        ) : (
-          <span className="text-negative">
-            Runtime pubkey not configured (NEXT_PUBLIC_RUNTIME_PUBKEY): ask the operator.
-          </span>
-        )}
-      </Step>
-
-      <Step
-        label="Authorize runtime for record_trade"
-        done={authorityState.status === "confirmed"}
-        disabled={!RUNTIME_PUBKEY || authorityState.status === "signing"}
-        loading={authorityState.status === "signing"}
-        onClick={handleAuthorizeRuntime}
-        buttonLabel="Authorize"
-      >
-        A separate, on-chain-registry-only delegation (<code className="font-mono">set_authority</code>):
-        lets the runtime bump your agent&apos;s trade count and pause it on repeated failures.
-        Can&apos;t retire, edit, or touch funds.
-      </Step>
-
-      <AnimatePresence>
-        {txState.status === "error" && (
-          <ErrorCardTransition key="tx-error">{txState.error}</ErrorCardTransition>
-        )}
-        {authorityState.status === "error" && (
-          <ErrorCardTransition key="authority-error">{authorityState.message}</ErrorCardTransition>
-        )}
-      </AnimatePresence>
-    </Card>
+    </div>
   );
 }
 
@@ -197,9 +200,9 @@ function ErrorCardTransition({ children }: { children: React.ReactNode }) {
   const reduced = useReducedMotion();
   if (reduced) {
     return (
-      <Card variant="error" className="text-xs">
+      <div className="rounded-lg border border-negative/30 bg-negative/10 p-3 text-xs text-negative">
         {children}
-      </Card>
+      </div>
     );
   }
   return (
@@ -210,9 +213,9 @@ function ErrorCardTransition({ children }: { children: React.ReactNode }) {
       transition={{ duration: 0.25, ease: "easeOut" }}
       style={{ overflow: "hidden" }}
     >
-      <Card variant="error" className="text-xs">
+      <div className="rounded-lg border border-negative/30 bg-negative/10 p-3 text-xs text-negative">
         {children}
-      </Card>
+      </div>
     </motion.div>
   );
 }

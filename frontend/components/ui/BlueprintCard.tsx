@@ -28,10 +28,6 @@ export function BlueprintCard({
         <span className="font-mono text-[10px] font-semibold tracking-wider text-accent uppercase">
           {category}
         </span>
-        <div className="flex items-center gap-1.5 font-mono text-[10px] text-foreground-faint">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent/60 group-hover:bg-accent transition-colors" />
-          <span>SPEC // READY</span>
-        </div>
       </div>
 
       {/* Center 3D Interactive Illustration Slot */}

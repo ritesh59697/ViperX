@@ -684,12 +684,12 @@ export default function DocsPage() {
             </p>
             <div className="flex flex-col gap-2 mt-1">
               <a
-                href="https://x.com/ritesh5969"
+                href="https://x.com/ViperX_site"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-accent hover:underline flex items-center justify-between transition-colors font-medium group"
               >
-                <span>Ask on Twitter</span>
+                <span>Ask on X (@ViperX_site)</span>
                 <ExternalLinkGlyph className="h-3.5 w-3.5 text-accent" />
               </a>
               <a
@@ -1370,40 +1370,44 @@ contract ViperxRegistry {
               {/* ── GitBook Previous / Next Pagination Cards ──────────────── */}
               <div className="pt-8 border-t border-border mt-8 grid gap-4 sm:grid-cols-2">
                 {prevItem ? (
-                  <button
-                    onClick={() => {
-                      setActiveSection(prevItem.id);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className="p-4 rounded-xl border border-border bg-surface/30 hover:border-border-strong text-left transition-all cursor-pointer group"
-                  >
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-foreground-faint block mb-1">
-                      ← Previous Chapter
-                    </span>
-                    <span className="text-xs font-bold text-foreground font-mono group-hover:text-accent transition-colors">
-                      {prevItem.label}
-                    </span>
-                  </button>
+                  <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 transition-all duration-200 hover:border-black/20 dark:border-[#262626] dark:bg-[#141414] dark:hover:border-[#383838]">
+                    <button
+                      onClick={() => {
+                        setActiveSection(prevItem.id);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className="w-full h-full p-4 rounded-lg bg-white dark:bg-[#0a0a0a] text-left cursor-pointer group"
+                    >
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-foreground-faint block mb-1">
+                        ← Previous Chapter
+                      </span>
+                      <span className="text-xs font-bold text-foreground font-mono group-hover:text-accent transition-colors">
+                        {prevItem.label}
+                      </span>
+                    </button>
+                  </div>
                 ) : (
                   <div />
                 )}
 
                 {nextItem ? (
-                  <button
-                    onClick={() => {
-                      setActiveSection(nextItem.id);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className="p-4 rounded-xl border border-border bg-surface/30 hover:border-border-strong text-right transition-all cursor-pointer group sm:col-start-2"
-                  >
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-foreground-faint mb-1 flex items-center justify-end gap-1">
-                      <span>Next Chapter</span>
-                      <ArrowRightGlyph className="h-3 w-3" />
-                    </span>
-                    <span className="text-xs font-bold text-foreground font-mono group-hover:text-accent transition-colors">
-                      {nextItem.label}
-                    </span>
-                  </button>
+                  <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 transition-all duration-200 hover:border-black/20 dark:border-[#262626] dark:bg-[#141414] dark:hover:border-[#383838] sm:col-start-2">
+                    <button
+                      onClick={() => {
+                        setActiveSection(nextItem.id);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className="w-full h-full p-4 rounded-lg bg-white dark:bg-[#0a0a0a] text-right cursor-pointer group"
+                    >
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-foreground-faint mb-1 flex items-center justify-end gap-1">
+                        <span>Next Chapter</span>
+                        <ArrowRightGlyph className="h-3 w-3" />
+                      </span>
+                      <span className="text-xs font-bold text-foreground font-mono group-hover:text-accent transition-colors">
+                        {nextItem.label}
+                      </span>
+                    </button>
+                  </div>
                 ) : null}
               </div>
 

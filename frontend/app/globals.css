@@ -57,18 +57,18 @@
 .dark {
   color-scheme: dark;
 
-  --background: #0a0a0b;
-  --background-elevated: rgba(22, 23, 27, 0.82);
-  --background-elevated-hover: rgba(32, 34, 40, 0.9);
-  --background-elevated-solid: #16171b;
-  --background-muted: rgba(255, 255, 255, 0.06);
+  --background: #000000;
+  --background-elevated: rgba(255, 255, 255, 0.035);
+  --background-elevated-hover: rgba(255, 255, 255, 0.06);
+  --background-elevated-solid: #0d0e12;
+  --background-muted: rgba(255, 255, 255, 0.04);
 
   --foreground: #f2f3f5;
   --foreground-muted: #b6bcc7;
   --foreground-faint: #99a0ac;
 
-  --border: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.2);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.18);
 
   /* #f42601 measured 4.37:1 as text on --background-elevated (needs 4.5) and
      only 4.10:1 under white text as a fill. #f83a18 clears 4.78:1 as text;
@@ -217,6 +217,12 @@ html {
   border: 1px solid var(--border);
   backdrop-filter: blur(12px) saturate(115%);
   -webkit-backdrop-filter: blur(12px) saturate(115%);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+}
+
+.dark .surface,
+.dark .surface-solid {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
 }
 
 /* Same card treatment as .surface, but fully opaque. For content that has to be
@@ -332,41 +338,50 @@ html {
   color: var(--foreground-faint);
 }
 
-/* Vertical rail in the left gutter: a hairline plus a tick every 48px, the
-   drafting-paper margin the reference runs down its full height. Hidden below
-   `lg` where there is no gutter left to put it in.
-   Left only — the right gutter belongs to `.bp-rail` (the section index)
-   below, and two columns of ticks down the same margin read as clutter.
-   39.5rem = half of Section's `wide` measure (76rem) plus a 1.5rem gutter, so
-   it sits just outside the content column rather than through it. */
-.bp-rails::before,
-.bp-rails::after {
-  content: "";
+/* ---------------------------------------------------------------------------
+   Continuous Page-level Blueprint Rails:
+   Hairlines with precision 48px cadence ticks framing the content gutters.
+   Symmetrically mirrored and equally distributed from the page center:
+   - Left rail: 1px line on left edge (0 0), ticks point inward (right).
+   - Right rail: 1px line on right edge (100% 0), ticks point inward (left).
+   Continuous top-to-bottom without section boundary jumps or restarts.
+--------------------------------------------------------------------------- */
+.bp-rail-left,
+.bp-rail-right {
   position: absolute;
   top: 0;
   bottom: 0;
   width: 9px;
   pointer-events: none;
-  display: none;
+}
+
+.bp-rail-left {
+  left: clamp(1.25rem, 2vw, 2.25rem);
   background:
     linear-gradient(var(--border), var(--border)) no-repeat,
     repeating-linear-gradient(to bottom, var(--border) 0 1px, transparent 1px 48px);
   background-size:
     1px 100%,
     100% 100%;
+  background-position:
+    0 0,
+    0 0;
 }
-.bp-rails::before {
-  left: max(1.5rem, calc(50% - 44rem));
+
+.bp-rail-right {
+  right: clamp(1.25rem, 2vw, 2.25rem);
+  background:
+    linear-gradient(var(--border), var(--border)) no-repeat,
+    repeating-linear-gradient(to bottom, var(--border) 0 1px, transparent 1px 48px);
+  background-size:
+    1px 100%,
+    100% 100%;
+  background-position:
+    100% 0,
+    0 0;
 }
-.bp-rails::after {
-  right: max(1.5rem, calc(50% - 44rem));
-}
-@media (min-width: 1024px) {
-  .bp-rails::before,
-  .bp-rails::after {
-    display: block;
-  }
-}
+
+
 
 /* ---------------------------------------------------------------------------
    Section index rail — fixed to the right gutter, one tick per section.
@@ -845,5 +860,78 @@ html {
 
 .animate-laser-beam {
   animation: laserBeam 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* From Uiverse.io by cosnametv - Theme Red */
+.loader,
+.loader-grid {
+  --color: var(--accent, #d0200a);
+  --size: 70px;
+  width: var(--size);
+  height: var(--size);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.loader span,
+.loader-grid span {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color);
+  border-radius: 2px;
+  animation: keyframes-blink 0.6s alternate infinite linear;
+}
+
+.loader span:nth-child(1), .loader-grid span:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.loader span:nth-child(2), .loader-grid span:nth-child(2) {
+  animation-delay: 200ms;
+}
+
+.loader span:nth-child(3), .loader-grid span:nth-child(3) {
+  animation-delay: 300ms;
+}
+
+.loader span:nth-child(4), .loader-grid span:nth-child(4) {
+  animation-delay: 400ms;
+}
+
+.loader span:nth-child(5), .loader-grid span:nth-child(5) {
+  animation-delay: 500ms;
+}
+
+.loader span:nth-child(6), .loader-grid span:nth-child(6) {
+  animation-delay: 600ms;
+}
+
+@keyframes keyframes-blink {
+  0% {
+    opacity: 0.25;
+    transform: scale(0.5) rotate(5deg);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(208, 32, 10, 0.45);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--color, #d0200a) 50%, transparent);
+  }
+}
+
+/* High-performance GPU-composited accordion collapse (0-lag on mobile) */
+.faq-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.faq-collapse[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+.faq-collapse-inner {
+  overflow: hidden;
+  min-height: 0;
 }
 

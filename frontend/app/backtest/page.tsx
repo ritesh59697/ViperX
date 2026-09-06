@@ -2,7 +2,6 @@
 
 import { useState, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Card } from "@/components/ui/Card";
 import { Section } from "@/components/ui/Section";
 import { runBacktest, generateRegimeData, BacktestParams, BacktestTrade, PriceTick } from "@/lib/backtest/simulator";
 
@@ -207,8 +206,9 @@ export default function BacktestLab() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Left Column: Input configurations */}
         <div className="lg:col-span-4 flex flex-col gap-6">
-          <Card className="flex flex-col gap-5 p-5">
-            <h2 className="text-base font-semibold text-foreground border-b border-border pb-2">1. Strategy Settings</h2>
+          <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+            <div className="flex flex-col gap-5 rounded-lg bg-white p-5 dark:bg-[#0a0a0a]">
+              <h2 className="text-base font-semibold text-foreground border-b border-black/5 dark:border-white/5 pb-2">1. Strategy Settings</h2>
 
             {/* Strategy Select */}
             <div>
@@ -367,10 +367,12 @@ export default function BacktestLab() {
                 </div>
               )}
             </div>
-          </Card>
+          </div>
+        </div>
 
-          <Card className="flex flex-col gap-4 p-5">
-            <h2 className="text-base font-semibold text-foreground border-b border-border pb-2">2. Market Regime</h2>
+          <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+            <div className="flex flex-col gap-4 rounded-lg bg-white p-5 dark:bg-[#0a0a0a]">
+              <h2 className="text-base font-semibold text-foreground border-b border-black/5 dark:border-white/5 pb-2">2. Market Regime</h2>
             <div className="flex flex-col gap-3">
               {REGIMES.map((r) => (
                 <button
@@ -406,21 +408,26 @@ export default function BacktestLab() {
               ) : (
                 "Run Backtest"
               )}
-            </button>
-          </Card>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Right Column: Performance Results */}
         <div className="lg:col-span-8">
           {!result ? (
-            <div className="flex flex-col items-center justify-center border border-dashed border-border rounded-2xl p-12 h-full min-h-[400px] text-center bg-surface/20">
-              <svg className="h-16 w-16 text-foreground-faint mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
-              </svg>
-              <h3 className="text-lg font-bold text-foreground">Awaiting Simulation Configuration</h3>
-              <p className="text-sm text-foreground-muted mt-2 max-w-sm">
-                Choose a trading strategy, adjust parameters, select a market regime and click **Run Backtest** to analyze performance.
-              </p>
+            <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414] h-full">
+              <div className="flex flex-col items-center justify-center rounded-lg bg-white p-12 h-full min-h-[440px] text-center dark:bg-[#0a0a0a]">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-black/8 bg-black/[0.03] text-foreground-muted mb-4 dark:border-white/10 dark:bg-white/[0.04]">
+                  <svg className="h-7 w-7 text-foreground-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
+                  </svg>
+                </div>
+                <h3 className="text-base font-bold text-foreground">Awaiting Simulation Configuration</h3>
+                <p className="text-xs text-foreground-muted mt-2 max-w-sm leading-relaxed">
+                  Choose a trading strategy, adjust parameters, select a market regime and click <span className="font-semibold text-accent">Run Backtest</span> to analyze performance.
+                </p>
+              </div>
             </div>
           ) : (
             <div className="flex flex-col gap-6">
@@ -432,116 +439,178 @@ export default function BacktestLab() {
                 </div>
               </div>
 
-              {/* Performance Metrics Cards Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-                <Card className="p-4 flex flex-col justify-center border-l-2 border-l-accent">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-foreground-muted">ROI</span>
-                  <span className={`text-xl font-bold mt-1 font-mono ${result.metrics.roi >= 0 ? "text-positive" : "text-negative"}`}>
-                    {result.metrics.roi >= 0 ? "+" : ""}{result.metrics.roi}%
-                  </span>
-                </Card>
-                <Card className="p-4 flex flex-col justify-center border-l-2 border-l-positive">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-foreground-muted">Win Rate</span>
-                  <span className="text-xl font-bold text-foreground mt-1 font-mono">
-                    {result.metrics.winRate}%
-                  </span>
-                </Card>
-                <Card className="p-4 flex flex-col justify-center border-l-2 border-l-purple-500">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-foreground-muted">Sharpe Ratio</span>
-                  <span className="text-xl font-bold text-foreground mt-1 font-mono">
-                    {result.metrics.sharpe}
-                  </span>
-                </Card>
-                <Card className="p-4 flex flex-col justify-center border-l-2 border-l-warning">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-foreground-muted">Max Drawdown</span>
-                  <span className="text-xl font-bold text-negative mt-1 font-mono">
-                    -{result.metrics.maxDrawdown}%
-                  </span>
-                </Card>
-                <Card className="p-4 flex flex-col justify-center border-l-2 border-l-foreground-faint col-span-2 sm:col-span-1">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-foreground-muted">Trades Count</span>
-                  <span className="text-xl font-bold text-foreground mt-1 font-mono">
-                    {result.metrics.totalTrades}
-                  </span>
-                </Card>
+              {/* Performance Metrics Cards Grid — ReactBits Compound Chassis */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                {/* ROI */}
+                <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-black/10 bg-neutral-200/60 p-1 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:border-black/20 dark:border-[#262626] dark:bg-[#141414] dark:hover:border-[#383838]">
+                  <div className="flex h-full flex-col justify-between rounded-lg bg-white p-4 transition-colors dark:bg-[#0a0a0a]">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-foreground-muted">ROI</span>
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-black/8 bg-black/[0.03] text-accent dark:border-white/10 dark:bg-white/[0.04]">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                          <polyline points="17 6 23 6 23 12" />
+                        </svg>
+                      </div>
+                    </div>
+                    <span className={`mt-2 block font-mono text-xl font-bold tracking-tight ${result.metrics.roi >= 0 ? "text-positive" : "text-negative"}`}>
+                      {result.metrics.roi >= 0 ? "+" : ""}{result.metrics.roi}%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Win Rate */}
+                <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-black/10 bg-neutral-200/60 p-1 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:border-black/20 dark:border-[#262626] dark:bg-[#141414] dark:hover:border-[#383838]">
+                  <div className="flex h-full flex-col justify-between rounded-lg bg-white p-4 transition-colors dark:bg-[#0a0a0a]">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-foreground-muted">Win Rate</span>
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-black/8 bg-black/[0.03] text-positive dark:border-white/10 dark:bg-white/[0.04]">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="8" r="6" />
+                          <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+                        </svg>
+                      </div>
+                    </div>
+                    <span className="mt-2 block font-mono text-xl font-bold tracking-tight text-foreground">
+                      {result.metrics.winRate}%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Sharpe Ratio */}
+                <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-black/10 bg-neutral-200/60 p-1 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:border-black/20 dark:border-[#262626] dark:bg-[#141414] dark:hover:border-[#383838]">
+                  <div className="flex h-full flex-col justify-between rounded-lg bg-white p-4 transition-colors dark:bg-[#0a0a0a]">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-foreground-muted">Sharpe</span>
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-black/8 bg-black/[0.03] text-purple-400 dark:border-white/10 dark:bg-white/[0.04]">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                          <polyline points="16 7 22 7 22 13" />
+                        </svg>
+                      </div>
+                    </div>
+                    <span className="mt-2 block font-mono text-xl font-bold tracking-tight text-foreground">
+                      {result.metrics.sharpe}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Max Drawdown */}
+                <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-black/10 bg-neutral-200/60 p-1 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:border-black/20 dark:border-[#262626] dark:bg-[#141414] dark:hover:border-[#383838]">
+                  <div className="flex h-full flex-col justify-between rounded-lg bg-white p-4 transition-colors dark:bg-[#0a0a0a]">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-foreground-muted">Drawdown</span>
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-black/8 bg-black/[0.03] text-negative dark:border-white/10 dark:bg-white/[0.04]">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <span className="mt-2 block font-mono text-xl font-bold tracking-tight text-negative">
+                      -{result.metrics.maxDrawdown}%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Trades Count */}
+                <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-black/10 bg-neutral-200/60 p-1 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:border-black/20 dark:border-[#262626] dark:bg-[#141414] dark:hover:border-[#383838] col-span-2 sm:col-span-1">
+                  <div className="flex h-full flex-col justify-between rounded-lg bg-white p-4 transition-colors dark:bg-[#0a0a0a]">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-foreground-muted">Trades</span>
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-black/8 bg-black/[0.03] text-foreground-faint dark:border-white/10 dark:bg-white/[0.04]">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="m16 3 4 4-4 4" />
+                          <path d="M20 7H4" />
+                          <path d="m8 21-4-4 4-4" />
+                          <path d="M4 17h16" />
+                        </svg>
+                      </div>
+                    </div>
+                    <span className="mt-2 block font-mono text-xl font-bold tracking-tight text-foreground">
+                      {result.metrics.totalTrades}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               {/* Equity Curve SVG Line Chart */}
               {chartData && (
-                <Card className="p-5 flex flex-col gap-4 overflow-hidden">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-semibold text-foreground">Equity Performance Curve</h3>
-                      <p className="text-xs text-foreground-muted mt-0.5">Account Net Asset Value over simulation steps</p>
-                    </div>
-                    {currentHoverPoint && (
-                      <div className="text-right">
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-foreground-muted block">Simulated Balance</span>
-                        <span className="text-sm font-bold font-mono text-accent">${currentHoverPoint.equity.toFixed(2)}</span>
+                <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                  <div className="flex flex-col gap-4 overflow-hidden rounded-lg bg-white p-5 dark:bg-[#0a0a0a]">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground">Equity Performance Curve</h3>
+                        <p className="text-xs text-foreground-muted mt-0.5">Account Net Asset Value over simulation steps</p>
                       </div>
-                    )}
-                  </div>
-
-                  <div className="relative w-full h-[240px]">
-                    <svg
-                      ref={svgRef}
-                      viewBox={`0 0 ${width} ${height}`}
-                      className="w-full h-full overflow-visible select-none"
-                      onMouseMove={handleMouseMove}
-                      onMouseLeave={() => setHoverIndex(null)}
-                    >
-                      <defs>
-                        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#14F195" stopOpacity="0.8"/>
-                          <stop offset="100%" stopColor="#9945FF" stopOpacity="0.8"/>
-                        </linearGradient>
-                        <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#14F195" stopOpacity="0.2"/>
-                          <stop offset="100%" stopColor="#9945FF" stopOpacity="0.0"/>
-                        </linearGradient>
-                      </defs>
-
-                      {/* Y Axis Gridlines */}
-                      {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
-                        const y = padding.top + ratio * (height - padding.top - padding.bottom);
-                        const val = chartData.maxEq - ratio * (chartData.maxEq - chartData.minEq);
-                        return (
-                          <g key={i} className="opacity-20">
-                            <line x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="var(--border)" strokeDasharray="3,3" />
-                            <text x={padding.left - 8} y={y + 4} textAnchor="end" className="fill-foreground font-mono text-[9px]">${Math.round(val)}</text>
-                          </g>
-                        );
-                      })}
-
-                      {/* Gradient Filled Area */}
-                      <path d={chartData.fillPath} fill="url(#fillGrad)" />
-
-                      {/* Line Path */}
-                      <path d={chartData.linePath} fill="none" stroke="url(#chartGrad)" strokeWidth="2.5" strokeLinecap="round" />
-
-                      {/* Hover Interaction Indicator */}
                       {currentHoverPoint && (
-                        <g>
-                          <line
-                            x1={currentHoverPoint.x}
-                            y1={padding.top}
-                            x2={currentHoverPoint.x}
-                            y2={height - padding.bottom}
-                            stroke="var(--foreground-muted)"
-                            strokeWidth="1"
-                            strokeDasharray="2,2"
-                          />
-                          <circle
-                            cx={currentHoverPoint.x}
-                            cy={currentHoverPoint.y}
-                            r="5"
-                            className="fill-accent stroke-surface stroke-2"
-                          />
-                        </g>
+                        <div className="text-right">
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-foreground-muted block">Simulated Balance</span>
+                          <span className="text-sm font-bold font-mono text-accent">${currentHoverPoint.equity.toFixed(2)}</span>
+                        </div>
                       )}
-                    </svg>
+                    </div>
+
+                    <div className="relative w-full h-[240px]">
+                      <svg
+                        ref={svgRef}
+                        viewBox={`0 0 ${width} ${height}`}
+                        className="w-full h-full overflow-visible select-none"
+                        onMouseMove={handleMouseMove}
+                        onMouseLeave={() => setHoverIndex(null)}
+                      >
+                        <defs>
+                          <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#14F195" stopOpacity="0.8"/>
+                            <stop offset="100%" stopColor="#9945FF" stopOpacity="0.8"/>
+                          </linearGradient>
+                          <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#14F195" stopOpacity="0.2"/>
+                            <stop offset="100%" stopColor="#9945FF" stopOpacity="0.0"/>
+                          </linearGradient>
+                        </defs>
+
+                        {/* Y Axis Gridlines */}
+                        {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
+                          const y = padding.top + ratio * (height - padding.top - padding.bottom);
+                          const val = chartData.maxEq - ratio * (chartData.maxEq - chartData.minEq);
+                          return (
+                            <g key={i} className="opacity-20">
+                              <line x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="var(--border)" strokeDasharray="3,3" />
+                              <text x={padding.left - 8} y={y + 4} textAnchor="end" className="fill-foreground font-mono text-[9px]">${Math.round(val)}</text>
+                            </g>
+                          );
+                        })}
+
+                        {/* Gradient Filled Area */}
+                        <path d={chartData.fillPath} fill="url(#fillGrad)" />
+
+                        {/* Line Path */}
+                        <path d={chartData.linePath} fill="none" stroke="url(#chartGrad)" strokeWidth="2.5" strokeLinecap="round" />
+
+                        {/* Hover Interaction Indicator */}
+                        {currentHoverPoint && (
+                          <g>
+                            <line
+                              x1={currentHoverPoint.x}
+                              y1={padding.top}
+                              x2={currentHoverPoint.x}
+                              y2={height - padding.bottom}
+                              stroke="var(--foreground-muted)"
+                              strokeWidth="1"
+                              strokeDasharray="2,2"
+                            />
+                            <circle
+                              cx={currentHoverPoint.x}
+                              cy={currentHoverPoint.y}
+                              r="5"
+                              className="fill-accent stroke-surface stroke-2"
+                            />
+                          </g>
+                        )}
+                      </svg>
+                    </div>
                   </div>
-                </Card>
+                </div>
               )}
 
               {/* Dynamic CTAs */}
@@ -556,76 +625,78 @@ export default function BacktestLab() {
               </div>
 
               {/* Paginated Simulated Trade Log */}
-              <Card className="p-5 flex flex-col gap-4">
-                <div className="flex items-center justify-between border-b border-border pb-3">
-                  <h3 className="text-sm font-semibold text-foreground">Simulated Trades Log</h3>
-                  <span className="text-xs text-foreground-muted font-mono">{result.trades.length} trades recorded</span>
-                </div>
-
-                {result.trades.length === 0 ? (
-                  <p className="text-sm text-foreground-muted text-center py-6">No trades triggered during simulation. Try decreasing thresholds or widening window sizes.</p>
-                ) : (
-                  <div className="flex flex-col gap-4">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-xs font-mono">
-                        <thead>
-                          <tr className="text-foreground-muted border-b border-border pb-2">
-                            <th className="py-2 pr-4 whitespace-nowrap">Side</th>
-                            <th className="py-2 pr-4 whitespace-nowrap">Entry Price</th>
-                            <th className="py-2 pr-4 whitespace-nowrap">Exit Price</th>
-                            <th className="py-2 pr-4 whitespace-nowrap">Realized PnL</th>
-                            <th className="py-2 whitespace-nowrap">Rationale</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {paginatedTrades.map((t, idx) => (
-                            <tr key={idx} className="border-b border-border/50 hover:bg-surface/30">
-                              <td className={`py-3 pr-4 font-semibold capitalize whitespace-nowrap ${t.side === "long" ? "text-positive" : "text-negative"}`}>
-                                {t.side}
-                              </td>
-                              <td className="py-3 pr-4 text-foreground whitespace-nowrap">${t.entryPrice.toFixed(2)}</td>
-                              <td className="py-3 pr-4 text-foreground whitespace-nowrap">${t.exitPrice.toFixed(2)}</td>
-                              <td className={`py-3 pr-4 font-semibold whitespace-nowrap ${t.realizedPnl >= 0 ? "text-positive" : "text-negative"}`}>
-                                {t.realizedPnl >= 0 ? "+" : ""}${t.realizedPnl}
-                              </td>
-                              <td className="py-3 text-foreground-muted min-w-[200px] max-w-[280px] truncate" title={`${t.entryReason} | ${t.exitReason}`}>
-                                {t.entryReason}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Pagination buttons */}
-                    {totalTradesPages > 1 && (
-                      <div className="flex justify-center gap-2 mt-2">
-                        <button
-                          onClick={() => setTradesPage((p) => Math.max(1, p - 1))}
-                          disabled={tradesPage === 1}
-                          className="h-8 w-8 inline-flex items-center justify-center rounded border border-border bg-surface text-foreground hover:bg-surface-hover hover:border-foreground-muted disabled:opacity-40 cursor-pointer"
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                            <path d="m15 18-6-6 6-6" />
-                          </svg>
-                        </button>
-                        <span className="text-xs text-foreground-muted flex items-center px-2">
-                          Page {tradesPage} of {totalTradesPages}
-                        </span>
-                        <button
-                          onClick={() => setTradesPage((p) => Math.min(totalTradesPages, p + 1))}
-                          disabled={tradesPage === totalTradesPages}
-                          className="h-8 w-8 inline-flex items-center justify-center rounded border border-border bg-surface text-foreground hover:bg-surface-hover hover:border-foreground-muted disabled:opacity-40 cursor-pointer"
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                            <path d="m9 18 6-6-6-6" />
-                          </svg>
-                        </button>
-                      </div>
-                    )}
+              <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
+                <div className="flex flex-col gap-4 rounded-lg bg-white p-5 dark:bg-[#0a0a0a]">
+                  <div className="flex items-center justify-between border-b border-border pb-3">
+                    <h3 className="text-sm font-semibold text-foreground">Simulated Trades Log</h3>
+                    <span className="text-xs text-foreground-muted font-mono">{result.trades.length} trades recorded</span>
                   </div>
-                )}
-              </Card>
+
+                  {result.trades.length === 0 ? (
+                    <p className="text-sm text-foreground-muted text-center py-6">No trades triggered during simulation. Try decreasing thresholds or widening window sizes.</p>
+                  ) : (
+                    <div className="flex flex-col gap-4">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs font-mono">
+                          <thead>
+                            <tr className="text-foreground-muted border-b border-black/5 pb-2 dark:border-white/5">
+                              <th className="py-2 pr-4 whitespace-nowrap">Side</th>
+                              <th className="py-2 pr-4 whitespace-nowrap">Entry Price</th>
+                              <th className="py-2 pr-4 whitespace-nowrap">Exit Price</th>
+                              <th className="py-2 pr-4 whitespace-nowrap">Realized PnL</th>
+                              <th className="py-2 whitespace-nowrap">Rationale</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {paginatedTrades.map((t, idx) => (
+                              <tr key={idx} className="border-b border-black/5 transition-colors hover:bg-neutral-50 dark:border-white/5 dark:hover:bg-white/[0.02]">
+                                <td className={`py-3 pr-4 font-semibold capitalize whitespace-nowrap ${t.side === "long" ? "text-positive" : "text-negative"}`}>
+                                  {t.side}
+                                </td>
+                                <td className="py-3 pr-4 text-foreground whitespace-nowrap">${t.entryPrice.toFixed(2)}</td>
+                                <td className="py-3 pr-4 text-foreground whitespace-nowrap">${t.exitPrice.toFixed(2)}</td>
+                                <td className={`py-3 pr-4 font-semibold whitespace-nowrap ${t.realizedPnl >= 0 ? "text-positive" : "text-negative"}`}>
+                                  {t.realizedPnl >= 0 ? "+" : ""}${t.realizedPnl}
+                                </td>
+                                <td className="py-3 text-foreground-muted min-w-[200px] max-w-[280px] truncate" title={`${t.entryReason} | ${t.exitReason}`}>
+                                  {t.entryReason}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Pagination buttons */}
+                      {totalTradesPages > 1 && (
+                        <div className="flex justify-center gap-2 mt-2">
+                          <button
+                            onClick={() => setTradesPage((p) => Math.max(1, p - 1))}
+                            disabled={tradesPage === 1}
+                            className="h-8 w-8 inline-flex items-center justify-center rounded border border-border bg-surface text-foreground hover:bg-surface-hover hover:border-foreground-muted disabled:opacity-40 cursor-pointer"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                              <path d="m15 18-6-6 6-6" />
+                            </svg>
+                          </button>
+                          <span className="text-xs text-foreground-muted flex items-center px-2">
+                            Page {tradesPage} of {totalTradesPages}
+                          </span>
+                          <button
+                            onClick={() => setTradesPage((p) => Math.min(totalTradesPages, p + 1))}
+                            disabled={tradesPage === totalTradesPages}
+                            className="h-8 w-8 inline-flex items-center justify-center rounded border border-border bg-surface text-foreground hover:bg-surface-hover hover:border-foreground-muted disabled:opacity-40 cursor-pointer"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                              <path d="m9 18 6-6-6-6" />
+                            </svg>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>

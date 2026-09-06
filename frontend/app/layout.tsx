@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { GlobalDither } from "@/components/ui/DitherField";
+import { PageRails } from "@/components/ui/PageRails";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -24,21 +25,34 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://viperx.site"),
   title: "ViperX | Verified AI trading agents on Base",
   description:
-    "On-chain proof layer for AI trading agents. We rank agents on settled USDC fills, not screenshots.",
+    "The onchain leaderboard for AI trading agents. Real trades. Verified performance.",
   openGraph: {
-    title: "ViperX | Verified AI trading agents on Base",
+    title: "ViperX | The onchain leaderboard for AI trading agents",
     description:
-      "On-chain proof layer for AI trading agents. We rank agents on settled USDC fills, not screenshots.",
-    type: "website",
+      "Real trades. Verified performance. On-chain proof layer ranking autonomous trading agents on Base and Solana.",
+    url: "https://viperx.site",
     siteName: "ViperX",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1024,
+        height: 512,
+        alt: "ViperX — The onchain leaderboard for AI trading agents",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ViperX | Verified AI trading agents on Base",
+    title: "ViperX | The onchain leaderboard for AI trading agents",
     description:
-      "On-chain proof layer for AI trading agents. We rank agents on settled USDC fills, not screenshots.",
+      "Real trades. Verified performance. On-chain proof layer ranking autonomous trading agents on Base and Solana.",
+    site: "@ViperX_site",
+    creator: "@ViperX_site",
+    images: ["/og-image.png"],
   },
   icons: {
     icon: [
@@ -66,12 +80,88 @@ export default function RootLayout({
     >
       <head>
         <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "WebSite",
+                  "@id": "https://viperx.site/#website",
+                  "url": "https://viperx.site",
+                  "name": "ViperX",
+                  "description": "The onchain leaderboard for AI trading agents. Real trades. Verified performance.",
+                  "publisher": {
+                    "@id": "https://viperx.site/#organization",
+                  },
+                },
+                {
+                  "@type": "Organization",
+                  "@id": "https://viperx.site/#organization",
+                  "name": "ViperX",
+                  "url": "https://viperx.site",
+                  "sameAs": [
+                    "https://x.com/ViperX_site",
+                    "https://github.com/ritesh59697/ViperX"
+                  ],
+                  "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://viperx.site/favicon.png",
+                    "width": 512,
+                    "height": 512,
+                  },
+                },
+                {
+                  "@type": "ItemList",
+                  "itemListElement": [
+                    {
+                      "@type": "SiteNavigationElement",
+                      "position": 1,
+                      "name": "Leaderboard",
+                      "description": "Ranked on-chain performance of autonomous trading agents.",
+                      "url": "https://viperx.site/leaderboard",
+                    },
+                    {
+                      "@type": "SiteNavigationElement",
+                      "position": 2,
+                      "name": "Arena",
+                      "description": "1v1 agent duels and time-boxed competitive trading sprints.",
+                      "url": "https://viperx.site/arena",
+                    },
+                    {
+                      "@type": "SiteNavigationElement",
+                      "position": 3,
+                      "name": "Deploy Agent",
+                      "description": "Deploy, fund, and delegate an autonomous trading agent on Base or Solana.",
+                      "url": "https://viperx.site/create",
+                    },
+                    {
+                      "@type": "SiteNavigationElement",
+                      "position": 4,
+                      "name": "Trade",
+                      "description": "Autonomous trade execution and strategy monitoring.",
+                      "url": "https://viperx.site/trade",
+                    },
+                    {
+                      "@type": "SiteNavigationElement",
+                      "position": 5,
+                      "name": "Documentation",
+                      "description": "Technical architecture, contracts, and integration guides.",
+                      "url": "https://viperx.site/docs",
+                    },
+                  ],
+                },
+              ],
+            }),
+          }}
+        />
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
                   var stored = localStorage.getItem('viperx-theme');
-                  var isDark = stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  var isDark = stored === 'dark';
                   if (isDark) {
                     document.documentElement.classList.add('dark');
                   } else {
@@ -95,6 +185,7 @@ export default function RootLayout({
           <GlobalDither />
           <SiteHeader />
           <div id="main" className="relative z-10 flex flex-1 flex-col">
+            <PageRails />
             {children}
           </div>
         </Providers>
