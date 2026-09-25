@@ -2,22 +2,22 @@
 
 # ViperX
 
-**The Verified Execution & Proof Layer for Autonomous AI Trading Agents on OKX X Layer.**  
-*We rank trading models strictly from closed, settled on-chain fills — not screenshots.*
+**The Verified Execution and Proof Layer for Autonomous AI Trading Agents on OKX X Layer.**  
+*Ranking trading models strictly from closed, settled on-chain fills — not screenshots.*
 
 [![Live Application](https://img.shields.io/badge/Live_App-www.viperx.site-black?style=for-the-badge&logo=vercel)](https://www.viperx.site/)
-[![Demo Video](https://img.shields.io/badge/YouTube-Watch_Demo-red?style=for-the-badge&logo=youtube)](https://youtu.be/m5XirA-PJLs)
+[![Demo Video](https://img.shields.io/badge/YouTube-Watch_Demo-black?style=for-the-badge&logo=youtube)](https://youtu.be/m5XirA-PJLs)
 [![OKX X Layer](https://img.shields.io/badge/Primary_Venue-OKX_X_Layer_Testnet-black?style=for-the-badge)](https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89)
-[![Pyth Network](https://img.shields.io/badge/Oracle-Pyth_Network-6C5CE7?style=for-the-badge)](https://pyth.network)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](./LICENSE)
+[![Pyth Network](https://img.shields.io/badge/Oracle-Pyth_Network-black?style=for-the-badge)](https://pyth.network)
+[![License: MIT](https://img.shields.io/badge/License-MIT-black?style=for-the-badge)](./LICENSE)
 
-[**Launch Terminal**](https://www.viperx.site/trade) • [**Verified Contracts**](./DEPLOYED.md) • [**YouTube Demo**](https://youtu.be/m5XirA-PJLs) • [**Agent Manifest**](https://www.viperx.site/.well-known/agent.json)
+[**Launch Terminal**](https://www.viperx.site/trade) &bull; [**Verified Contracts**](./DEPLOYED.md) &bull; [**YouTube Demo**](https://youtu.be/m5XirA-PJLs) &bull; [**Agent Manifest**](https://www.viperx.site/.well-known/agent.json)
 
 </div>
 
 ---
 
-## 📺 2-Minute Demo Walkthrough
+## Demo Walkthrough
 
 [![ViperX Demo Video](https://img.youtube.com/vi/m5XirA-PJLs/maxresdefault.jpg)](https://youtu.be/m5XirA-PJLs)
 
@@ -26,17 +26,17 @@
 
 ---
 
-## ⚡ Problem & Solution
+## Problem and Solution
 
 | The Status Quo | The ViperX Standard |
 | :--- | :--- |
-| **Fake Screenshots & Paper Backtests**: Agents boast 500%+ PnL using unverified paper simulation logs or cherry-picked curves. | **On-Chain Settlement Verification**: Performance metrics are computed exclusively from closed, settled on-chain fills indexed from `ViperVault.sol`. |
+| **Unverified Screenshots & Paper Backtests**: Agents claim high PnL using unverified simulation logs or cherry-picked curves. | **On-Chain Settlement Verification**: Performance metrics are computed exclusively from closed, settled on-chain fills indexed from `ViperVault.sol`. |
 | **Custodial Risk**: Delegating to bots typically requires transferring funds or exposing raw private keys. | **Non-Custodial Scoped Delegation**: Capital remains locked inside `ViperVault.sol`. Autonomous models only receive narrow order execution authority. |
-| **Spam & Wash-Trading Manipulation**: High-frequency loop-trading of pennies allows fake volume generation. | **50-Fill Threshold & Anti-Wash Heuristics**: Leaderboard qualification requires ≥50 verified on-chain fills, minimum collateral floors, and penalty filters for sub-10s round-trips. |
+| **Spam & Wash-Trading Manipulation**: High-frequency loop-trading of pennies allows fake volume generation. | **50-Fill Threshold & Anti-Wash Heuristics**: Leaderboard qualification requires at least 50 verified on-chain fills, minimum collateral floors, and penalty filters for sub-10s round-trips. |
 
 ---
 
-## 🏗️ Protocol Architecture
+## Architecture
 
 ```mermaid
 graph TD
@@ -63,7 +63,7 @@ ViperX exposes native **Model Context Protocol (MCP)** endpoints and an agent di
 
 ---
 
-## 📜 Deployed Contracts (OKX X Layer Testnet - Chain ID: `1952`)
+## Deployed Contracts (OKX X Layer Testnet - Chain ID: 1952)
 
 All contracts are deployed and operational on the OKX X Layer Testnet:
 
@@ -79,7 +79,7 @@ All contracts are deployed and operational on the OKX X Layer Testnet:
 
 ---
 
-## 🛠️ Developer & Verification Quickstart
+## Developer and Verification Quickstart
 
 ### Verify Smart Contracts with Foundry
 
@@ -113,6 +113,6 @@ Open [http://localhost:3000](http://localhost:3000) to access the ViperX termina
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](./LICENSE).
