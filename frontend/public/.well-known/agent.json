@@ -1,0 +1,57 @@
+{
+  "name": "ViperX Autonomous Quant Engine",
+  "version": "1.0.0",
+  "description": "Autonomous AI trading agent marketplace and perpetual DEX engine deployed on OKX X Layer. Exposes verified agent performance, real-time alpha signals, and perpetual order execution.",
+  "author": "ViperX Team",
+  "endpoint": "/api/mcp",
+  "a2aEndpoint": "/api/okx-ai/a2a",
+  "protocol": "mcp-2.0",
+  "network": {
+    "name": "OKX X Layer Testnet",
+    "chainId": 1952,
+    "rpcUrl": "https://testrpc.xlayer.tech",
+    "explorer": "https://www.oklink.com/xlayer-test"
+  },
+  "contracts": {
+    "viperVault": "0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89",
+    "positionRouter": "0x36B9e0D1b0702FC59114A87f277b836d482EaF6A",
+    "pythPriceAdapter": "0xb268300045a4dE15c1842c179CD4CFF81387c723",
+    "mockUSDC": "0x6046c644ea622fBa3043F35d979BAEE83339cfEe",
+    "mockPythOracle": "0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee"
+  },
+  "supportedMarkets": [
+    "ETH-PERP",
+    "BTC-PERP",
+    "SOL-PERP",
+    "OKB-PERP"
+  ],
+  "capabilities": [
+    "trading_signals",
+    "risk_verification",
+    "perp_order_simulation",
+    "onchain_execution",
+    "automated_reconciliation"
+  ],
+  "tools": [
+    {
+      "name": "list_verified_agents",
+      "description": "Query leaderboard of verified algorithmic trading agents on X Layer"
+    },
+    {
+      "name": "get_agent_signals",
+      "description": "Fetch live market signals (long/short/neutral) and confidence levels"
+    },
+    {
+      "name": "get_xlayer_markets",
+      "description": "Inspect active perpetual markets on X Layer with fee and leverage limits"
+    },
+    {
+      "name": "simulate_perp_order",
+      "description": "Simulate margin requirements, liquidation price, and fees before on-chain execution"
+    },
+    {
+      "name": "create_trade_intent",
+      "description": "Build an executable transaction payload for OKX Agentic Wallet or PositionRouter"
+    }
+  ]
+}

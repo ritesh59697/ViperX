@@ -175,6 +175,23 @@ contract ViperVaultTest is Test {
         assertEq(remainingSize, 0);
     }
 
+    function test_CloseAfterMarketConfigUpdateDoesNotWipeInterest() public {
+        uint256 collateral = 1_000 * 1e18;
+        uint256 size = 3_000 * 1e18;
+
+        vm.prank(agent);
+        bytes32 posKey = vault.openPosition(ETH_MARKET, IViperVault.PositionSide.LONG, size, collateral);
+
+        // Same call SetMaxLeverage10x used. It must not zero open interest.
+        vault.addMarket(ETH_MARKET, ETH_PYTH_FEED, 1_000_000 * 1e18, 1_000_000 * 1e18, 10 * 1e18, 100000, 500);
+
+        vm.prank(agent);
+        vault.closePosition(posKey);
+
+        (,,, uint256 remainingSize,,,,) = vault.positions(posKey);
+        assertEq(remainingSize, 0);
+    }
+
     function test_RevertWhen_LeverageExceeded() public {
         // 6x leverage ($6,000 size with $1,000 collateral, max is 5x)
         vm.prank(agent);

@@ -1,4 +1,8 @@
-export const LEADERBOARD_API_URL = process.env.NEXT_PUBLIC_LEADERBOARD_API_URL || "http://localhost:4000";
+export const LEADERBOARD_API_URL =
+  process.env.NEXT_PUBLIC_LEADERBOARD_API_URL &&
+  !process.env.NEXT_PUBLIC_LEADERBOARD_API_URL.includes("onrender.com")
+    ? process.env.NEXT_PUBLIC_LEADERBOARD_API_URL
+    : "";
 
 export type LeaderboardWindow = "24h" | "7d" | "30d" | "all";
 
@@ -88,7 +92,12 @@ export function isBlockedAgent(agent: {
  * unverified occupy a leaderboard position.
  */
 export async function fetchLeaderboard(window: LeaderboardWindow): Promise<LeaderboardResponse> {
-  const res = await fetch(`${LEADERBOARD_API_URL}/leaderboard?window=${window}&all=true`, { next: { revalidate: 10 } });
+  const base = LEADERBOARD_API_URL || "";
+  const endpoint = base
+    ? `${base}/leaderboard?window=${window}&all=true`
+    : `/api/leaderboard?window=${window}`;
+
+  const res = await fetch(endpoint, { next: { revalidate: 10 } });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}) as { error?: string });
     throw new Error(body.error || `leaderboard-api returned ${res.status}`);
@@ -180,7 +189,11 @@ export class AgentNotFoundError extends Error {}
 
 export async function fetchAgent(agentPda: string, retries = 2): Promise<AgentDetailResponse> {
   try {
-    const res = await fetch(`${LEADERBOARD_API_URL}/agents/${encodeURIComponent(agentPda)}`, {
+    const base = LEADERBOARD_API_URL || "";
+    const endpoint = base
+      ? `${base}/agents/${encodeURIComponent(agentPda)}`
+      : `/api/agents/${encodeURIComponent(agentPda)}`;
+    const res = await fetch(endpoint, {
       next: { revalidate: 15 },
     });
     if (res.status === 404) {
@@ -551,7 +564,7 @@ export async function registerPaperAgent(params: {
   name: string;
   strategyUri: string;
   ownerAddress: string;
-  chain: "solana" | "base";
+  chain: "solana" | "base" | "xlayer";
   simulatedBalance: number;
   nonce: string;
   signature: string;

@@ -11,4 +11,14 @@ remappings = [
     "forge-std/=lib/forge-std/src/"
 ]
 
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+[rpc_endpoints]
+xlayer_testnet = "https://testrpc.xlayer.tech"
+xlayer_mainnet = "https://rpc.xlayer.tech"
+base_sepolia = "https://sepolia.base.org"
+localhost = "http://127.0.0.1:8545"
+
+[etherscan]
+xlayer_testnet = { key = "${OKX_API_KEY:none}", url = "https://www.okx.com/api/v5/explorer/xlayer/testnet" }
+xlayer_mainnet = { key = "${OKX_API_KEY:none}", url = "https://www.okx.com/api/v5/explorer/xlayer/mainnet" }
+base_sepolia = { key = "${ETHERSCAN_API_KEY:none}", url = "https://api-sepolia.basescan.org/api" }
+

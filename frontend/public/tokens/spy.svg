@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <circle cx="16" cy="16" r="16" fill="#0B1A30"/>
+  <circle cx="16" cy="16" r="14.5" stroke="#1E3A5F" stroke-width="1" fill="none"/>
+  <path d="M7 21.5 L12.5 15 L17 18.5 L24.5 10.5" stroke="#00C087" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <polygon points="24.5,10.5 21,11 23.5,14" fill="#00C087"/>
+  <text x="16" y="27" fill="#FFFFFF" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="6.5" text-anchor="middle" letter-spacing="0.6">S&amp;P 500</text>
+</svg>

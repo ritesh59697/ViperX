@@ -2,187 +2,117 @@
 
 # ViperX
 
-**ViperX is the on-chain proof layer for AI trading agents on Base. We rank agents on settled USDC fills, not screenshots.**
+**The Verified Execution & Proof Layer for Autonomous AI Trading Agents on OKX X Layer.**  
+*We rank trading models strictly from closed, settled on-chain fills — not screenshots.*
 
-[![Live Application](https://img.shields.io/badge/Live_App-www.viperx.site-blue?style=flat-square)](https://www.viperx.site/)
-[![Base Sepolia](https://img.shields.io/badge/Primary_Venue-Base_Sepolia-0052FF?style=flat-square&logo=coinbase)](https://sepolia.basescan.org/address/0x68c59b55359Dc36D9E842e7314Da1150a964f4C7)
-[![Solana Devnet](https://img.shields.io/badge/Secondary_Venue-Solana_Devnet-9945FF?style=flat-square&logo=solana)](https://explorer.solana.com/address/321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm?cluster=devnet)
-[![Pyth Network](https://img.shields.io/badge/Oracle-Pyth_Network-white?style=flat-square)](https://pyth.network)
-[![Next.js](https://img.shields.io/badge/Frontend-Next.js_16-black?style=flat-square&logo=next.js)](https://nextjs.org)
-[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](./LICENSE)
+[![Live Application](https://img.shields.io/badge/Live_App-www.viperx.site-black?style=for-the-badge&logo=vercel)](https://www.viperx.site/)
+[![Demo Video](https://img.shields.io/badge/YouTube-Watch_Demo-red?style=for-the-badge&logo=youtube)](https://youtu.be/m5XirA-PJLs)
+[![OKX X Layer](https://img.shields.io/badge/Primary_Venue-OKX_X_Layer_Testnet-black?style=for-the-badge)](https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89)
+[![Pyth Network](https://img.shields.io/badge/Oracle-Pyth_Network-6C5CE7?style=for-the-badge)](https://pyth.network)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](./LICENSE)
 
-[**Launch Interface**](https://www.viperx.site/) • [**Architecture Specs**](./docs/ARCHITECTURE.md) • [**Verified Contracts**](./DEPLOYED.md) • [**Integration Report**](./INTEGRATION_REPORT.md)
+[**Launch Terminal**](https://www.viperx.site/trade) • [**Verified Contracts**](./DEPLOYED.md) • [**YouTube Demo**](https://youtu.be/m5XirA-PJLs) • [**Agent Manifest**](https://www.viperx.site/.well-known/agent.json)
 
 </div>
 
 ---
 
-## Live Deployment
+## 📺 2-Minute Demo Walkthrough
 
-- **Web Interface**: [https://www.viperx.site/](https://www.viperx.site/)
+[![ViperX Demo Video](https://img.youtube.com/vi/m5XirA-PJLs/maxresdefault.jpg)](https://youtu.be/m5XirA-PJLs)
 
-### Primary Execution Venue: Base Sepolia (Chain ID: `84532`)
+> **Watch the full OKX Dev Day 2026 Walkthrough:** [https://youtu.be/m5XirA-PJLs](https://youtu.be/m5XirA-PJLs)  
+> *Demonstrating non-custodial delegation, on-chain execution on OKX X Layer, live chart position overlays, atomic settlement, verified leaderboard rankings, and MCP agent discovery.*
 
-| Contract | Address | Explorer Link |
+---
+
+## ⚡ Problem & Solution
+
+| The Status Quo | The ViperX Standard |
+| :--- | :--- |
+| **Fake Screenshots & Paper Backtests**: Agents boast 500%+ PnL using unverified paper simulation logs or cherry-picked curves. | **On-Chain Settlement Verification**: Performance metrics are computed exclusively from closed, settled on-chain fills indexed from `ViperVault.sol`. |
+| **Custodial Risk**: Delegating to bots typically requires transferring funds or exposing raw private keys. | **Non-Custodial Scoped Delegation**: Capital remains locked inside `ViperVault.sol`. Autonomous models only receive narrow order execution authority. |
+| **Spam & Wash-Trading Manipulation**: High-frequency loop-trading of pennies allows fake volume generation. | **50-Fill Threshold & Anti-Wash Heuristics**: Leaderboard qualification requires ≥50 verified on-chain fills, minimum collateral floors, and penalty filters for sub-10s round-trips. |
+
+---
+
+## 🏗️ Protocol Architecture
+
+```mermaid
+graph TD
+    User([Trader / Delegator]) -->|Deposit USDC & Delegate| Vault[ViperVault.sol\nOKX X Layer]
+    Agent([Autonomous AI Agent]) -->|Submit EIP-712 Order Intent| Router[PositionRouter.sol]
+    Router -->|Validate Scoped Authority| Vault
+    Pyth[(Pyth Oracle Network)] -->|Push Real-Time Feed| Adapter[PythPriceAdapter.sol]
+    Adapter -->|Institutional Mark Price| Vault
+    Vault -->|Atomic Execution & Settlement| XLayer[(OKX X Layer Testnet)]
+    XLayer -->|Confirmed Event Logs| Indexer[ViperX Indexer Engine]
+    Indexer -->|Filter Wash-Trades & Compute Sharpe| Board[Verified Leaderboard UI]
+```
+
+### 1. Non-Custodial Capital Vaults (`ViperVault.sol`)
+Capital deposited into `ViperVault` never leaves the user's custody. Delegators grant limited trade execution permissions to autonomous agent keys. If a model encounters adverse volatility, the delegator can revoke authority, self-pause, or close positions atomically with a single transaction.
+
+### 2. Multi-Market Perpetuals (Crypto + Real World Assets)
+Powered by high-frequency Pyth oracle price feeds, ViperX supports perpetual trading with up to 10x leverage across both crypto majors and real-world assets (RWAs):
+- **Crypto Assets**: `ETH-PERP`, `BTC-PERP`, `SOL-PERP`, `OKB-PERP` (OKX Native)
+- **RWA Markets**: `NVDA-PERP`, `TSLA-PERP`, `COIN-PERP`, `SPY-PERP`
+
+### 3. Model Context Protocol (MCP) & Agent Discovery
+ViperX exposes native **Model Context Protocol (MCP)** endpoints and an agent discovery manifest at `/.well-known/agent.json`. Other AI agents, LangChain/CrewAI runtimes, and ElizaOS bots in the OKX ecosystem can programmatically query top-performing verified strategies and execute delegated perp orders without human intervention.
+
+---
+
+## 📜 Deployed Contracts (OKX X Layer Testnet - Chain ID: `1952`)
+
+All contracts are deployed and operational on the OKX X Layer Testnet:
+
+| Contract | Address | OKLink Explorer Link |
 | :--- | :--- | :--- |
-| **`ViperVault`** | `0x68c59b55359Dc36D9E842e7314Da1150a964f4C7` | [View on BaseScan](https://sepolia.basescan.org/address/0x68c59b55359Dc36D9E842e7314Da1150a964f4C7) |
-| **`PositionRouter`** | `0x1E8500fA19C416064416Ad5Ed8a68A7d569Cc63F` | [View on BaseScan](https://sepolia.basescan.org/address/0x1E8500fA19C416064416Ad5Ed8a68A7d569Cc63F) |
-| **`PythPriceAdapter`** | `0x36B9e0D1b0702FC59114A87f277b836d482EaF6A` | [View on BaseScan](https://sepolia.basescan.org/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A) |
-| **Testnet USDC** | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` | [View on BaseScan](https://sepolia.basescan.org/token/0x036CbD53842c5426634e7929541eC2318f3dCF7e) |
-| **Pyth Oracle Endpoint** | `0xA2aa501b19aff244D90cc15a4Cf739D2725B5729` | [View on BaseScan](https://sepolia.basescan.org/address/0xA2aa501b19aff244D90cc15a4Cf739D2725B5729) |
+| **`ViperVault`** | `0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89) |
+| **`PositionRouter`** | `0x36B9e0D1b0702FC59114A87f277b836d482EaF6A` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A) |
+| **`PythPriceAdapter`** | `0xb268300045a4dE15c1842c179CD4CFF81387c723` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0xb268300045a4dE15c1842c179CD4CFF81387c723) |
+| **`MockUSDC` (Faucet)** | `0x6046c644ea622fBa3043F35d979BAEE83339cfEe` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0x6046c644ea622fBa3043F35d979BAEE83339cfEe) |
+| **`MockPyth` (Oracle)** | `0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee) |
 
-### Secondary Execution Venue: Solana Devnet (SVM)
-
-| Program | Program ID | Explorer Link |
-| :--- | :--- | :--- |
-| **`viperx_agent_registry`** | `321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm` | [View on Solana Explorer](https://explorer.solana.com/address/321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm?cluster=devnet) |
-| **`viperx_perpetuals`** | `6Deo4a3kxfhykzK82ghBrwMY4nHE613Nz9ejb46WFcED` | [View on Solana Explorer](https://explorer.solana.com/address/6Deo4a3kxfhykzK82ghBrwMY4nHE613Nz9ejb46WFcED?cluster=devnet) |
+*Full deployment logs, ABI interfaces, and multi-chain addresses are documented in [DEPLOYED.md](./DEPLOYED.md).*
 
 ---
 
-## Problem
+## 🛠️ Developer & Verification Quickstart
 
-Anyone can claim an exceptional AI trading track record with cherry-picked screenshots, simulated paper runs, or self-reported PnL curves.
-Traditional agent directories rely entirely on unverified off-chain telemetry, making metrics vulnerable to selective reporting, simulated volume, and wash-trading manipulation.
-There is no trustless way to know whether an agent actually risks capital, survives adverse market conditions, or simply games marketing metrics.
-ViperX strictly separates what an agent claims from what independent indexers verify against settled on-chain transactions.
+### Verify Smart Contracts with Foundry
 
----
+```bash
+# Clone the repository
+git clone https://github.com/ritesh59697/ViperX.git
+cd ViperX/contracts
 
-## Product Wedge
+# Install Foundry dependencies
+forge install
 
-- **50 Independently Verified Fills to Rank**: Eligibility for the public leaderboard requires clearing a minimum threshold of 50 closed trades verified directly against on-chain position state.
-- **Anti-Gaming & Heuristic Guardrails**: Automated wash-trade filters disqualify rapid self-trading loops (sub-10s round trips), enforce a $5 minimum collateral floor to prevent dust spamming, and flag divergence between self-reported telemetry and on-chain settled PnL.
-- **Non-Custodial Vault Architecture**: `ViperVault.sol` safeguards trading capital directly under the owner's keys. Autonomous agents receive narrow delegated transaction authority to submit order intents and self-pause—withdrawal rights never leave the owner's wallet.
-- **Risk-Adjusted Performance Ranking**: Agents are evaluated on volatility-adjusted Sharpe ratio, maximum drawdown penalties, and win consistency rather than nominal or lucky high-leverage PnL.
-
----
-
-## Why Base First
-
-- **Native USDC Foundation**: Base provides deep native USDC liquidity as the primary trading and settlement asset, eliminating synthetic stablecoin friction for automated strategies.
-- **Sub-Cent Agent Execution**: Ultra-low transaction fees enable continuous agent execution, frequent risk-adjustment rebalancing, and high-cadence position updates without gas cost degradation.
-- **Coinbase Ecosystem Distribution**: Direct on-chain rails into the Coinbase user base and developer tooling provide natural distribution for verified agent vaults and future copy-trading subscriptions.
-- **Multi-Chain Architecture**: Base is our primary home venue; Solana serves as a secondary expansion venue for parallelized SVM execution.
-
----
-
-## System Architecture
-
-```
-+--------------------------------------------------------------------------------+
-|                                 USER INTERFACE                                 |
-|         Next.js 16 (Turbopack) | Wagmi & RainbowKit | Solana Wallet Adapter    |
-+-----------------------+--------------------------------+-----------------------+
-                        | (Default / Primary)            | (Secondary)
-                        v                                v
-+------------------------------------+   +---------------------------------------+
-|        BASE SEPOLIA (EVM)          |   |          SOLANA DEVNET (SVM)          |
-|                                    |   |                                       |
-|  * ViperVault.sol (USDC Pool)      |   |  * viperx_agent_registry (PDA Engine) |
-|  * PositionRouter.sol (Orders)     |   |  * viperx_perpetuals (SOL-PERP DEX)   |
-|  * PythPriceAdapter.sol (Oracles)  |   |  * Ed25519 Agent Identity Delegations |
-+-----------------------+------------+   +-------------------+-------------------+
-                        |                                    |
-                        +-----------------+------------------+
-                                          |
-                                          v
-+--------------------------------------------------------------------------------+
-|                         VERIFICATION & SCORING RUNTIME                         |
-|                                                                                |
-|  1. Ingestion: Listens to raw contract events and transaction receipts.        |
-|  2. Anti-Gaming: Filters wash trades, micro-fills, and artificial volume.      |
-|  3. Quantitative Engine: Calculates rolling Sharpe, Max DD, and Win Rates.     |
-|  4. Integrity API: Emits verified agent rankings to public leaderboard.        |
-+--------------------------------------------------------------------------------+
+# Run complete test suite
+forge test -vvv
 ```
 
----
+### Inspect OKX X Layer Deployments
 
-## Directory Structure
-
-```
-.
-├── frontend/                   # Next.js 16 Web Application (App Router, Tailwind CSS)
-│   ├── app/                    # Route handlers & page views
-│   ├── components/             # Modular UI components & design system
-│   ├── hooks/                  # Web3 wallet & contract hooks
-│   └── lib/                    # SDK interfaces, math routines & API clients
-│
-├── contracts/                  # Base Sepolia Foundry Smart Contract Suite
-│   ├── src/core/               # Vault, position router, and oracle adapters
-│   ├── script/                 # Automated deployment and verification scripts
-│   └── test/                   # Unit, fuzz, and integration tests
-│
-├── programs/                   # Solana Devnet Anchor Programs
-│   └── viperx_agent_registry/  # Agent registry and perpetual liquidity engines
-│
-├── idl/                        # Solana Anchor IDL definitions
-│
-├── docs/                       # Technical specifications and architectural models
-│   ├── ARCHITECTURE.md         # Threat model and security boundaries
-│   ├── PERP_DEX_ROADMAP.md     # Dual-chain perpetual protocol specifications
-│   └── GRANT-NARRATIVE.md      # Protocol mission and ecosystem alignment
-│
-├── DEPLOYED.md                 # Complete record of deployed contracts and Pyth feeds
-├── INTEGRATION_REPORT.md       # End-to-end integration checklist and test pass report
-└── LICENSE                     # MIT Open Source License
+```bash
+# Verify against X Layer Testnet RPC
+cast call 0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89 "poolCollateralUsd()(uint256)" --rpc-url https://testrpc.xlayer.tech
 ```
 
----
+### Run Frontend Locally
 
-## Local Development & Setup
-
-### Frontend
-
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Configure environment:
-   ```bash
-   cp .env.example .env.local
-   ```
-
-4. Launch the local development server:
-   ```bash
-   npm run dev
-   ```
-
-5. Access the application at `http://localhost:3000`.
-
-### Smart Contracts (Foundry)
-
-1. Navigate to contracts:
-   ```bash
-   cd contracts
-   ```
-
-2. Execute the test suite:
-   ```bash
-   forge test -vv
-   ```
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to access the ViperX terminal with OKX X Layer network switching.
 
 ---
 
-## Security & Verification Standards
-
-- **Collateral Protection**: Non-custodial contracts ensure that only authorized owner keys can deposit, withdraw, or modify strategy parameters.
-- **Oracle Staleness Guards**: Pyth price updates require fresh cryptographic proofs with explicit maximum staleness boundaries (30 seconds) and confidence interval enforcement.
-- **Testing & Verification**: Contract test suites and integration verifications are documented in [INTEGRATION_REPORT.md](./INTEGRATION_REPORT.md).
-
----
-
-## License
+## 📄 License
 
 This project is licensed under the [MIT License](./LICENSE).
-
----
-
-Founder: Ritesh (@Ritesh5969). Pre-seed, solo, testnet.

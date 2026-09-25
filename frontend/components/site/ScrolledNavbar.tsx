@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { ExternalLinkGlyph } from "@/components/ui/StatusGlyphs";
+import { Skiper92HeaderTrigger } from "@/components/ui/skiper-ui/skiper92";
 
 export interface AgentContextData {
   name: string;
@@ -18,19 +19,19 @@ export interface AgentContextData {
 interface ScrolledNavbarProps {
   isVisible: boolean;
   onOpenSearch: () => void;
-  selectedNetwork: "solana" | "base";
-  onNetworkChange: (network: "solana" | "base") => void;
+  selectedNetwork: "solana" | "base" | "xlayer";
+  onNetworkChange: (network: "solana" | "base" | "xlayer") => void;
 }
 
 // Clean vertical directory items
 const MENU_ITEMS = [
-  { href: "/arena", label: "Arena", desc: "Competitive trading league & prize bracket", badge: "Season 1" },
-  { href: "/leaderboard", label: "Leaderboard", desc: "Audited on-chain PnL, Sharpe & fills", badge: "Verified PnL" },
-  { href: "/create", label: "Deploy Agent", desc: "Non-custodial algorithmic agent runtime", badge: "Launch" },
-  { href: "/backtest", label: "Backtest Lab", desc: "Historical tick data strategy simulation" },
-  { href: "/paper", label: "Paper Trading", desc: "Virtual execution with live Binance feeds" },
-  { href: "/trade", label: "Trading Terminal", desc: "Real-time order book & manual execution" },
-  { href: "/dashboard", label: "Dashboard", desc: "Your deployed agents & capital allocation" },
+  { href: "/trade", label: "Trade", desc: "Live on-chain perpetual DEX on X Layer & Base", badge: "Perp DEX", external: false },
+  { href: "/arena", label: "Arena", desc: "Competitive trading league & prize bracket", badge: "Season 1", external: false },
+  { href: "/leaderboard", label: "Leaderboard", desc: "Audited on-chain PnL, Sharpe & fills", badge: "Verified PnL", external: false },
+  { href: "/create", label: "Deploy Agent", desc: "Non-custodial algorithmic agent runtime", badge: "Launch", external: false },
+  { href: "/backtest", label: "Backtest Lab", desc: "Historical tick data strategy simulation", external: false },
+  { href: "/paper", label: "Paper Trading", desc: "Virtual execution with live Binance feeds", external: false },
+  { href: "/dashboard", label: "Dashboard", desc: "Your deployed agents & capital allocation", external: false },
 ];
 
 // Quick jump tabs for Agent Profile Page
@@ -274,23 +275,11 @@ export function ScrolledNavbar({
 
             {/* Right: Search + ThemeToggle + Horizontally Expanded Deploy CTA */}
             <div className="flex items-center gap-2.5 shrink-0">
-              {/* Search Trigger */}
-              <button
-                type="button"
+              {/* Search Trigger — Skiper92 style */}
+              <Skiper92HeaderTrigger
                 onClick={onOpenSearch}
-                aria-label="Search"
-                className="flex items-center gap-2 rounded-xl border border-border/80 dark:border-white/15 bg-surface dark:bg-white/[0.05] px-3.5 py-2 text-xs text-foreground-muted hover:border-border-strong dark:hover:border-white/30 hover:bg-surface-hover dark:hover:bg-white/[0.09] hover:text-foreground transition-all cursor-pointer shadow-2xs"
-                title="Search (⌘K)"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="m21 21-4.3-4.3" />
-                </svg>
-                <span className="hidden xl:inline text-xs font-medium">Search</span>
-                <kbd className="hidden sm:inline-block rounded border border-border/80 dark:border-white/15 bg-background dark:bg-white/10 px-1.5 py-0.5 text-[9px] font-mono text-foreground-faint">
-                  ⌘K
-                </kbd>
-              </button>
+                className="rounded-xl px-3 py-1.5"
+              />
 
               {/* Theme Toggle */}
               <div className="flex items-center">
@@ -405,6 +394,8 @@ export function ScrolledNavbar({
                     <Link
                       key={item.href}
                       href={item.href}
+                      target={item.external ? "_blank" : undefined}
+                      rel={item.external ? "noopener noreferrer" : undefined}
                       onClick={() => setMenuOpen(false)}
                       className="group flex flex-col gap-0.5 rounded-xl px-3 py-2.5 transition-colors hover:bg-surface dark:hover:bg-white/[0.04]"
                     >

@@ -221,12 +221,9 @@ contract ViperVault is IViperVault, ERC20, ReentrancyGuard, Ownable {
             poolCollateralUsd += (pos.collateralUsd - payoutUsd);
         }
 
-        // Release Open Interest
-        if (pos.side == PositionSide.LONG) {
-            market.openInterestLongUsd -= pos.sizeUsd;
-        } else {
-            market.openInterestShortUsd -= pos.sizeUsd;
-        }
+        // Saturate at zero. addMarket used to rewrite the market and zero this
+        // counter while positions were still open, and the subtraction panicked.
+        _releaseOpenInterest(market, pos.side, pos.sizeUsd);
 
         delete positions[positionKey];
 
@@ -264,12 +261,7 @@ contract ViperVault is IViperVault, ERC20, ReentrancyGuard, Ownable {
         liquidatorRewardUsd = (pos.sizeUsd * LIQUIDATION_FEE_BPS) / BPS_DENOMINATOR / 2;
         if (liquidatorRewardUsd > pos.collateralUsd) liquidatorRewardUsd = pos.collateralUsd;
 
-        // Release Open Interest
-        if (pos.side == PositionSide.LONG) {
-            market.openInterestLongUsd -= pos.sizeUsd;
-        } else {
-            market.openInterestShortUsd -= pos.sizeUsd;
-        }
+        _releaseOpenInterest(market, pos.side, pos.sizeUsd);
 
         delete positions[positionKey];
 
@@ -345,17 +337,34 @@ contract ViperVault is IViperVault, ERC20, ReentrancyGuard, Ownable {
         uint256 maxLeverageBps,
         uint256 maintenanceMarginBps
     ) external onlyOwner {
+        // Keep interest already reserved by open positions. Replacing the
+        // struct used to zero it, and closePosition then underflowed.
+        MarketConfig storage existing = markets[marketId];
+        uint256 openLong = existing.openInterestLongUsd;
+        uint256 openShort = existing.openInterestShortUsd;
         markets[marketId] = MarketConfig({
             isActive: true,
             pythPriceFeedId: pythFeedId,
             maxOpenInterestLongUsd: maxOiLongUsd,
             maxOpenInterestShortUsd: maxOiShortUsd,
-            openInterestLongUsd: 0,
-            openInterestShortUsd: 0,
+            openInterestLongUsd: openLong,
+            openInterestShortUsd: openShort,
             minPositionSizeUsd: minSizeUsd,
             maxLeverageBps: maxLeverageBps,
             maintenanceMarginBps: maintenanceMarginBps
         });
+    }
+
+    function _releaseOpenInterest(MarketConfig storage market, PositionSide side, uint256 sizeUsd) internal {
+        if (side == PositionSide.LONG) {
+            market.openInterestLongUsd = market.openInterestLongUsd >= sizeUsd
+                ? market.openInterestLongUsd - sizeUsd
+                : 0;
+        } else {
+            market.openInterestShortUsd = market.openInterestShortUsd >= sizeUsd
+                ? market.openInterestShortUsd - sizeUsd
+                : 0;
+        }
     }
 
     function setMarketActive(bytes32 marketId, bool isActive) external onlyOwner {

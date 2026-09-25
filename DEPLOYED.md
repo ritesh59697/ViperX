@@ -5,9 +5,38 @@
 
 ---
 
-## 1. Base Sepolia (Chain ID 84532)
+## 1. OKX X Layer Testnet (Chain ID 1952)
 
-*Primary deployment*
+*OKX Dev Day 2026 Primary Deployment*
+
+| Contract | Explorer | Address on X Layer Testnet | Deployment Tx Hash |
+| :--- | :--- | :--- | :--- |
+| **`ViperVault`** | [View Explorer](https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89) | `0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89` | [`0x0d3245fc...`](https://www.oklink.com/xlayer-test/tx/0x0d3245fc99837df8ad686dbc99ac7dbeabc4383972578e5035c69e5cff56e354) |
+| **`PositionRouter`** | [View Explorer](https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A) | `0x36B9e0D1b0702FC59114A87f277b836d482EaF6A` | [`0x441771a4...`](https://www.oklink.com/xlayer-test/tx/0x441771a4509fd57e25f5fc947c8e43a296e7462894ff4edca7963700b626b30c) |
+| **`PythPriceAdapter`** | [View Explorer](https://www.oklink.com/xlayer-test/address/0xb268300045a4dE15c1842c179CD4CFF81387c723) | `0xb268300045a4dE15c1842c179CD4CFF81387c723` | [`0x3d062837...`](https://www.oklink.com/xlayer-test/address/0xb268300045a4dE15c1842c179CD4CFF81387c723) |
+| **`MockUSDC` (Faucet)** | [View Explorer](https://www.oklink.com/xlayer-test/address/0x6046c644ea622fBa3043F35d979BAEE83339cfEe) | `0x6046c644ea622fBa3043F35d979BAEE83339cfEe` | [`0x8ab4470a...`](https://www.oklink.com/xlayer-test/tx/0x8ab4470a145bf343d9cbba788d183367df5792013ec9181d1a9bea010ab8b541) |
+| **`MockPyth` (Oracle)** | [View Explorer](https://www.oklink.com/xlayer-test/address/0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee) | `0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee` | [`0x465de4c4...`](https://www.oklink.com/xlayer-test/tx/0x465de4c4d54ed4a90947c411e82f72ef6575aea38e51aebe23c41d7e376ebc6c) |
+
+### Initialized Perpetual Markets (OKX X Layer Testnet)
+
+| Market | Market ID (Keccak-256) | Feed ID | Max OI (Long / Short) | Max Leverage | Min Position Size |
+| :--- | :--- | :--- | :--- | :---: | :---: |
+| **ETH-PERP** | `keccak256("ETH-PERP")` | `0xff61491a...` | $1,000,000 / $1,000,000 | 5x (20% margin) | $10.00 |
+| **BTC-PERP** | `keccak256("BTC-PERP")` | `0xe62df6e8...` | $2,000,000 / $2,000,000 | 5x (20% margin) | $20.00 |
+| **SOL-PERP** | `keccak256("SOL-PERP")` | `0xef0d8b6f...` | $500,000 / $500,000 | 5x (20% margin) | $5.00 |
+| **OKB-PERP** *(OKX Native)* | `keccak256("OKB-PERP")` | `keccak256("OKB-USD-FEED")` | $500,000 / $500,000 | 5x (20% margin) | $5.00 |
+| **NVDA-PERP** *(RWA)* | `keccak256("NVDA-PERP")` | `0x5a54e99f...` | $500,000 / $500,000 | 5x (20% margin) | $10.00 |
+| **TSLA-PERP** *(RWA)* | `keccak256("TSLA-PERP")` | `0x16093414...` | $500,000 / $500,000 | 5x (20% margin) | $10.00 |
+| **COIN-PERP** *(RWA)* | `keccak256("COIN-PERP")` | `0x19d554a9...` | $500,000 / $500,000 | 5x (20% margin) | $10.00 |
+| **SPY-PERP** *(RWA)* | `keccak256("SPY-PERP")` | `0x2613da66...` | $1,000,000 / $1,000,000 | 5x (20% margin) | $20.00 |
+
+*Initial Liquidity Seeded:* **$500,000 USDC** in `ViperVault`.
+
+---
+
+## 2. Base Sepolia (Chain ID 84532)
+
+*Secondary EVM deployment*
 
 | Contract | BaseScan Explorer | Address on Base Sepolia | Deployment Tx Hash |
 | :--- | :--- | :--- | :--- |
@@ -27,7 +56,7 @@
 
 ---
 
-## 2. Solana Devnet
+## 3. Solana Devnet
 
 *Secondary venue*
 

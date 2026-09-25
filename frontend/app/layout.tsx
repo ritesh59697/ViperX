@@ -5,6 +5,7 @@ import { Providers } from "./providers";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { GlobalDither } from "@/components/ui/DitherField";
 import { PageRails } from "@/components/ui/PageRails";
+import { SitePreloader } from "@/components/site/SitePreloader";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -56,13 +57,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicon.png", type: "image/png", sizes: "32x32" },
-      { url: "/viperx-logo-option-1-exact-logo.png", type: "image/png" },
+      { url: "/viperx-logo-option-1-exact-logo.png?v=2", type: "image/png" },
+      { url: "/favicon.png?v=2", type: "image/png", sizes: "32x32" },
+      { url: "/favicon.ico?v=2", sizes: "any" },
     ],
-    shortcut: "/favicon.ico",
+    shortcut: "/viperx-logo-option-1-exact-logo.png?v=2",
     apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/apple-touch-icon.png?v=2", sizes: "180x180", type: "image/png" },
     ],
   },
 };
@@ -181,6 +182,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <Providers>
+          <SitePreloader />
           {/* Fixed behind every route — the one background the whole site shares. */}
           <GlobalDither />
           <SiteHeader />

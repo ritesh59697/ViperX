@@ -7,6 +7,7 @@ const BASE_REGISTRY_ADDRESS =
 
 const LINKS = [
   { href: "/", label: "Home" },
+  { href: "/trade", label: "Trade" },
   { href: "/leaderboard", label: "Leaderboard" },
   { href: "/arena", label: "Arena" },
   { href: "/create", label: "Deploy Agent" },
@@ -78,6 +79,11 @@ export function SiteFooter() {
                 Explore
               </h3>
               <ul className="mt-4 space-y-2.5 font-mono text-xs">
+                <li>
+                  <Link href="/trade" className="text-foreground-muted transition-colors hover:text-foreground">
+                    Perp Trade
+                  </Link>
+                </li>
                 <li>
                   <Link href="/leaderboard" className="text-foreground-muted transition-colors hover:text-foreground">
                     Leaderboard
@@ -170,6 +176,16 @@ export function SiteFooter() {
               <ul className="mt-4 space-y-2.5 font-mono text-xs">
                 <li>
                   <a
+                    href="https://www.oklink.com/xlayer-test/address/0x9Dcfe752AC97F167763FeD87f4100F33cD29dbb7"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-foreground-muted transition-colors hover:text-foreground"
+                  >
+                    X Layer vault
+                  </a>
+                </li>
+                <li>
+                  <a
                     href={`https://sepolia.basescan.org/address/${BASE_REGISTRY_ADDRESS}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -211,7 +227,7 @@ export function SiteFooter() {
             </span>
             <span className="text-border-strong select-none">•</span>
             <span className="text-xs text-foreground-faint font-mono">
-              Also live on Solana Devnet.
+              Live on OKX X Layer, Base & Solana.
             </span>
           </div>
           <nav className="flex flex-wrap gap-x-6 gap-y-2">

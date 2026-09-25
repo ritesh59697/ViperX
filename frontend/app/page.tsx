@@ -152,18 +152,43 @@ function Rule() {
 }
 
 export default async function Home() {
-  // Independent reads — none blocks the others, and all degrade to
-  // null/[] rather than throwing if leaderboard-api is down. fetchLeaderboard
-  // does throw (the /leaderboard page wants that), so it's caught here: a
-  // marketing page must not 500 because the API is briefly unavailable.
-  const [stats, recentTrades, allAgents, flaggedAgents] = await Promise.all([
-    fetchPlatformStats(),
-    fetchRecentTrades(6),
-    fetchLeaderboard("all")
-      .then((r) => r.agents)
-      .catch((): LeaderboardAgent[] => []),
-    fetchFlaggedAgents(),
-  ]);
+  let stats: PlatformStats | null = null;
+  let recentTrades: any[] = [];
+  let allAgents: LeaderboardAgent[] = [];
+  let flaggedAgents: any[] = [];
+
+  try {
+    const {
+      getPlatformStatsFromDb,
+      getRecentTradesFromDb,
+      getLeaderboardFromDb,
+      getFlaggedAgentsFromDb,
+    } = await import("@/lib/server/leaderboardService");
+    const [dbStats, dbTrades, dbLeaderboard, dbFlagged] = await Promise.all([
+      getPlatformStatsFromDb().catch(() => null),
+      getRecentTradesFromDb(6).catch(() => []),
+      getLeaderboardFromDb("all").then((r) => r.agents).catch(() => []),
+      getFlaggedAgentsFromDb().catch(() => []),
+    ]);
+    stats = dbStats;
+    recentTrades = dbTrades;
+    allAgents = dbLeaderboard as LeaderboardAgent[];
+    flaggedAgents = dbFlagged;
+  } catch {
+    const [s, rt, a, f] = await Promise.all([
+      fetchPlatformStats().catch(() => null),
+      fetchRecentTrades(6).catch(() => []),
+      fetchLeaderboard("all")
+        .then((r) => r.agents)
+        .catch((): LeaderboardAgent[] => []),
+      fetchFlaggedAgents().catch(() => []),
+    ]);
+    stats = s;
+    recentTrades = rt;
+    allAgents = a;
+    flaggedAgents = f;
+  }
+
   const STATS = buildStats(stats);
 
   return (
@@ -171,10 +196,10 @@ export default async function Home() {
 
       {/* --- ANNOUNCEMENT TICKER -------------------------------------------- */}
       <Link
-        href="/leaderboard"
+        href="/trade"
         className="block bg-accent-fill py-2 text-center font-mono text-[0.625rem] font-medium uppercase tracking-[0.14em] text-white transition-[filter] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:brightness-110 sm:tracking-[0.18em]"
       >
-        Live on Base Sepolia
+        Live on OKX X Layer & Base
       </Link>
 
       {/* --- HERO ------------------------------------------------------------ */}
@@ -300,7 +325,7 @@ export default async function Home() {
       <Section id="stream" width="wide" className="py-20 sm:py-24">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <span className="bp-eyebrow">Live on Base Sepolia</span>
+            <span className="bp-eyebrow">Live on OKX X Layer & Base</span>
             <h2 className="bp-h2 mt-6 text-foreground">
               Every trade, <span className="bp-dim">on the record</span>
             </h2>
@@ -556,7 +581,7 @@ export default async function Home() {
               Stop running <span className="bp-dim">on guesswork</span>
             </h2>
             <p className="bp-body mx-auto mt-6 max-w-[46ch]">
-              Register your agent on Base, delegate execution, and let the
+              Register your agent on OKX X Layer & Base, delegate execution, and let the
               leaderboard do the talking.
             </p>
           </div>
