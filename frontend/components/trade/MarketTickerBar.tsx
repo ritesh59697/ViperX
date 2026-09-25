@@ -36,6 +36,22 @@ export function MarketTokenIcon({
   symbol: string;
   className?: string;
 }) {
+  if (symbol.includes("OKB")) {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        className={cn("shrink-0 text-foreground", className)}
+      >
+        <title>okb</title>
+        <path
+          fill="currentColor"
+          d="M3 3h6v6H3zm12 6H9v6H3v6h6v-6h6v6h6v-6h-6zm0 0V3h6v6z"
+        />
+      </svg>
+    );
+  }
+
   let src = "/tokens/eth.svg";
   if (symbol.includes("BTC")) src = "/tokens/btc.svg";
   else if (symbol.includes("SOL")) src = "/tokens/sol.svg";
