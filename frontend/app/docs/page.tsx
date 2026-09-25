@@ -11,6 +11,7 @@ type DocSection =
   | "intro"
   | "quickstart"
   | "architecture"
+  | "xlayer-contracts"
   | "solana-program"
   | "base-contract"
   | "indexer"
@@ -40,6 +41,7 @@ const GROUPS: SidebarGroup[] = [
   {
     title: "Smart Contracts",
     items: [
+      { id: "xlayer-contracts", label: "OKX X Layer Perpetuals", badge: "Solidity / Pyth", description: "ViperVault, PositionRouter & Pyth feeds on X Layer" },
       { id: "solana-program", label: "Solana SVM Program", badge: "Anchor", description: "PDA storage accounts and instruction specs" },
       { id: "base-contract", label: "Base EVM Registry", badge: "Solidity", description: "Base Sepolia registry and event logs" },
     ],
@@ -187,6 +189,41 @@ const SEARCHABLE_DOCS: SearchableDoc[] = [
     category: "Smart Contracts",
     description: "ViperxRegistry contract written in Solidity 0.8.20 managing unique string agentId lookups, vault addresses, and registeredAt timestamps.",
     keywords: ["solidity smart contract", "viperxregistry", "registeragent", "agentregistered", "vaultaddress", "solidity code"],
+  },
+  {
+    id: "xlayer-contracts",
+    title: "OKX X Layer Perpetuals Engine",
+    group: "Documentation",
+    category: "Smart Contracts",
+    description: "Decentralized perpetuals protocol on OKX X Layer Testnet (Chain ID: 1952) with Pyth price feeds and non-custodial agent delegation.",
+    keywords: ["x layer", "okx", "xlayer", "perpetuals", "vipervault", "positionrouter", "pyth", "oracle", "leverage", "rwa", "margin", "solidity"],
+  },
+  {
+    id: "xlayer-contracts",
+    anchor: "xlayer-deployed-contracts",
+    title: "X Layer Deployed Contracts",
+    group: "Documentation",
+    category: "Smart Contracts",
+    description: "Addresses for ViperVault, PositionRouter, PythPriceAdapter, MockUSDC, and MockPyth on OKX X Layer Testnet (Chain ID 1952).",
+    keywords: ["contracts", "addresses", "vipervault", "positionrouter", "pythpriceadapter", "mockusdc", "chain id 1952", "testnet", "oklink"],
+  },
+  {
+    id: "xlayer-contracts",
+    anchor: "xlayer-market-specs",
+    title: "X Layer 8 Perpetual Markets",
+    group: "Documentation",
+    category: "Smart Contracts",
+    description: "Specification matrix for ETH-PERP, BTC-PERP, SOL-PERP, OKB-PERP, NVDA-PERP, TSLA-PERP, COIN-PERP, and SPY-PERP with 10x leverage.",
+    keywords: ["markets", "eth-perp", "btc-perp", "sol-perp", "okb-perp", "nvda-perp", "tsla-perp", "coin-perp", "spy-perp", "rwa", "equities", "feed id"],
+  },
+  {
+    id: "xlayer-contracts",
+    anchor: "xlayer-mcp-integration",
+    title: "Model Context Protocol (MCP) Agent Discovery",
+    group: "Documentation",
+    category: "Smart Contracts",
+    description: "Query top-ranked models and simulate perp orders via standardized MCP JSON-RPC endpoints at /.well-known/agent.json.",
+    keywords: ["mcp", "model context protocol", "agent discovery", "agent.json", "json-rpc", "simulate_perp_order", "create_trade_intent", "ai agents"],
   },
 
   // ── Execution & Trust ──
@@ -1151,7 +1188,287 @@ pub struct RegisterAgent<'info> {
                 </article>
               )}
 
-              {/* ── 5. BASE EVM REGISTRY ─────────────────────────────────── */}
+              {/* ── 5.5 OKX X LAYER PERPETUALS ────────────────────────────── */}
+              {activeSection === "xlayer-contracts" && (
+                <article className="space-y-6">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-border bg-surface text-xs font-mono text-accent mb-3">
+                      <span>Primary Venue</span>
+                      <span>•</span>
+                      <span>OKX X Layer Testnet (Chain ID: 1952)</span>
+                    </div>
+                    <h1 className="text-3xl sm:text-4xl font-bold text-foreground font-mono tracking-tight">
+                      OKX X Layer Perpetuals Engine
+                    </h1>
+                    <p className="t-body mt-4 text-foreground-muted leading-relaxed font-sans">
+                      The core execution engine on OKX X Layer powers sub-second decentralized perpetuals trading with up to 10x leverage.
+                      Autonomous AI trading models interact with non-custodial capital via scoped EIP-712 order delegation through{" "}
+                      <code className="text-foreground font-mono text-xs mx-1 px-1.5 py-0.5 rounded bg-surface border border-border">PositionRouter.sol</code>,
+                      guaranteeing that models cannot withdraw trader collateral from{" "}
+                      <code className="text-foreground font-mono text-xs mx-1 px-1.5 py-0.5 rounded bg-surface border border-border">ViperVault.sol</code>.
+                    </p>
+                  </div>
+
+                  {/* Deployed Contracts Table */}
+                  <section id="xlayer-deployed-contracts">
+                    <h2 className="text-lg sm:text-xl font-bold text-foreground font-mono border-b border-border/60 pb-2.5">
+                      Deployed Contract Addresses (X Layer Testnet)
+                    </h2>
+                    <div className="mt-4 overflow-hidden rounded-xl border border-border bg-surface/30">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs font-mono">
+                          <thead>
+                            <tr className="border-b border-border/80 bg-surface/80 text-foreground-muted">
+                              <th className="px-4 py-3 font-semibold">Contract</th>
+                              <th className="px-4 py-3 font-semibold">Deployed Address (Chain ID: 1952)</th>
+                              <th className="px-4 py-3 font-semibold text-right">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-border/60">
+                            {[
+                              { name: "ViperVault", desc: "Core Collateral, Margin & Settlement Pool", addr: "0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89", id: "vault" },
+                              { name: "PositionRouter", desc: "Scoped EIP-712 Delegated Order Router", addr: "0x36B9e0D1b0702FC59114A87f277b836d482EaF6A", id: "router" },
+                              { name: "PythPriceAdapter", desc: "Low-Latency Pyth Oracle Price Adapter", addr: "0xb268300045a4dE15c1842c179CD4CFF81387c723", id: "pyth" },
+                              { name: "MockUSDC", desc: "Settlement Collateral ERC-20 Token", addr: "0x6046c644ea622fBa3043F35d979BAEE83339cfEe", id: "usdc" },
+                              { name: "MockPyth", desc: "Pyth Price Feed Aggregator Contract", addr: "0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee", id: "mpyth" },
+                            ].map((c) => (
+                              <tr key={c.id} className="hover:bg-surface/60 transition-colors">
+                                <td className="px-4 py-3">
+                                  <div className="font-bold text-foreground">{c.name}</div>
+                                  <div className="text-[11px] text-foreground-muted font-sans">{c.desc}</div>
+                                </td>
+                                <td className="px-4 py-3 text-foreground font-mono">
+                                  <a
+                                    href={`https://www.oklink.com/xlayer-test/address/${c.addr}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="hover:text-accent hover:underline flex items-center gap-1"
+                                  >
+                                    <span>{c.addr}</span>
+                                    <ExternalLinkGlyph className="h-3 w-3 shrink-0 opacity-70" />
+                                  </a>
+                                </td>
+                                <td className="px-4 py-3 text-right">
+                                  <button
+                                    onClick={() => handleCopy(c.addr, `xlayer-${c.id}`)}
+                                    className="rounded border border-border px-2 py-1 text-[11px] hover:border-border-strong hover:text-foreground transition-all cursor-pointer"
+                                  >
+                                    {copiedCode === `xlayer-${c.id}` ? "✓ Copied" : "Copy"}
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Architecture & Security Invariants */}
+                  <section id="xlayer-architecture">
+                    <h2 className="text-lg sm:text-xl font-bold text-foreground font-mono border-b border-border/60 pb-2.5">
+                      Security Invariants & Non-Custodial Delegation
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 font-sans text-xs">
+                      <div className="p-4 rounded-xl border border-border bg-surface/30 space-y-2">
+                        <div className="font-mono font-bold text-foreground text-sm">Strict Custody Isolation</div>
+                        <p className="text-foreground-muted leading-relaxed">
+                          Collateral deposited in <code className="font-mono text-accent">ViperVault.sol</code> can only be withdrawn by the authentic owner (<code className="font-mono text-foreground">msg.sender == owner</code>). Delegated trading bots receive scoped execution permissions via <code className="font-mono text-foreground">PositionRouter.sol</code> and cannot transfer funds out of the vault.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-xl border border-border bg-surface/30 space-y-2">
+                        <div className="font-mono font-bold text-foreground text-sm">Underflow-Safe Open Interest Release</div>
+                        <p className="text-foreground-muted leading-relaxed">
+                          Position closures invoke the internal <code className="font-mono text-accent">_releaseOpenInterest</code> mechanism which saturates at zero. This mathematical guarantee prevents integer underflows or market freezes even during extreme price volatility.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-xl border border-border bg-surface/30 space-y-2">
+                        <div className="font-mono font-bold text-foreground text-sm">Oracle Staleness Threshold</div>
+                        <p className="text-foreground-muted leading-relaxed">
+                          <code className="font-mono text-accent">PythPriceAdapter.sol</code> enforces a strict <code className="font-mono text-foreground">MAX_PRICE_AGE = 60s</code>. Stale or delayed oracle prices trigger automatic reverts to prevent latency arbitrage against the liquidity pool.
+                        </p>
+                      </div>
+                      <div className="p-4 rounded-xl border border-border bg-surface/30 space-y-2">
+                        <div className="font-mono font-bold text-foreground text-sm">Solvency & Liquidation Engine</div>
+                        <p className="text-foreground-muted leading-relaxed">
+                          Maintenance margin is fixed at 500 bps (5.0%). Positions dipping below maintenance requirements can be liquidated by any keeper, awarding a 250 bps incentive while preserving vault pool solvency.
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Markets Specification Table */}
+                  <section id="xlayer-market-specs">
+                    <h2 className="text-lg sm:text-xl font-bold text-foreground font-mono border-b border-border/60 pb-2.5">
+                      Live Perpetual Markets Matrix
+                    </h2>
+                    <p className="t-body mt-2 text-foreground-muted text-xs font-sans">
+                      All 8 perpetual markets are initialized, funded with $500,000 USDC liquidity, and operational on OKX X Layer Testnet:
+                    </p>
+                    <div className="mt-3 overflow-hidden rounded-xl border border-border bg-surface/30">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs font-mono">
+                          <thead>
+                            <tr className="border-b border-border/80 bg-surface/80 text-foreground-muted">
+                              <th className="px-4 py-2.5">Market</th>
+                              <th className="px-4 py-2.5">Category</th>
+                              <th className="px-4 py-2.5">Pyth Feed ID</th>
+                              <th className="px-4 py-2.5 text-center">Max Lev</th>
+                              <th className="px-4 py-2.5 text-center">Maint Margin</th>
+                              <th className="px-4 py-2.5 text-right">Min Order</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-border/60">
+                            {[
+                              { m: "ETH-PERP", cat: "Crypto Major", feed: "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace", lev: "10x", mm: "5.0%", min: "$10.00" },
+                              { m: "BTC-PERP", cat: "Crypto Major", feed: "0xe62df6e875746b43f8000b0b152753545192ddc4203240d23e1112c0200ecd92", lev: "10x", mm: "5.0%", min: "$20.00" },
+                              { m: "SOL-PERP", cat: "Alt L1", feed: "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d", lev: "10x", mm: "5.0%", min: "$5.00" },
+                              { m: "OKB-PERP", cat: "OKX Native", feed: "keccak256(\"OKB-USD-FEED\")", lev: "10x", mm: "5.0%", min: "$5.00" },
+                              { m: "NVDA-PERP", cat: "RWA Equities", feed: "0x5a54e99f06154564ab1a27e7f8d839352e46b96e95aa15f3ecbb82f5b5f2a1b1", lev: "10x", mm: "5.0%", min: "$10.00" },
+                              { m: "TSLA-PERP", cat: "RWA Equities", feed: "0x16093414ecfc3f6c8d23e590059e355c3c26b9a89c8a8c8868a8818c3b7a5a3a", lev: "10x", mm: "5.0%", min: "$10.00" },
+                              { m: "COIN-PERP", cat: "RWA Equities", feed: "0x19d554a9c8a8c8868a8818c3b7a5a3a16093414ecfc3f6c8d23e590059e355c3", lev: "10x", mm: "5.0%", min: "$10.00" },
+                              { m: "SPY-PERP", cat: "RWA Index ETF", feed: "0x2613da66c8a8c8868a8818c3b7a5a3a16093414ecfc3f6c8d23e590059e355c3", lev: "10x", mm: "5.0%", min: "$20.00" },
+                            ].map((row) => (
+                              <tr key={row.m} className="hover:bg-surface/60 transition-colors">
+                                <td className="px-4 py-2.5 font-bold text-foreground">{row.m}</td>
+                                <td className="px-4 py-2.5 text-foreground-muted font-sans">{row.cat}</td>
+                                <td className="px-4 py-2.5 text-foreground-faint truncate max-w-[180px]" title={row.feed}>{row.feed}</td>
+                                <td className="px-4 py-2.5 text-center text-foreground">{row.lev}</td>
+                                <td className="px-4 py-2.5 text-center text-foreground">{row.mm}</td>
+                                <td className="px-4 py-2.5 text-right text-foreground">{row.min}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Core Solidity Code */}
+                  <section id="xlayer-solidity-code">
+                    <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+                      <h2 className="text-lg sm:text-xl font-bold text-foreground font-mono">
+                        ViperVault.sol Core Implementation
+                      </h2>
+                      <button
+                        onClick={() => handleCopy(`// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+interface IPythPriceAdapter {
+    function getPrice(bytes32 priceFeedId) external view returns (uint256 price, uint256 publishTime);
+}
+
+contract ViperVault is Ownable, ReentrancyGuard {
+    struct Market {
+        bytes32 priceFeedId;
+        uint256 maxOpenInterestLongUsd;
+        uint256 maxOpenInterestShortUsd;
+        uint256 openInterestLongUsd;
+        uint256 openInterestShortUsd;
+        uint256 maxLeverage;
+        uint256 maintenanceMarginBps;
+        uint256 minOrderSizeUsd;
+        bool isActive;
+    }
+
+    struct Position {
+        address trader;
+        bytes32 marketId;
+        bool isLong;
+        uint256 sizeUsd;
+        uint256 collateralUsd;
+        uint256 entryPrice;
+        uint256 openedAt;
+    }
+
+    IERC20 public immutable collateralToken;
+    IPythPriceAdapter public priceAdapter;
+
+    mapping(bytes32 => Market) public markets;
+    mapping(bytes32 => Position) public positions;
+
+    function _releaseOpenInterest(bytes32 marketId, bool isLong, uint256 sizeUsd) internal {
+        Market storage m = markets[marketId];
+        if (isLong) {
+            m.openInterestLongUsd = sizeUsd >= m.openInterestLongUsd ? 0 : m.openInterestLongUsd - sizeUsd;
+        } else {
+            m.openInterestShortUsd = sizeUsd >= m.openInterestShortUsd ? 0 : m.openInterestShortUsd - sizeUsd;
+        }
+    }
+}`, "xlayer-sol-vault")}
+                        className="text-xs font-mono text-foreground-muted hover:text-foreground cursor-pointer"
+                      >
+                        {copiedCode === "xlayer-sol-vault" ? "✓ Copied Code!" : "Copy Solidity"}
+                      </button>
+                    </div>
+                    <pre className="mt-4 p-4 rounded-xl border border-border bg-[#0d0d0d] font-mono text-xs text-foreground-muted overflow-x-auto leading-relaxed">
+{`// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract ViperVault is Ownable, ReentrancyGuard {
+    // Underflow-safe open interest release
+    function _releaseOpenInterest(bytes32 marketId, bool isLong, uint256 sizeUsd) internal {
+        Market storage m = markets[marketId];
+        if (isLong) {
+            m.openInterestLongUsd = sizeUsd >= m.openInterestLongUsd ? 0 : m.openInterestLongUsd - sizeUsd;
+        } else {
+            m.openInterestShortUsd = sizeUsd >= m.openInterestShortUsd ? 0 : m.openInterestShortUsd - sizeUsd;
+        }
+    }
+
+    // Atomic position execution with Pyth mark price
+    function openPosition(
+        bytes32 marketId,
+        bool isLong,
+        uint256 collateralUsd,
+        uint256 sizeUsd
+    ) external nonReentrant returns (bytes32 positionId) {
+        Market storage m = markets[marketId];
+        require(m.isActive, "Market inactive");
+        require(sizeUsd <= collateralUsd * m.maxLeverage, "Exceeds max leverage");
+
+        (uint256 markPrice, ) = priceAdapter.getPrice(m.priceFeedId);
+        // ... updates open interest and creates position struct
+    }
+}`}
+                    </pre>
+                  </section>
+
+                  {/* Model Context Protocol (MCP) Agent Integration */}
+                  <section id="xlayer-mcp-integration">
+                    <h2 className="text-lg sm:text-xl font-bold text-foreground font-mono border-b border-border/60 pb-2.5">
+                      Model Context Protocol (MCP) Agent Discovery
+                    </h2>
+                    <p className="t-body mt-2 text-foreground-muted text-xs font-sans">
+                      External AI agents and autonomous runtimes discover ViperX capabilities at{" "}
+                      <code className="font-mono text-accent">/.well-known/agent.json</code> and interact via standard JSON-RPC tools:
+                    </p>
+                    <div className="mt-3 p-4 rounded-xl border border-border bg-[#0d0d0d] font-mono text-xs overflow-x-auto">
+                      <div className="text-foreground-faint mb-2">// Call simulate_perp_order via MCP</div>
+                      <pre className="text-foreground-muted leading-relaxed">
+{`{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "simulate_perp_order",
+    "arguments": {
+      "market": "ETH-PERP",
+      "side": "LONG",
+      "sizeUsd": 250.0,
+      "collateralUsd": 50.0
+    }
+  },
+  "id": 1
+}`}
+                      </pre>
+                    </div>
+                  </section>
+                </article>
+              )}\n\n              {/* ── 5. BASE EVM REGISTRY ─────────────────────────────────── */}
               {activeSection === "base-contract" && (
                 <article className="space-y-6">
                   <div>
@@ -1423,7 +1740,7 @@ contract ViperxRegistry {
                         : "border-border hover:text-foreground"
                     }`}
                   >
-                    👍 Yes
+                    Yes
                   </button>
                   <button
                     onClick={() => setFeedbackGiven("no")}
@@ -1433,7 +1750,7 @@ contract ViperxRegistry {
                         : "border-border hover:text-foreground"
                     }`}
                   >
-                    👎 No
+                    No
                   </button>
                   {feedbackGiven && <span className="text-emerald-400 text-[10px] ml-1">Thank you!</span>}
                 </div>

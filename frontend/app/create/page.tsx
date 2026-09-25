@@ -25,6 +25,9 @@ import { useReducedMotion } from "@/components/motion/useReducedMotion";
 import { StrategySelector, STRATEGY_TEMPLATES, StrategyTemplate } from "@/components/create/StrategySelector";
 import { FundAndDelegate } from "@/components/create/FundAndDelegate";
 import { ArrowRightGlyph } from "@/components/ui/StatusGlyphs";
+import { XLayerLogo } from "@/components/ui/XLayerLogo";
+import { BaseLogo } from "@/components/ui/BaseLogo";
+import { SolanaLogo } from "@/components/ui/SolanaLogo";
 
 const BaseConnectButton = dynamicImport(
   () => import("@/components/ui/BaseConnectButton").then((mod) => mod.BaseConnectButton),
@@ -75,7 +78,7 @@ export default function CreateAgentPage() {
     hash: evmTxHash,
   });
 
-  const [activeChain, setActiveChain] = useState<"solana" | "base">("base");
+  const [activeChain, setActiveChain] = useState<"solana" | "base" | "xlayer">("xlayer");
   const [isPaperMode, setIsPaperMode] = useState(false);
   const [simulatedBalance, setSimulatedBalance] = useState(1000);
   const [selectedTemplateId, setSelectedTemplateId] = useState(STRATEGY_TEMPLATES[0].id);
@@ -125,10 +128,10 @@ export default function CreateAgentPage() {
   // Load and sync network selection & drafts
   useEffect(() => {
     const saved = localStorage.getItem("viperx-active-chain");
-    if (saved === "solana" || saved === "base") {
+    if (saved === "solana" || saved === "base" || saved === "xlayer") {
       setActiveChain(saved);
     } else {
-      setActiveChain("base");
+      setActiveChain("xlayer");
     }
 
     // Parse backtest redirect query params (avoids Next.js useSearchParams + Suspense overhead)
@@ -231,7 +234,7 @@ export default function CreateAgentPage() {
   useEffect(() => {
     const updateNetwork = () => {
       const saved = localStorage.getItem("viperx-active-chain");
-      if (saved === "solana" || saved === "base") {
+      if (saved === "solana" || saved === "base" || saved === "xlayer") {
         setActiveChain(saved);
       }
     };
@@ -312,7 +315,7 @@ export default function CreateAgentPage() {
     }
   }
 
-  function handleNetworkChange(chain: "solana" | "base") {
+  function handleNetworkChange(chain: "solana" | "base" | "xlayer") {
     setActiveChain(chain);
     localStorage.setItem("viperx-active-chain", chain);
     window.dispatchEvent(new Event("viperx-chain-changed"));
@@ -555,7 +558,19 @@ export default function CreateAgentPage() {
       {/* --- Chain Selector Tab ------------------------------------------- */}
       <div className="mb-8 border-b border-border pb-6">
         <label className="t-label block mb-3">1. Select Network</label>
-        <div className="flex gap-2 p-1 bg-surface border border-border rounded-xl w-fit">
+        <div className="flex flex-wrap gap-2 p-1 bg-surface border border-border rounded-xl w-fit">
+          <button
+            type="button"
+            onClick={() => handleNetworkChange("xlayer")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono text-xs font-semibold cursor-pointer transition-all ${
+              activeChain === "xlayer"
+                ? "bg-foreground text-background shadow"
+                : "text-foreground-muted hover:text-foreground"
+            }`}
+          >
+            <XLayerLogo className="h-3.5 w-3.5" />
+            OKX X Layer
+          </button>
           <button
             type="button"
             onClick={() => handleNetworkChange("base")}
@@ -565,6 +580,7 @@ export default function CreateAgentPage() {
                 : "text-foreground-muted hover:text-foreground"
             }`}
           >
+            <BaseLogo className="h-3.5 w-3.5 rounded-xs" />
             Base Sepolia
           </button>
           <button
@@ -576,6 +592,7 @@ export default function CreateAgentPage() {
                 : "text-foreground-muted hover:text-foreground"
             }`}
           >
+            <SolanaLogo className="h-3.5 w-3.5" />
             Solana Devnet
           </button>
         </div>
@@ -591,9 +608,11 @@ export default function CreateAgentPage() {
                 <p className="font-mono text-sm font-semibold text-foreground">
                   {isPaperMode
                     ? "Paper registration"
-                    : activeChain === "base"
-                      ? "Live Base Sepolia registration"
-                      : "Live Solana devnet registration"}
+                    : activeChain === "xlayer"
+                      ? "Live OKX X Layer registration"
+                      : activeChain === "base"
+                        ? "Live Base Sepolia registration"
+                        : "Live Solana devnet registration"}
                 </p>
                 <p className="mt-1 max-w-[62ch] text-xs leading-relaxed text-foreground-muted">
                   {isPaperMode
@@ -803,7 +822,7 @@ export default function CreateAgentPage() {
                         Agent Registered On-Chain!
                       </div>
                       <p className="max-w-md text-xs text-foreground-muted">
-                        Transaction confirmed on {activeChain === "solana" ? "Solana devnet" : "Base Sepolia"}. Your agent account is live and indexing.
+                        Transaction confirmed on {activeChain === "xlayer" ? "OKX X Layer Testnet" : activeChain === "solana" ? "Solana devnet" : "Base Sepolia"}. Your agent account is live and indexing.
                       </p>
                       <div className="flex gap-3">
                         <Button href={`/agents/${state.agentPda}`}>View Agent Profile</Button>
@@ -821,14 +840,14 @@ export default function CreateAgentPage() {
               <FundAndDelegate agentPda={state.agentPda} />
             )}
 
-            {state.status === "confirmed" && activeChain === "base" && (
+            {state.status === "confirmed" && (activeChain === "base" || activeChain === "xlayer") && (
               <div className="mt-6 rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
                 <div className="flex flex-col gap-3 rounded-lg bg-white p-5 text-left dark:bg-[#0a0a0a]">
                   <h3 className="font-mono text-sm font-semibold text-foreground">
                     EVM Agent Configuration Completed
                   </h3>
                   <p className="text-xs text-foreground-muted">
-                    Your agent is registered on Base Sepolia as its own identity (owner + agent ID). The runtime can trade against the vault you set; withdrawal rights stay in your wallet.
+                    Your agent is registered on {activeChain === "xlayer" ? "OKX X Layer Testnet" : "Base Sepolia"} as its own identity (owner + agent ID). The runtime can trade against the vault you set; withdrawal rights stay in your wallet.
                   </p>
                 </div>
               </div>

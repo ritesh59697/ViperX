@@ -160,6 +160,8 @@ export default function TradePage() {
     const saved = localStorage.getItem("viperx-active-chain");
     if (saved === "solana" || saved === "base" || saved === "xlayer") {
       setSelectedChain(saved as "solana" | "base" | "xlayer");
+    } else {
+      setSelectedChain("xlayer");
     }
     const handleChainChange = () => {
       const current = localStorage.getItem("viperx-active-chain");
@@ -824,24 +826,6 @@ export default function TradePage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setSelectedChain("base");
-                    localStorage.setItem("viperx-active-chain", "base");
-                    window.dispatchEvent(new Event("viperx-chain-changed"));
-                    setNetworkDropdownOpen(false);
-                  }}
-                  className={cn(
-                    "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold transition-colors cursor-pointer",
-                    selectedChain === "base"
-                      ? "bg-[#f2f4f8] dark:bg-[#1c1c1c] text-foreground font-bold"
-                      : "text-foreground-muted hover:bg-surface hover:text-foreground"
-                  )}
-                >
-                  <BaseLogo className="h-3.5 w-3.5" />
-                  <span>Base</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
                     setSelectedChain("xlayer");
                     localStorage.setItem("viperx-active-chain", "xlayer");
                     window.dispatchEvent(new Event("viperx-chain-changed"));
@@ -856,6 +840,24 @@ export default function TradePage() {
                 >
                   <XLayerLogo className="h-3.5 w-3.5" />
                   <span>X Layer</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedChain("base");
+                    localStorage.setItem("viperx-active-chain", "base");
+                    window.dispatchEvent(new Event("viperx-chain-changed"));
+                    setNetworkDropdownOpen(false);
+                  }}
+                  className={cn(
+                    "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold transition-colors cursor-pointer",
+                    selectedChain === "base"
+                      ? "bg-[#f2f4f8] dark:bg-[#1c1c1c] text-foreground font-bold"
+                      : "text-foreground-muted hover:bg-surface hover:text-foreground"
+                  )}
+                >
+                  <BaseLogo className="h-3.5 w-3.5" />
+                  <span>Base</span>
                 </button>
                 <button
                   type="button"

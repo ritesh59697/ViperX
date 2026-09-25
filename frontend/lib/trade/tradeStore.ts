@@ -200,7 +200,7 @@ export interface TradeState {
 
 export const useTradeStore = create<TradeState>((set) => ({
   // Chain
-  selectedChain: "base",
+  selectedChain: "xlayer",
   setSelectedChain: (selectedChain) => set({ selectedChain }),
 
   // Market

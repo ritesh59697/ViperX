@@ -134,7 +134,7 @@ function ChevronDown({ open }: { open: boolean }) {
 export function SiteHeader() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [selectedNetwork, setSelectedNetwork] = useState<"solana" | "base" | "xlayer">("base");
+  const [selectedNetwork, setSelectedNetwork] = useState<"solana" | "base" | "xlayer">("xlayer");
   const [networkDropdownOpen, setNetworkDropdownOpen] = useState(false);
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
   const [resourcesDropdownOpen, setResourcesDropdownOpen] = useState(false);
@@ -238,7 +238,7 @@ export function SiteHeader() {
       if (saved === "solana" || saved === "base" || saved === "xlayer") {
         setSelectedNetwork(saved as "solana" | "base" | "xlayer");
       } else {
-        setSelectedNetwork("base");
+        setSelectedNetwork("xlayer");
       }
     };
     updateNetwork();
@@ -665,19 +665,19 @@ export function SiteHeader() {
                 <div className="absolute right-0 mt-1.5 w-36 rounded-xl border border-border bg-background/95 p-1 shadow-xl backdrop-blur-xl z-50">
                   <button
                     type="button"
-                    onClick={() => handleNetworkChange("base")}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-surface cursor-pointer"
-                  >
-                    <BaseLogo />
-                    <span>Base</span>
-                  </button>
-                  <button
-                    type="button"
                     onClick={() => handleNetworkChange("xlayer")}
                     className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-surface cursor-pointer"
                   >
                     <XLayerLogo />
                     <span>X Layer</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNetworkChange("base")}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-surface cursor-pointer"
+                  >
+                    <BaseLogo />
+                    <span>Base</span>
                   </button>
                   <button
                     type="button"
