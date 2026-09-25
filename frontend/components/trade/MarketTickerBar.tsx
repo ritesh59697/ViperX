@@ -106,6 +106,45 @@ type MarketWithMetrics = PerpMarket & {
   isPositive: boolean;
 };
 
+function StarIcon({
+  filled,
+  className,
+}: {
+  filled?: boolean;
+  className?: string;
+}) {
+  if (filled) {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="#f59e0b"
+        className={cn("h-3.5 w-3.5 text-amber-400 shrink-0", className)}
+      >
+        <path
+          fillRule="evenodd"
+          d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z"
+          clipRule="evenodd"
+        />
+      </svg>
+    );
+  }
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("h-3.5 w-3.5 text-foreground-faint hover:text-foreground transition-colors shrink-0", className)}
+    >
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  );
+}
+
 function MarketCardItem({
   market,
   isSelected,
@@ -156,18 +195,14 @@ function MarketCardItem({
 
         <button
           type="button"
-          onClick={onToggleFav}
-          className="text-foreground-muted hover:text-amber-500 cursor-pointer p-1 shrink-0 transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleFav(e);
+          }}
+          className="hover:scale-115 active:scale-95 cursor-pointer p-1 shrink-0 transition-transform"
           title={isFav ? "Remove from favorites" : "Add to favorites"}
         >
-          <RuneIcon
-            name="tools-star"
-            styleVariant={isFav ? "fill" : "normal"}
-            className={cn(
-              "h-3.5 w-3.5 transition-colors",
-              isFav ? "text-amber-400 fill-amber-400" : "text-foreground-faint hover:text-foreground"
-            )}
-          />
+          <StarIcon filled={isFav} />
         </button>
       </div>
 
@@ -200,7 +235,18 @@ export function MarketTickerBar({ stats, pythLatencyMs = 380 }: MarketTickerBarP
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<MarketCategoryTab>("Featured");
-  const [favorites, setFavorites] = useState<string[]>(["ETH-PERP", "NVDA-PERP"]);
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("viperx-favorite-markets");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch {}
+    }
+    return ["ETH-PERP", "NVDA-PERP"];
+  });
   const [priceFlash, setPriceFlash] = useState<"up" | "down" | null>(null);
   const prevPriceRef = useRef(stats.markPrice);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -270,9 +316,17 @@ export function MarketTickerBar({ stats, pythLatencyMs = 380 }: MarketTickerBarP
 
   const toggleFavorite = (e: React.MouseEvent, symbol: string) => {
     e.stopPropagation();
-    setFavorites((prev) =>
-      prev.includes(symbol) ? prev.filter((s) => s !== symbol) : [...prev, symbol]
-    );
+    setFavorites((prev) => {
+      const next = prev.includes(symbol)
+        ? prev.filter((s) => s !== symbol)
+        : [...prev, symbol];
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("viperx-favorite-markets", JSON.stringify(next));
+        } catch {}
+      }
+      return next;
+    });
   };
 
   // Filtered markets
@@ -447,7 +501,7 @@ export function MarketTickerBar({ stats, pythLatencyMs = 380 }: MarketTickerBarP
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
                     )}
                     {tab.id === "Favorites" && (
-                      <RuneIcon name="tools-star" className="h-3 w-3 text-amber-400 shrink-0" />
+                      <StarIcon filled={true} className="h-3 w-3 text-amber-400 shrink-0" />
                     )}
                     <span>{tab.label}</span>
                   </button>
@@ -531,7 +585,7 @@ export function MarketTickerBar({ stats, pythLatencyMs = 380 }: MarketTickerBarP
                     <div className="flex items-center justify-between pb-2 px-1 shrink-0">
                       <span className="text-[11px] font-semibold tracking-wide text-foreground flex items-center gap-1.5">
                         <span>FAVORITES</span>
-                        <RuneIcon name="tools-star" className="h-3 w-3 text-amber-400 fill-amber-400/20" />
+                        <StarIcon filled={true} className="h-3 w-3 text-amber-400 shrink-0" />
                       </span>
                       <span className="text-[10px] font-mono text-foreground-muted bg-surface dark:bg-white/[0.05] border border-border/40 dark:border-white/10 px-1.5 py-0.2 rounded-md">
                         {favoriteMarketsList.length}
@@ -540,7 +594,7 @@ export function MarketTickerBar({ stats, pythLatencyMs = 380 }: MarketTickerBarP
 
                     {favoriteMarketsList.length === 0 ? (
                       <div className="flex-1 flex flex-col items-center justify-center py-10 text-center text-foreground-muted border border-dashed border-border/60 rounded-xl mt-0.5">
-                        <RuneIcon name="tools-star" className="h-6 w-6 mb-2 opacity-30 text-amber-400" />
+                        <StarIcon filled={false} className="h-6 w-6 mb-2 opacity-30 text-amber-400" />
                         <span className="text-xs font-medium">
                           No favorite markets yet.
                         </span>
@@ -659,17 +713,10 @@ export function MarketTickerBar({ stats, pythLatencyMs = 380 }: MarketTickerBarP
                             <button
                               type="button"
                               onClick={(e) => toggleFavorite(e, m.symbol)}
-                              className="text-foreground-muted hover:text-amber-500 cursor-pointer p-1"
-                              title="Favorite"
+                              className="hover:scale-115 active:scale-95 cursor-pointer p-1 transition-transform"
+                              title={isFav ? "Remove from favorites" : "Add to favorites"}
                             >
-                              <RuneIcon
-                                name="tools-star"
-                                styleVariant={isFav ? "fill" : "normal"}
-                                className={cn(
-                                  "h-3.5 w-3.5 transition-colors",
-                                  isFav ? "text-amber-400 fill-amber-400" : "text-foreground-muted hover:text-foreground"
-                                )}
-                              />
+                              <StarIcon filled={isFav} />
                             </button>
                           </div>
                         </div>
