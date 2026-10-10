@@ -479,7 +479,7 @@ export default function CreateAgentPage() {
         setState({ status: "error", message: sanitizeErrorMessage(err) });
       }
     } else {
-    // ── Base Sepolia path ────────────────────────────────────────────────────
+    // ── OKX X Layer path ────────────────────────────────────────────────────
       if (!isEvmConnected || !evmAddress) return;
 
       setState({ status: "signing" });
@@ -573,18 +573,6 @@ export default function CreateAgentPage() {
           </button>
           <button
             type="button"
-            onClick={() => handleNetworkChange("base")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono text-xs font-semibold cursor-pointer transition-all ${
-              activeChain === "base"
-                ? "bg-foreground text-background shadow"
-                : "text-foreground-muted hover:text-foreground"
-            }`}
-          >
-            <BaseLogo className="h-3.5 w-3.5 rounded-xs" />
-            Base Sepolia
-          </button>
-          <button
-            type="button"
             onClick={() => handleNetworkChange("solana")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono text-xs font-semibold cursor-pointer transition-all ${
               activeChain === "solana"
@@ -610,9 +598,7 @@ export default function CreateAgentPage() {
                     ? "Paper registration"
                     : activeChain === "xlayer"
                       ? "Live OKX X Layer registration"
-                      : activeChain === "base"
-                        ? "Live Base Sepolia registration"
-                        : "Live Solana devnet registration"}
+                      : "Live Solana devnet registration"}
                 </p>
                 <p className="mt-1 max-w-[62ch] text-xs leading-relaxed text-foreground-muted">
                   {isPaperMode
@@ -681,7 +667,7 @@ export default function CreateAgentPage() {
 
       {/* Single wallet connect hint — only shown if the relevant wallet isn't yet connected */}
       {((activeChain === "solana" && !publicKey) ||
-        (activeChain === "base" && !isEvmConnected)) && (
+        (activeChain === "xlayer" && !isEvmConnected)) && (
         <div className="mb-8 rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
           <div className="flex flex-col gap-4 rounded-lg bg-white p-4 text-left sm:flex-row sm:items-center sm:justify-between dark:bg-[#0a0a0a]">
             <span className="text-sm text-foreground-muted">
@@ -690,8 +676,8 @@ export default function CreateAgentPage() {
                   ? "Connect a Solana wallet to sign the paper registration. No on-chain TX required."
                   : <>Connect a devnet wallet to register an agent via <code className="font-mono">register_agent</code>. You sign — nothing is custodied by this app.</>
                 : isPaperMode
-                ? "Connect a Base wallet to sign the paper registration. No on-chain TX required."
-                : "Connect a Base Sepolia wallet to register on the EVM registry contract."}
+                ? "Connect an OKX X Layer wallet to sign the paper registration. No on-chain TX required."
+                : "Connect an OKX X Layer wallet to register on the EVM registry contract."}
             </span>
             <div className="shrink-0">
               {activeChain === "solana" ? <WalletMultiButton /> : <BaseConnectButton />}
@@ -822,7 +808,7 @@ export default function CreateAgentPage() {
                         Agent Registered On-Chain!
                       </div>
                       <p className="max-w-md text-xs text-foreground-muted">
-                        Transaction confirmed on {activeChain === "xlayer" ? "OKX X Layer Testnet" : activeChain === "solana" ? "Solana devnet" : "Base Sepolia"}. Your agent account is live and indexing.
+                        Transaction confirmed on {activeChain === "xlayer" ? "OKX X Layer Testnet" : "Solana devnet"}. Your agent account is live and indexing.
                       </p>
                       <div className="flex gap-3">
                         <Button href={`/agents/${state.agentPda}`}>View Agent Profile</Button>
@@ -847,7 +833,7 @@ export default function CreateAgentPage() {
                     EVM Agent Configuration Completed
                   </h3>
                   <p className="text-xs text-foreground-muted">
-                    Your agent is registered on {activeChain === "xlayer" ? "OKX X Layer Testnet" : "Base Sepolia"} as its own identity (owner + agent ID). The runtime can trade against the vault you set; withdrawal rights stay in your wallet.
+                    Your agent is registered on OKX X Layer Testnet as its own identity (owner + agent ID). The runtime can trade against the vault you set; withdrawal rights stay in your wallet.
                   </p>
                 </div>
               </div>
@@ -856,13 +842,13 @@ export default function CreateAgentPage() {
             {state.status !== "confirmed" && (
               <Button
                 type="submit"
-                disabled={!canSubmit || state.status === "signing" || (!isPaperMode && activeChain === "base" && isEvmConfirming)}
+                disabled={!canSubmit || state.status === "signing" || (!isPaperMode && activeChain === "xlayer" && isEvmConfirming)}
                 className="mt-2 justify-center py-3"
               >
                 {state.status === "signing" ? (
                   isPaperMode ? "Signing paper registration..." : "Signing transaction..."
-                ) : !isPaperMode && activeChain === "base" && isEvmConfirming ? (
-                  "Confirming on Base Sepolia..."
+                ) : !isPaperMode && activeChain === "xlayer" && isEvmConfirming ? (
+                  "Confirming on OKX X Layer..."
                 ) : (
                   <>
                     <ArrowRightGlyph />
@@ -870,7 +856,7 @@ export default function CreateAgentPage() {
                       ? "Register Paper Agent (No TX)"
                       : activeChain === "solana"
                       ? "Register Agent on Solana Devnet"
-                      : "Register Agent on Base Sepolia"}
+                      : "Register Agent on OKX X Layer"}
                   </>
                 )}
               </Button>

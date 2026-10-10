@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
+import { getLeaderboardFromDb } from "@/lib/server/leaderboardService";
 import {
-  fetchLeaderboard,
   isBlockedAgent,
   LeaderboardWindow,
   LEADERBOARD_WINDOWS,
@@ -16,15 +16,15 @@ export async function GET(request: Request) {
     : "all";
 
   try {
-    const data = await fetchLeaderboard(window);
-    const filtered = (data.agents || []).filter((a) => !isBlockedAgent(a));
+    const data = await getLeaderboardFromDb(window);
+    const filtered = (data.agents || []).filter((a: any) => !isBlockedAgent(a));
     return NextResponse.json({
       window: data.window,
-      ranked_count: filtered.filter((a) => a.onchain_verified).length,
+      ranked_count: filtered.filter((a: any) => a.onchain_verified).length,
       agents: filtered,
     });
   } catch (error) {
-    console.error("API /api/leaderboard error:", error);
+    console.error("API /api/leaderboard direct DB error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to fetch leaderboard" },
       { status: 500 }

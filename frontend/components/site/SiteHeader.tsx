@@ -26,9 +26,9 @@ const BaseConnectButton = dynamicImport(
 // Primary nav — always visible on desktop (no dropdown)
 const PRIMARY_LINKS: { href: string; label: string; external?: boolean; badge?: string }[] = [
   { href: "/leaderboard", label: "Leaderboard", external: false },
-  { href: "/trade", label: "Trade", external: false },
   { href: "/arena", label: "Arena", external: false },
   { href: "/create", label: "Deploy Agent", external: false },
+  { href: "/trade", label: "Trade", external: false },
 ];
 
 // Tools dropdown items
@@ -301,7 +301,7 @@ export function SiteHeader() {
             {/* Network selector */}
             <div className="px-5 py-4 border-b border-border">
               <div className="flex gap-2">
-                {(["base", "xlayer", "solana"] as const).map((net) => (
+                {(["xlayer", "solana"] as const).map((net) => (
                   <button
                     key={net}
                     type="button"
@@ -314,12 +314,10 @@ export function SiteHeader() {
                   >
                     {net === "solana" ? (
                       <SolanaLogo className="h-3.5 w-3.5" />
-                    ) : net === "xlayer" ? (
-                      <XLayerLogo className="h-3.5 w-3.5" />
                     ) : (
-                      <BaseLogo className="h-3.5 w-3.5 rounded-xs" />
+                      <XLayerLogo className="h-3.5 w-3.5" />
                     )}
-                    {net === "solana" ? "Solana" : net === "xlayer" ? "X Layer" : "Base"}
+                    {net === "solana" ? "Solana" : "X Layer"}
                   </button>
                 ))}
               </div>
@@ -399,14 +397,14 @@ export function SiteHeader() {
             {/* Contract badges */}
             <div className="flex flex-col gap-1.5 pt-2 border-t border-border/40">
               <div className="flex items-center justify-between font-mono text-[10px] text-foreground-faint">
-                <span>BASE REGISTRY</span>
+                <span>X LAYER ROUTER</span>
                 <a
-                  href="https://sepolia.basescan.org/address/0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee"
+                  href="https://www.oklink.com/xlayer-test/address/0xcfEcD1274a74435E1D97c2D90F175296589751E0"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-foreground break-all"
                 >
-                  0xA25...C7ee
+                  0xcfE...51E0
                 </a>
               </div>
               <div className="flex items-center justify-between font-mono text-[10px] text-foreground-faint">
@@ -670,14 +668,6 @@ export function SiteHeader() {
                   >
                     <XLayerLogo />
                     <span>X Layer</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleNetworkChange("base")}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-surface cursor-pointer"
-                  >
-                    <BaseLogo />
-                    <span>Base</span>
                   </button>
                   <button
                     type="button"

@@ -235,7 +235,7 @@ export function OrderFormPanel({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[10px] text-accent hover:underline flex items-center gap-1 ml-1 font-sans"
-                title="Claim free testnet USDC from Circle for Base Sepolia"
+                title="Claim free testnet USDC"
               >
                 <RuneIcon name="nature-cloud-rain" className="h-3 w-3 shrink-0" />
                 <span>Faucet</span>

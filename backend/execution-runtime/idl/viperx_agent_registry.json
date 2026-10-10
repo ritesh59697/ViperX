@@ -1,0 +1,597 @@
+{
+  "address": "321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm",
+  "metadata": {
+    "name": "viperx_agent_registry",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "ViperX on-chain agent registry"
+  },
+  "instructions": [
+    {
+      "name": "authority_pause",
+      "docs": [
+        "Delegated-authority circuit breaker: lets the execution runtime pause",
+        "an agent on-chain when it gives up trading it (repeated failures,",
+        "anomalous behavior), instead of only stopping in-process while the",
+        "public status keeps reading `Active`. Deliberately one-directional and",
+        "narrowly scoped — same trust boundary as `record_trade`",
+        "(`has_one = authority`), not `set_status`'s owner-only boundary:",
+        "the authority key can only move Active -> Paused. It can never",
+        "reactivate, retire, or otherwise touch the agent; only the owner's own",
+        "`set_status` can do that. See CLAUDE.md's circuit-breaker gotcha."
+      ],
+      "discriminator": [
+        246,
+        166,
+        4,
+        82,
+        203,
+        184,
+        67,
+        199
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "agent"
+          ]
+        },
+        {
+          "name": "agent",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "record_trade",
+      "docs": [
+        "Called by the execution runtime after each closed trade to bump the",
+        "on-chain trade count. Signed by `authority` (see `set_authority`), not",
+        "by the owner — a backend service cannot hold owner keys without",
+        "breaking the non-custodial story.",
+        "",
+        "Keeping this minimal on-chain and doing full PNL calc off-chain against",
+        "Drift account data keeps compute costs low — this counter exists only to",
+        "support the \"minimum track record\" anti-gaming rule for leaderboard",
+        "eligibility."
+      ],
+      "discriminator": [
+        83,
+        201,
+        2,
+        171,
+        223,
+        122,
+        186,
+        127
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "agent"
+          ]
+        },
+        {
+          "name": "agent",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "register_agent",
+      "docs": [
+        "Registers a new agent. Called once by the agent's owner (the user",
+        "deploying the agent). Creates a PDA that becomes the on-chain",
+        "identity for this agent — everything downstream (execution runtime,",
+        "PNL indexer, leaderboard) references this account."
+      ],
+      "discriminator": [
+        135,
+        157,
+        66,
+        195,
+        2,
+        113,
+        175,
+        30
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "agent",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "arg",
+                "path": "agent_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "agent_id",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "strategy_uri",
+          "type": "string"
+        },
+        {
+          "name": "vault_pubkey",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "set_authority",
+      "docs": [
+        "Owner-only: set the key allowed to call `record_trade` — normally the",
+        "execution runtime's backend key. That key can *only* bump the trade",
+        "counter; it cannot pause, retire, edit metadata, or touch funds, so",
+        "delegating it does not compromise the non-custodial model. Set back to",
+        "the owner's own key to revoke."
+      ],
+      "discriminator": [
+        133,
+        250,
+        37,
+        21,
+        110,
+        163,
+        26,
+        121
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "agent"
+          ]
+        },
+        {
+          "name": "agent",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "agent.agent_id",
+                "account": "Agent"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_authority",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "set_status",
+      "docs": [
+        "Owner-only: pause an agent (e.g. anomalous behavior, manual stop).",
+        "The execution runtime should check this flag before submitting trades."
+      ],
+      "discriminator": [
+        181,
+        184,
+        224,
+        203,
+        193,
+        29,
+        177,
+        224
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "agent"
+          ]
+        },
+        {
+          "name": "agent",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "agent.agent_id",
+                "account": "Agent"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "status",
+          "type": {
+            "defined": {
+              "name": "AgentStatus"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_metadata",
+      "docs": [
+        "Owner-only: update mutable metadata (name/strategy description).",
+        "agent_id and vault_pubkey are immutable by design — they're the",
+        "stable identifiers everything else references."
+      ],
+      "discriminator": [
+        170,
+        182,
+        43,
+        239,
+        97,
+        78,
+        225,
+        186
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "agent"
+          ]
+        },
+        {
+          "name": "agent",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "agent.agent_id",
+                "account": "Agent"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": {
+            "option": "string"
+          }
+        },
+        {
+          "name": "strategy_uri",
+          "type": {
+            "option": "string"
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Agent",
+      "discriminator": [
+        47,
+        166,
+        112,
+        147,
+        155,
+        197,
+        86,
+        7
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AgentAuthorityChanged",
+      "discriminator": [
+        115,
+        34,
+        122,
+        105,
+        202,
+        151,
+        221,
+        35
+      ]
+    },
+    {
+      "name": "AgentBecameEligible",
+      "discriminator": [
+        199,
+        184,
+        227,
+        222,
+        125,
+        107,
+        80,
+        74
+      ]
+    },
+    {
+      "name": "AgentRegistered",
+      "discriminator": [
+        191,
+        78,
+        217,
+        54,
+        232,
+        100,
+        189,
+        85
+      ]
+    },
+    {
+      "name": "AgentStatusChanged",
+      "discriminator": [
+        210,
+        74,
+        73,
+        158,
+        205,
+        28,
+        137,
+        178
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "AgentIdTooLong",
+      "msg": "agent_id exceeds max length"
+    },
+    {
+      "code": 6001,
+      "name": "NameTooLong",
+      "msg": "name exceeds max length"
+    },
+    {
+      "code": 6002,
+      "name": "UriTooLong",
+      "msg": "strategy_uri exceeds max length"
+    },
+    {
+      "code": 6003,
+      "name": "Unauthorized",
+      "msg": "only the agent owner can perform this action"
+    },
+    {
+      "code": 6004,
+      "name": "NotActive",
+      "msg": "agent is not active"
+    }
+  ],
+  "types": [
+    {
+      "name": "Agent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "agent_id",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "strategy_uri",
+            "type": "string"
+          },
+          {
+            "name": "vault_pubkey",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "AgentStatus"
+              }
+            }
+          },
+          {
+            "name": "trade_count",
+            "type": "u64"
+          },
+          {
+            "name": "leaderboard_eligible",
+            "type": "bool"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "updated_at",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AgentAuthorityChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "agent",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AgentBecameEligible",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "agent",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AgentRegistered",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "agent",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "agent_id",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AgentStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Paused"
+          },
+          {
+            "name": "Retired"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AgentStatusChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "agent",
+            "type": "pubkey"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "AgentStatus"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

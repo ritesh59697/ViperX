@@ -1,0 +1,20 @@
+{
+  "name": "viperx-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ViperX — Autonomous, Non-Custodial Quant Trading Protocol & Proof-of-Execution Engine",
+  "scripts": {
+    "verify-agent": "bun scripts/verify-agent-cli.ts",
+    "verify-agent:node": "ts-node scripts/verify-agent-cli.ts",
+    "dev:frontend": "cd frontend && bun run dev",
+    "build:frontend": "cd frontend && bun run build",
+    "typecheck:frontend": "cd frontend && bun x tsc --noEmit",
+    "typecheck:indexer": "cd backend/pnl-indexer && bun x tsc --noEmit",
+    "typecheck:api": "cd backend/leaderboard-api && bun x tsc --noEmit",
+    "typecheck": "cd frontend && bun x tsc --noEmit && cd ../backend/pnl-indexer && bun x tsc --noEmit && cd ../leaderboard-api && bun x tsc --noEmit"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.31.1",
+    "@solana/web3.js": "^1.98.0"
+  }
+}

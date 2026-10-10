@@ -410,7 +410,7 @@ export default function PaperTradingPage() {
             </div>
           </div>
 
-          {/* Progress toward Base Sepolia ──────────────────────────────────────── */}
+          {/* Progress toward Live Testnet ──────────────────────────────────────── */}
           <div className="rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
             <div className="rounded-lg bg-white p-5 text-left dark:bg-[#0a0a0a]">
               <p className="font-mono text-xs font-semibold text-foreground border-b border-black/5 pb-2.5 dark:border-white/5 mb-3">
@@ -424,7 +424,7 @@ export default function PaperTradingPage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full border border-foreground-faint shrink-0" />
-                  <span>Deploy on Base Sepolia</span>
+                  <span>Deploy on Live Testnet (X Layer / Solana)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full border border-foreground-faint shrink-0" />
@@ -434,7 +434,7 @@ export default function PaperTradingPage() {
               {closedTrades.length >= 5 && (
                 <div className="mt-4 pt-3 border-t border-black/5 dark:border-white/5">
                   <Button href="/create" variant="primary" className="w-full justify-center text-xs py-2 inline-flex items-center gap-1.5">
-                    <span>Deploy on Base Sepolia</span>
+                    <span>Deploy on Live Testnet</span>
                     <ArrowRightGlyph className="h-3 w-3" />
                   </Button>
                 </div>

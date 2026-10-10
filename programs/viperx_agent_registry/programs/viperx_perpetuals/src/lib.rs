@@ -9,6 +9,10 @@ pub const PRECISION: u128 = 1_000_000_000_000_000_000; // 1e18
 pub const TRADING_FEE_BPS: u64 = 10; // 0.10% (10 bps)
 pub const LIQUIDATION_FEE_BPS: u64 = 250; // 2.5% liquidation bounty
 pub const BASE_BORROW_RATE_PER_HOUR_BPS: u64 = 1; // 0.01% / hr
+pub const MAX_ORACLE_STALENESS_SECONDS: u64 = 20; // 20s max age per roadmap
+pub const MAX_CONFIDENCE_RATIO_BPS: u64 = 100; // 1.00% max confidence interval
+pub const MAX_POOL_UTILIZATION_BPS: u64 = 8000; // 80.00% max pool utilization (20% reserve factor)
+
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq)]
 pub enum PositionSide {
@@ -126,11 +130,33 @@ pub mod viperx_perpetuals {
         let leverage_bps = ((size_usd as u128 * BPS_DENOMINATOR as u128) / (collateral_usd as u128)) as u64;
         require!(leverage_bps <= market.max_leverage_bps, PerpError::MaxLeverageExceeded);
 
-        // Fetch mark price from Pyth oracle account
+        // Enforce Open Interest limits per side
+        if side == PositionSide::Long {
+            let new_oi_long = market.oi_long_usd.checked_add(size_usd).ok_or(PerpError::MathOverflow)?;
+            require!(new_oi_long <= market.max_oi_long_usd, PerpError::MaxOpenInterestExceeded);
+        } else {
+            let new_oi_short = market.oi_short_usd.checked_add(size_usd).ok_or(PerpError::MathOverflow)?;
+            require!(new_oi_short <= market.max_oi_short_usd, PerpError::MaxOpenInterestExceeded);
+        }
+
+        // Enforce max pool utilization (80% cap / 20% reserve buffer)
+        let total_oi_usd = (market.oi_long_usd as u128)
+            .checked_add(market.oi_short_usd as u128)
+            .and_then(|v| v.checked_add(size_usd as u128))
+            .ok_or(PerpError::MathOverflow)?;
+        let max_allowable_oi_usd = (pool.pool_collateral_usd * (MAX_POOL_UTILIZATION_BPS as u128)) / (BPS_DENOMINATOR as u128);
+        require!(total_oi_usd <= max_allowable_oi_usd, PerpError::InsufficientPoolLiquidity);
+
+        // Fetch mark price from Pyth oracle account with strict staleness (<20s) and confidence sanity
         let pyth_feed = load_price_feed_from_account_info(&ctx.accounts.pyth_feed)
             .map_err(|_| PerpError::InvalidPythOracle)?;
-        let current_price = pyth_feed.get_price_no_older_than(Clock::get()?.unix_timestamp, 60)
+        let current_price = pyth_feed.get_price_no_older_than(Clock::get()?.unix_timestamp, MAX_ORACLE_STALENESS_SECONDS)
             .ok_or(PerpError::StalePythPrice)?;
+        require!(current_price.price > 0, PerpError::InvalidOraclePrice);
+
+        // Confidence interval check (max 100 bps / 1.00% of price)
+        let conf_ratio_bps = ((current_price.conf as u128 * BPS_DENOMINATOR as u128) / (current_price.price as u128)) as u64;
+        require!(conf_ratio_bps <= MAX_CONFIDENCE_RATIO_BPS, PerpError::PythConfidenceTooWide);
         
         let mark_price = (current_price.price as u128) * 1_000_000_000_000 / (10u128.pow((-current_price.expo) as u32));
 
@@ -181,8 +207,12 @@ pub mod viperx_perpetuals {
 
         let pyth_feed = load_price_feed_from_account_info(&ctx.accounts.pyth_feed)
             .map_err(|_| PerpError::InvalidPythOracle)?;
-        let current_price = pyth_feed.get_price_no_older_than(Clock::get()?.unix_timestamp, 60)
+        let current_price = pyth_feed.get_price_no_older_than(Clock::get()?.unix_timestamp, MAX_ORACLE_STALENESS_SECONDS)
             .ok_or(PerpError::StalePythPrice)?;
+        require!(current_price.price > 0, PerpError::InvalidOraclePrice);
+
+        let conf_ratio_bps = ((current_price.conf as u128 * BPS_DENOMINATOR as u128) / (current_price.price as u128)) as u64;
+        require!(conf_ratio_bps <= MAX_CONFIDENCE_RATIO_BPS, PerpError::PythConfidenceTooWide);
         
         let exit_price = (current_price.price as u128) * 1_000_000_000_000 / (10u128.pow((-current_price.expo) as u32)) as u128;
 
@@ -221,6 +251,16 @@ pub mod viperx_perpetuals {
             market.oi_short_usd = market.oi_short_usd.saturating_sub(position.size_usd);
         }
 
+        Ok(())
+    }
+
+    pub fn set_market_active(
+        ctx: Context<SetMarketActive>,
+        is_active: bool,
+    ) -> Result<()> {
+        let market = &mut ctx.accounts.market;
+        market.is_active = is_active;
+        msg!("Market {} active status set to {}", market.market_id, is_active);
         Ok(())
     }
 }
@@ -355,6 +395,20 @@ pub struct ClosePosition<'info> {
     pub token_program: Program<'info, Token>,
 }
 
+#[derive(Accounts)]
+pub struct SetMarketActive<'info> {
+    #[account(
+        mut,
+        has_one = pool,
+    )]
+    pub market: Account<'info, Market>,
+    #[account(
+        has_one = authority,
+    )]
+    pub pool: Account<'info, Pool>,
+    pub authority: Signer<'info>,
+}
+
 #[account]
 pub struct Pool {
     pub authority: Pubkey,
@@ -414,6 +468,16 @@ pub enum PerpError {
     InvalidPythOracle,
     #[msg("Pyth price feed is stale")]
     StalePythPrice,
+    #[msg("Pyth price confidence interval is too wide")]
+    PythConfidenceTooWide,
+    #[msg("Invalid non-positive oracle price")]
+    InvalidOraclePrice,
+    #[msg("Market open interest limit exceeded")]
+    MaxOpenInterestExceeded,
+    #[msg("Insufficient pool liquidity or reserve factor limit reached")]
+    InsufficientPoolLiquidity,
+    #[msg("Math overflow occurred")]
+    MathOverflow,
     #[msg("Unauthorized position action")]
     Unauthorized,
 }

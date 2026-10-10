@@ -28,14 +28,14 @@ const SolanaConnectButton = dynamicImport(
   { ssr: false },
 );
 
-function getStoredActiveChain(): "solana" | "base" {
-  if (typeof window === "undefined") return "base";
+function getStoredActiveChain(): "solana" | "xlayer" {
+  if (typeof window === "undefined") return "xlayer";
   const saved = localStorage.getItem("viperx-active-chain");
-  return saved === "solana" || saved === "base" ? saved : "base";
+  return saved === "solana" || saved === "xlayer" ? saved : "xlayer";
 }
 
 export default function DashboardPage() {
-  const [activeChain, setActiveChain] = useState<"solana" | "base">(getStoredActiveChain);
+  const [activeChain, setActiveChain] = useState<"solana" | "xlayer">(getStoredActiveChain);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -58,7 +58,7 @@ export default function DashboardPage() {
       if (qWallet) {
         setQueryAddress(qWallet);
         if (qWallet.startsWith("0x")) {
-          setActiveChain("base");
+          setActiveChain("xlayer");
         } else if (qWallet.length >= 32 && qWallet.length <= 44) {
           setActiveChain("solana");
         }
@@ -164,7 +164,7 @@ export default function DashboardPage() {
                 <span className="text-foreground-muted text-[11px]">Connected Wallet</span>
                 <span className="font-semibold text-foreground tracking-wide">{shortenedAddress}</span>
                 <span className="text-[10px] text-foreground-faint uppercase tracking-wider font-semibold">
-                  {activeChain === "solana" ? "Solana Devnet" : "Base Sepolia"}
+                  {activeChain === "xlayer" ? "OKX X Layer Testnet" : "Solana Devnet"}
                 </span>
               </div>
             </div>
@@ -285,11 +285,13 @@ export default function DashboardPage() {
                               <td className="p-4 text-foreground-muted">{agent.name}</td>
                               <td className="p-4">
                                 <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${
-                                  agent.chain === "base"
+                                  agent.chain === "xlayer"
+                                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                    : agent.chain === "base"
                                     ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
                                     : "bg-purple-500/10 text-purple-400 border border-purple-500/20"
                                 }`}>
-                                  {agent.chain}
+                                  {agent.chain === "xlayer" ? "X Layer" : agent.chain}
                                 </span>
                               </td>
                               <td className="p-4 text-foreground font-semibold">

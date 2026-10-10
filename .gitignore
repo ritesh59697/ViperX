@@ -14,6 +14,7 @@ drift-delegate-keypair.json
 **/*keypair*.json
 id.json
 *.pem
+scripts/
 
 # ---------- Rust / Anchor build output ----------
 # target/ is ~1.5GB here. It also contains target/deploy/*-keypair.json,
@@ -41,6 +42,9 @@ out/
 # submodule if it must be pinned.
 backend/execution-runtime/drift-protocol-v2/
 
+# ---------- Media & large video assets ----------
+*.mp4
+
 # ---------- Logs & misc ----------
 *.log
 npm-debug.log*
@@ -53,4 +57,3 @@ Thumbs.db
 .idea/
 *.swp
 .gstack/
-frontend/public/vx.mp4

@@ -1,0 +1,30 @@
+{
+  "name": "@viperx/execution-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "ts-node src/runner.ts",
+    "build": "tsc -p .",
+    "start": "node dist/runner.js"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.32.1",
+    "@solana/spl-token": "^0.4.12",
+    "@solana/web3.js": "1.98.0",
+    "@velocity-exchange/sdk": "^0.8.0",
+    "dotenv": "^16.4.5",
+    "pg": "^8.12.0",
+    "viem": "^2.55.19"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/pg": "^8.11.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.0"
+  },
+  "overrides": {
+    "@solana/web3.js": {
+      ".": "1.98.0"
+    }
+  }
+}

@@ -36,11 +36,11 @@ const STEPS: ShowcaseStep[] = [
     tag: "1 transaction",
     caption: "Registry",
     title: "Bring your strategy on-chain",
-    body: "Register your agent on Base in a single transaction. Name, strategy URI, vault address: an identity that's permanent and checkable on BaseScan, seeded from your own wallet.",
+    body: "Register your agent on OKX X Layer in a single transaction. Name, strategy URI, vault address: an identity that's permanent and checkable on OKLink, seeded from your own wallet.",
     mock: [
-      { label: "Registry", value: "0xA256…C7ee" },
+      { label: "Registry", value: "0x01e4…4A89" },
       { label: "Status", value: "Active" },
-      { label: "Network", value: "Base Sepolia" },
+      { label: "Network", value: "OKX X Layer Testnet" },
     ],
   },
   {
@@ -86,7 +86,7 @@ function buildStats(s: PlatformStats | null) {
     return [
       { n: 100, prefix: "", suffix: "%", label: "Non-custodial" },
       { n: 3, prefix: "", suffix: "", label: "Quant strategies" },
-      { n: 1, prefix: "", suffix: "", label: "Home network: Base" },
+      { n: 1, prefix: "", suffix: "", label: "Solana & OKX X Layer" },
       { n: 0, prefix: "", suffix: "", label: "Custody transfers" },
     ];
   }
@@ -106,7 +106,7 @@ function Tick() {
   );
 }
 
-const AUDIENCE = ["Quant Builders", "DAOs", "Trading Funds", "Solo Degens", "Base Builders"];
+const AUDIENCE = ["Quant Builders", "DAOs", "Trading Funds", "Solo Degens", "Autonomous Agents"];
 
 const TOOLS_REPLACED = ["Screenshots", "Twitter Threads", "“Trust Me”", "Centralized Dashboards"];
 
@@ -120,8 +120,8 @@ const ROADMAP = [
   {
     phase: "Phase 01",
     status: "Complete",
-    title: "Base Sepolia infrastructure & verification",
-    items: ["Base agent registry", "ViperVault + Pyth adapter", "PnL & Sharpe indexer", "Anti-gaming heuristics"],
+    title: "OKX X Layer infrastructure & verification",
+    items: ["X Layer agent registry", "ViperVault + Pyth adapter", "PnL & Sharpe indexer", "Anti-gaming heuristics"],
   },
   {
     phase: "Phase 02",
@@ -132,8 +132,8 @@ const ROADMAP = [
   {
     phase: "Phase 03",
     status: "Upcoming",
-    title: "Base mainnet launch & AI arena",
-    items: ["Base mainnet liquidity", "Autonomous agent competitions", "Copy-trade marketplace", "Solana as a second venue"],
+    title: "Mainnet launch & AI arena",
+    items: ["X Layer mainnet liquidity", "Autonomous agent competitions", "Copy-trade marketplace", "Solana as a second venue"],
   },
 ];
 
@@ -199,14 +199,14 @@ export default async function Home() {
         href="/trade"
         className="block bg-accent-fill py-2 text-center font-mono text-[0.625rem] font-medium uppercase tracking-[0.14em] text-white transition-[filter] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:brightness-110 sm:tracking-[0.18em]"
       >
-        Live on OKX X Layer & Base
+        Live on Solana Devnet & OKX X Layer
       </Link>
 
       {/* --- HERO ------------------------------------------------------------ */}
       <Section width="wide" className="pt-10 pb-0 sm:pt-14">
         <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div>
-            {/* <span className="bp-eyebrow">Solana devnet & Base sepolia · AI trading agents</span> */}
+            {/* <span className="bp-eyebrow">Solana devnet · AI trading agents</span> */}
             <h1 className="bp-display mt-7 text-foreground">
               The arena
               <br />
@@ -297,7 +297,7 @@ export default async function Home() {
             <BlueprintCard
               category="QUANTITATIVE AI // ENGINE"
               title="Run real strategies"
-              description="Deploy quantitative engines that trade autonomously against Base Sepolia markets with no manual babysitting required."
+              description="Deploy quantitative engines that trade autonomously against OKX X Layer markets with no manual babysitting required."
             >
               <QuantitativeAIIllustration />
             </BlueprintCard>
@@ -325,7 +325,7 @@ export default async function Home() {
       <Section id="stream" width="wide" className="py-20 sm:py-24">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <span className="bp-eyebrow">Live on OKX X Layer & Base</span>
+            <span className="bp-eyebrow">Live on OKX X Layer & Solana</span>
             <h2 className="bp-h2 mt-6 text-foreground">
               Every trade, <span className="bp-dim">on the record</span>
             </h2>
@@ -363,7 +363,7 @@ export default async function Home() {
           </h2>
           <p className="bp-body mt-6 max-w-[56ch]">
             Select a strategy preset to inspect default parameters, or launch
-            directly on Base Sepolia.
+            directly on OKX X Layer.
           </p>
 
           <div className="mt-10">
@@ -581,7 +581,7 @@ export default async function Home() {
               Stop running <span className="bp-dim">on guesswork</span>
             </h2>
             <p className="bp-body mx-auto mt-6 max-w-[46ch]">
-              Register your agent on OKX X Layer & Base, delegate execution, and let the
+              Register your agent on Solana or OKX X Layer, delegate execution, and let the
               leaderboard do the talking.
             </p>
           </div>

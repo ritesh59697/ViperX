@@ -27,7 +27,7 @@ import { AgentActivationGuide } from "@/components/agent/AgentActivationGuide";
 import { AgentNavSync } from "@/components/agent/AgentNavSync";
 import { InfoTooltip } from "@/components/ui/InfoTooltip";
 
-export const revalidate = 15;
+export const dynamic = "force-dynamic";
 
 /**
  * Mirrors REAL_TRADE_PREDICATE in pnl-indexer's store.ts. mockDriver writes a
@@ -65,6 +65,8 @@ function formatDate(value: string | null): string {
   return new Date(value).toLocaleString();
 }
 
+import { getAgentDetailFromDb } from "@/lib/server/leaderboardService";
+
 export default async function AgentProfilePage({
   params,
 }: {
@@ -72,18 +74,37 @@ export default async function AgentProfilePage({
 }) {
   const { agentPda } = await params;
 
-  let data: (Awaited<ReturnType<typeof fetchAgent>> & { antiGaming?: { isWashTraded: boolean; flaggedReason: string | null; validTradeCount: number } }) | null = null;
+  let data: (Awaited<ReturnType<typeof fetchAgent>> & {
+    antiGaming?: {
+      isWashTraded: boolean;
+      flaggedReason: string | null;
+      validTradeCount: number;
+      timeSpanHours?: number;
+      passesTimeDiversity?: boolean;
+    };
+  }) | null = null;
   let fetchError: string | null = null;
   let isIndexing = false;
   try {
-    data = await fetchAgent(agentPda);
+    if (process.env.DATABASE_URL) {
+      const dbData = await getAgentDetailFromDb(agentPda);
+      if (dbData) {
+        data = dbData as any;
+      } else {
+        isIndexing = true;
+      }
+    } else {
+      data = await fetchAgent(agentPda);
+    }
   } catch (err) {
     if (err instanceof AgentNotFoundError) {
       isIndexing = true;
     } else {
-      fetchError = err instanceof Error ? err.message : "Failed to reach leaderboard-api.";
+      console.warn("Error loading agent profile:", err);
+      fetchError = err instanceof Error ? err.message : "Failed to load agent profile.";
     }
   }
+
 
   return (
     <Section width="wide" className="pt-6 pb-20 sm:pt-8 relative z-10">
@@ -229,7 +250,7 @@ export default async function AgentProfilePage({
               <Button
                 variant="outline"
                 href={explorerAddress(data.agent).startsWith("0x")
-                  ? `https://sepolia.basescan.org/address/${explorerAddress(data.agent)}`
+                  ? `https://www.oklink.com/xlayer-test/address/${explorerAddress(data.agent)}`
                   : `https://explorer.solana.com/address/${data.agent.agent_pda}?cluster=devnet`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -254,7 +275,7 @@ export default async function AgentProfilePage({
                 <InfoTooltip content="Live metrics, performance stats, and on-chain verification status." />
               </div>
               <span className="text-[10px] font-mono uppercase tracking-wider text-foreground-muted font-semibold">
-                {data.agent.chain === "base" || data.agent.owner.startsWith("0x") ? "Base Sepolia" : "Solana Devnet"}
+                {data.agent.chain === "base" || data.agent.owner.startsWith("0x") ? "OKX X Layer" : "Solana Devnet"}
               </span>
             </div>
 
@@ -267,6 +288,7 @@ export default async function AgentProfilePage({
                   label="Trades"
                   value={data.agent.trade_count}
                   animate={{ value: Number(data.agent.trade_count), decimals: 0 }}
+                  subtext={Number(data.agent.trade_count) >= 50 ? "50+ fills gate met" : `${50 - Number(data.agent.trade_count)} fills to qualify`}
                 />
               </StaggerItem>
               <StaggerItem>
@@ -276,15 +298,27 @@ export default async function AgentProfilePage({
                 />
               </StaggerItem>
               <StaggerItem>
-                <StatTile
-                  label="Sharpe-like"
-                  value={formatMetric(data.pnlHistory[0]?.sharpe_like ?? null)}
-                  animate={
-                    data.pnlHistory[0]?.sharpe_like != null
-                      ? { value: Number(data.pnlHistory[0].sharpe_like), decimals: 2 }
-                      : undefined
-                  }
-                />
+                {(() => {
+                  const sharpeVal = data.pnlHistory[0]?.sharpe_like != null ? Number(data.pnlHistory[0].sharpe_like) : null;
+                  const tradeCountNum = Number(data.agent.trade_count ?? 0);
+                  const se = sharpeVal != null && tradeCountNum >= 2
+                    ? Math.sqrt((1 + 0.5 * Math.pow(sharpeVal, 2)) / tradeCountNum)
+                    : null;
+                  const ciMargin = se != null ? (se * 1.96).toFixed(2) : null;
+
+                  return (
+                    <StatTile
+                      label="Sharpe-like"
+                      value={formatMetric(data.pnlHistory[0]?.sharpe_like ?? null)}
+                      animate={
+                        sharpeVal != null
+                          ? { value: sharpeVal, decimals: 2 }
+                          : undefined
+                      }
+                      subtext={ciMargin ? `±${ciMargin} (95% CI)` : "Min 2 fills for SE"}
+                    />
+                  );
+                })()}
               </StaggerItem>
               <StaggerItem>
                 <StatTile
@@ -315,6 +349,28 @@ export default async function AgentProfilePage({
                 <StatTile label="Vault" value={truncate(data.agent.vault_pubkey)} fullValue={data.agent.vault_pubkey} mono />
               </StaggerItem>
             </StaggerGrid>
+
+            {/* ── Quant Rigor & Sample Size Confidence ── */}
+            <div className="rounded-xl border border-border/80 bg-surface/40 p-4 font-mono text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-md border border-accent/20 bg-accent/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
+                    Quant Verification Standard
+                  </span>
+                  <span className="text-foreground-muted text-[11px]">
+                    External Venue: {data.agent.chain === "base" || data.agent.owner.startsWith("0x") ? "ViperVault (OKX X Layer)" : "Velocity DEX (Drift Rebuild vELoC...BDZ1P)"}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-4 text-[11px] text-foreground-muted">
+                  <span>
+                    Track Record Span: <strong className="text-foreground">{data.antiGaming?.timeSpanHours ?? 0}h</strong> (Min 4.0h Gate)
+                  </span>
+                  <span>
+                    Sample Size: <strong className="text-foreground">{data.agent.trade_count} / 50 fills</strong>
+                  </span>
+                </div>
+              </div>
+            </div>
 
             {/* ── Live Strategy Telemetry & Autonomous Thought Stream ───────── */}
             <AgentLiveTelemetry agent={data.agent} />
@@ -389,7 +445,7 @@ export default async function AgentProfilePage({
                       )}
                       <a
                         href={explorerAddress(data.agent).startsWith("0x")
-                          ? `https://sepolia.basescan.org/address/${explorerAddress(data.agent)}`
+                          ? `https://www.oklink.com/xlayer-test/address/${explorerAddress(data.agent)}`
                           : `https://explorer.solana.com/address/${data.agent.agent_pda}?cluster=devnet`}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -415,7 +471,7 @@ export default async function AgentProfilePage({
                             </span>
                           </div>
                           <p className="mt-1.5 max-w-2xl text-xs leading-relaxed text-foreground-muted">
-                            Active on {data.agent.chain === "base" || data.agent.owner.startsWith("0x") ? "Base Sepolia" : "Solana Devnet"}. The runtime scans oracle prices every 15s and fires orders once volatility crosses strategy thresholds.
+                            Active on {data.agent.chain === "base" || data.agent.owner.startsWith("0x") ? "OKX X Layer" : "Solana Devnet"}. The runtime scans oracle prices every 15s and fires orders once volatility crosses strategy thresholds.
                           </p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">

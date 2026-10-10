@@ -42,11 +42,11 @@ export function getAgentChain(agent: {
   chain?: string | null;
   agent_pda?: string;
   owner?: string;
-}): "base" | "solana" {
+}): "xlayer" | "solana" {
   const c = agent.chain?.toLowerCase();
-  if (c === "base") return "base";
+  if (c === "xlayer" || c === "base") return "xlayer";
   if (c === "solana") return "solana";
-  if (agent.agent_pda?.startsWith("0x") || agent.owner?.startsWith("0x")) return "base";
+  if (agent.agent_pda?.startsWith("0x") || agent.owner?.startsWith("0x")) return "xlayer";
   return "solana";
 }
 
@@ -69,13 +69,17 @@ export function isBlockedAgent(agent: {
   agentPda?: string;
   agentName?: string;
   agentId?: string;
+  chain?: string | null;
 }): boolean {
+  if (agent.chain?.toLowerCase() === "base") {
+    return true;
+  }
   const pda = (agent.agent_pda || agent.agentPda || "").toLowerCase();
   if (pda && BLOCKED_AGENT_PDAS.has(pda)) {
     return true;
   }
   const name = agent.name || agent.agentName || "";
-  if (name && BLOCKED_TERMS_REGEX.test(name)) {
+  if (name && (BLOCKED_TERMS_REGEX.test(name) || name.toLowerCase().startsWith("base"))) {
     return true;
   }
   const id = agent.agent_id || agent.agentId || "";
@@ -475,6 +479,7 @@ export interface RecentTrade {
   txSignature: string;
   onchainVerified: boolean;
   reason?: string | null;
+  chain?: string | null;
 }
 
 /** Recent real closed trades across all agents, newest first. */
@@ -486,7 +491,7 @@ export async function fetchRecentTrades(limit = 8): Promise<RecentTrade[]> {
     if (!res.ok) return [];
     const body = (await res.json()) as { trades: RecentTrade[] };
     return (body.trades || []).filter(
-      (t) => !isBlockedAgent({ agentPda: t.agentPda, name: t.agentName, agentId: t.agentId })
+      (t) => !isBlockedAgent({ agentPda: t.agentPda, name: t.agentName, agentId: t.agentId, chain: t.chain })
     );
   } catch {
     return [];

@@ -6,6 +6,7 @@ import {
   fetchArenaSeason,
   LeaderboardAgent,
 } from "@/lib/leaderboardApi";
+import { getArenaSeasonDetailFromDb } from "@/lib/server/leaderboardService";
 import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -47,12 +48,27 @@ export default async function ArenaSeasonPage({
     notFound();
   }
   try {
-    data = await fetchArenaSeason(seasonId);
+    if (process.env.DATABASE_URL) {
+      data = (await getArenaSeasonDetailFromDb(seasonId)) as ArenaSeasonDetail | null;
+      if (!data) {
+        notFound();
+      }
+    } else {
+      data = await fetchArenaSeason(seasonId);
+    }
   } catch (err) {
     if (err instanceof ArenaSeasonNotFoundError) {
       notFound();
     }
-    fetchError = err instanceof Error ? err.message : "Failed to reach leaderboard-api.";
+    console.warn("Direct DB arena season detail failed, trying fetch:", err);
+    try {
+      data = await fetchArenaSeason(seasonId);
+    } catch (fallbackErr) {
+      if (fallbackErr instanceof ArenaSeasonNotFoundError) {
+        notFound();
+      }
+      fetchError = fallbackErr instanceof Error ? fallbackErr.message : "Failed to reach leaderboard-api.";
+    }
   }
 
   const ranked: LeaderboardAgent[] = data ? data.entrants.filter((a) => a.onchain_verified) : [];

@@ -186,12 +186,12 @@ export function SiteFooter() {
                 </li>
                 <li>
                   <a
-                    href={`https://sepolia.basescan.org/address/${BASE_REGISTRY_ADDRESS}`}
+                    href="https://www.oklink.com/xlayer-test/address/0xcfEcD1274a74435E1D97c2D90F175296589751E0"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-foreground-muted transition-colors hover:text-foreground"
                   >
-                    Base registry
+                    X Layer router
                   </a>
                 </li>
                 <li>

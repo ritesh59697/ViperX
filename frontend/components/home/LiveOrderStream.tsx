@@ -47,7 +47,7 @@ export function LiveOrderStream({ trades: initialTrades }: { trades: RecentTrade
             <span className="relative inline-flex h-2 w-2 rounded-full bg-positive" />
           </span>
           <span className="font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.16em] text-foreground">
-            Recent fills / Base Sepolia
+            Recent fills / Live on-chain
           </span>
         </div>
         <span className="font-mono text-[0.6875rem] font-medium uppercase tracking-[0.1em] text-foreground-faint">
@@ -67,10 +67,10 @@ export function LiveOrderStream({ trades: initialTrades }: { trades: RecentTrade
             const side = t.side.toUpperCase();
             const isLong = side === "LONG";
             const price = t.exitPrice ?? t.entryPrice;
-            const isEvm = t.txSignature.startsWith("0x");
-            const explorerUrl = isEvm
-              ? `https://sepolia.basescan.org/tx/${t.txSignature}`
-              : `https://explorer.solana.com/tx/${t.txSignature}?cluster=devnet`;
+            const isSolana = t.chain === "solana" || !t.txSignature.startsWith("0x");
+            const explorerUrl = isSolana
+              ? `https://explorer.solana.com/tx/${t.txSignature}?cluster=devnet`
+              : `https://www.oklink.com/xlayer-test/tx/${t.txSignature}`;
 
             return (
               <motion.a
@@ -103,11 +103,11 @@ export function LiveOrderStream({ trades: initialTrades }: { trades: RecentTrade
                     <div className="flex items-center gap-1.5 text-[11px] text-foreground-muted">
                       <span>{t.marketSymbol}</span>
                       <span className={`px-1.5 py-[1px] font-mono text-[9px] uppercase tracking-wider rounded font-medium ${
-                        isEvm 
-                          ? "bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30" 
-                          : "bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30"
+                        isSolana 
+                          ? "bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30"
+                          : "bg-neutral-500/15 text-foreground border border-border"
                       }`}>
-                        {isEvm ? "Base" : "Solana"}
+                        {isSolana ? "Solana" : "X Layer"}
                       </span>
                       {t.onchainVerified && (
                         <span

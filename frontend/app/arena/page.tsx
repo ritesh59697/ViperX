@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArenaSeason, fetchArenaSeasons } from "@/lib/leaderboardApi";
+import { getArenaSeasonsFromDb } from "@/lib/server/leaderboardService";
 import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
 import { StaggerGrid, StaggerItem } from "@/components/motion/StaggerGrid";
@@ -26,9 +27,18 @@ export default async function ArenaPage() {
   let seasons: ArenaSeason[] = [];
   let fetchError: string | null = null;
   try {
-    seasons = await fetchArenaSeasons();
+    if (process.env.DATABASE_URL) {
+      seasons = await getArenaSeasonsFromDb();
+    } else {
+      seasons = await fetchArenaSeasons();
+    }
   } catch (err) {
-    fetchError = err instanceof Error ? err.message : "Failed to reach leaderboard-api.";
+    console.warn("Direct DB arena seasons query failed, falling back to fetch:", err);
+    try {
+      seasons = await fetchArenaSeasons();
+    } catch (fallbackErr) {
+      fetchError = fallbackErr instanceof Error ? fallbackErr.message : "Failed to reach leaderboard-api.";
+    }
   }
 
   return (

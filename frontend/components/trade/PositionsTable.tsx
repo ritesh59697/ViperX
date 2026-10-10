@@ -314,11 +314,9 @@ export function PositionsTable({
               <tbody className="divide-y divide-[#edf0f4] dark:divide-[#161616]">
                 {positions.map((p) => {
                   const explorerUrl =
-                    p.chain === "xlayer"
-                      ? `https://www.oklink.com/xlayer-test/tx/${p.txHash}`
-                      : p.chain === "base"
-                      ? `https://sepolia.basescan.org/tx/${p.txHash}`
-                      : `https://explorer.solana.com/tx/${p.txHash}?cluster=devnet`;
+                    p.chain === "solana"
+                      ? `https://explorer.solana.com/tx/${p.txHash}?cluster=devnet`
+                      : `https://www.oklink.com/xlayer-test/tx/${p.txHash}`;
                   const shortTx = p.txHash
                     ? `${p.txHash.slice(0, 6)}...${p.txHash.slice(-4)}`
                     : "0xddd7...cb66";
@@ -379,7 +377,7 @@ export function PositionsTable({
           <div className="p-4 font-mono text-[11px] text-foreground-muted flex items-center justify-between">
             <div>
               <div className="text-xs font-bold text-foreground">Viper Liquidity Pool (vLP)</div>
-              <div>Decentralized counterparty pool backing all Base Sepolia perps.</div>
+              <div>Decentralized counterparty pool backing all on-chain perpetual positions.</div>
             </div>
             <div className="text-right">
               <div className="text-xs font-bold text-accent">${poolCollateralUsd.toLocaleString()} USDC</div>

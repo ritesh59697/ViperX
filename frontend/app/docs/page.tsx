@@ -13,7 +13,6 @@ type DocSection =
   | "architecture"
   | "xlayer-contracts"
   | "solana-program"
-  | "base-contract"
   | "indexer"
   | "anti-gaming";
 
@@ -43,7 +42,6 @@ const GROUPS: SidebarGroup[] = [
     items: [
       { id: "xlayer-contracts", label: "OKX X Layer Perpetuals", badge: "Solidity / Pyth", description: "ViperVault, PositionRouter & Pyth feeds on X Layer" },
       { id: "solana-program", label: "Solana SVM Program", badge: "Anchor", description: "PDA storage accounts and instruction specs" },
-      { id: "base-contract", label: "Base EVM Registry", badge: "Solidity", description: "Base Sepolia registry and event logs" },
     ],
   },
   {
@@ -107,7 +105,7 @@ const SEARCHABLE_DOCS: SearchableDoc[] = [
     title: "Prerequisites & Tools",
     group: "Documentation",
     category: "Getting Started",
-    description: "Required dependencies: Node.js 18+, Foundry for Base Sepolia, and Solana CLI tools & local keypair.",
+    description: "Required dependencies: Node.js 18+, Foundry for OKX X Layer, and Solana CLI tools & local keypair.",
     keywords: ["prerequisites", "node", "foundry", "forge", "solana cli", "cast", "tools", "install"],
   },
   {
@@ -142,7 +140,7 @@ const SEARCHABLE_DOCS: SearchableDoc[] = [
     title: "Layer Specifications",
     group: "Documentation",
     category: "Getting Started",
-    description: "Vault Layer (Program Registry PDA, Velocity Deposit Escrow), Registry Layer (Base Sepolia NFT Contract), Risk Protocol, and Platform Suite.",
+    description: "Vault Layer (Program Registry PDA, Velocity Deposit Escrow), Registry Layer (X Layer Registry Contract), Risk Protocol, and Platform Suite.",
     keywords: ["layer specifications", "vault layer", "registry layer", "risk protocol", "platform suite", "escrow", "gmx", "drawdown", "specs"],
   },
 
@@ -172,23 +170,6 @@ const SEARCHABLE_DOCS: SearchableDoc[] = [
     category: "Smart Contracts",
     description: "Full annotated Rust code for initialize_agent, record_trade, and update_strategy_params instructions.",
     keywords: ["rust anchor code", "rust", "code specification", "register_agent", "registeragent", "system_program"],
-  },
-  {
-    id: "base-contract",
-    title: "Base EVM Registry",
-    group: "Documentation",
-    category: "Smart Contracts",
-    description: "The EVM registry is a Solidity contract deployed on Base Sepolia at 0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee.",
-    keywords: ["base evm registry", "base", "evm", "solidity", "base sepolia", "0xa256d01"],
-  },
-  {
-    id: "base-contract",
-    anchor: "evm-architecture",
-    title: "Solidity Smart Contract Implementation",
-    group: "Documentation",
-    category: "Smart Contracts",
-    description: "ViperxRegistry contract written in Solidity 0.8.20 managing unique string agentId lookups, vault addresses, and registeredAt timestamps.",
-    keywords: ["solidity smart contract", "viperxregistry", "registeragent", "agentregistered", "vaultaddress", "solidity code"],
   },
   {
     id: "xlayer-contracts",
@@ -554,7 +535,7 @@ export default function DocsPage() {
                       </p>
                       <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
                         <span className="text-[10px] font-mono text-foreground-faint">Suggestions:</span>
-                        {["Base", "Solana", "Anchor", "PnL", "Anti-Gaming", "Oracles"].map((term) => (
+                        {["X Layer", "Solana", "Anchor", "PnL", "Anti-Gaming", "Oracles"].map((term) => (
                           <button
                             key={term}
                             type="button"
@@ -692,12 +673,12 @@ export default function DocsPage() {
           {/* Deployed Contract Links */}
           <div className="pt-4 border-t border-border/50 flex flex-col gap-1.5 font-mono text-[11px] text-foreground-faint">
             <a
-              href="https://sepolia.basescan.org/address/0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee"
+              href="https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground flex items-center justify-between transition-colors group"
             >
-              <span>Base Sepolia Scan</span>
+              <span>OKX X Layer Explorer</span>
               <ExternalLinkGlyph className="h-3.5 w-3.5 text-foreground-faint group-hover:text-foreground transition-colors" />
             </a>
             <a
@@ -775,7 +756,7 @@ export default function DocsPage() {
                     <div>
                       <span className="font-bold text-blue-400 block mb-0.5">Trustless Verification</span>
                       <span className="text-foreground-muted font-sans text-xs">
-                        All agent metrics (PnL, MDD, Sharpe) are verified on-chain against Base Sepolia and Solana Devnet block heights with zero client-side self-reporting.
+                        All agent metrics (PnL, MDD, Sharpe) are verified on-chain against OKX X Layer Testnet and Solana Devnet block heights with zero client-side self-reporting.
                       </span>
                     </div>
                   </div>
@@ -801,7 +782,7 @@ export default function DocsPage() {
                       <Card variant="muted" className="p-5 font-mono text-xs border border-border bg-surface/30">
                         <p className="font-semibold text-foreground text-sm">On-Chain Registry</p>
                         <p className="text-xs text-foreground-muted mt-2 leading-relaxed font-mono">
-                          Agent configurations, ownership keys, and parameters are stored directly on the Base EVM and Solana SVM registries.
+                          Agent configurations, ownership keys, and parameters are stored directly on the OKX X Layer EVM and Solana SVM registries.
                         </p>
                       </Card>
                       <Card variant="muted" className="p-5 font-mono text-xs border border-border bg-surface/30">
@@ -842,9 +823,9 @@ export default function DocsPage() {
                     </p>
                     <div className="grid gap-3 sm:grid-cols-2 mt-4 font-mono text-xs">
                       <div className="p-4 rounded-xl border border-border bg-surface/30">
-                        <span className="font-bold text-foreground block mb-1 text-sm">Base Sepolia</span>
+                        <span className="font-bold text-foreground block mb-1 text-sm">OKX X Layer Testnet</span>
                         <span className="text-foreground-muted text-xs leading-relaxed">
-                          Funded with Sepolia ETH for gas, plus testnet USDC to seed the initial trade vault.
+                          Funded with testnet OKB for gas, plus testnet USDC to seed the initial trade vault.
                         </span>
                       </div>
                       <div className="p-4 rounded-xl border border-border bg-surface/30">
@@ -886,7 +867,7 @@ export default function DocsPage() {
                         <div>
                           <p className="font-bold text-foreground text-sm">Authorize Transaction</p>
                           <p className="text-xs text-foreground-muted mt-1 leading-relaxed font-sans">
-                            Sign the deployment transaction. This logs mappings to the Base contract or allocates storage accounts on Solana. Once confirmed, the indexer starts tracking trades automatically.
+                            Sign the deployment transaction. This logs mappings to the X Layer contract or allocates storage accounts on Solana. Once confirmed, the indexer starts tracking trades automatically.
                           </p>
                         </div>
                       </div>
@@ -928,7 +909,7 @@ export default function DocsPage() {
                           </span>
                         </div>
                         <p className="mt-2.5 text-xs text-foreground font-medium">
-                          Next.js 16 WebApp · RainbowKit (Base EVM) · Solana Wallet Adapter
+                          Next.js 16 WebApp · RainbowKit (X Layer EVM) · Solana Wallet Adapter
                         </p>
                         <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] text-foreground-muted">
                           <span className="rounded bg-background/80 px-2 py-0.5 border border-border/50">App Router</span>
@@ -968,7 +949,7 @@ export default function DocsPage() {
                         </div>
                       </div>
 
-                      {/* Forked Arrow Connector 2 -> 3 (Split into Base & Solana) */}
+                      {/* Forked Arrow Connector 2 -> 3 (Split into X Layer & Solana) */}
                       <div className="w-full flex justify-around my-2 px-12">
                         <div className="flex flex-col items-center">
                           <svg width="18" height="24" viewBox="0 0 18 24" fill="none" className="text-border-strong">
@@ -986,23 +967,23 @@ export default function DocsPage() {
 
                       {/* Tier 3: Dual-Chain Smart Contract Registries */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-                        {/* Base Sepolia Card */}
+                        {/* OKX X Layer Card */}
                         <div className="rounded-xl border border-border bg-surface/50 p-4 shadow-xs">
                           <div className="flex items-center justify-between gap-1 border-b border-border/60 pb-2">
                             <div className="flex items-center gap-1.5">
                               <span className="h-2 w-2 rounded-full bg-blue-500" />
-                              <span className="text-xs font-bold text-foreground">Base Sepolia</span>
+                              <span className="text-xs font-bold text-foreground">OKX X Layer Testnet</span>
                             </div>
-                            <span className="text-[9px] font-mono text-foreground-faint">84532</span>
+                            <span className="text-[9px] font-mono text-foreground-faint">1952</span>
                           </div>
                           <ul className="mt-2.5 space-y-1 text-[11px] text-foreground-muted font-mono">
                             <li className="flex items-center gap-1">
                               <span className="text-blue-400">›</span>
-                              <span>ViperxRegistry.sol</span>
+                              <span>ViperVault.sol</span>
                             </li>
                             <li className="flex items-center gap-1">
                               <span className="text-blue-400">›</span>
-                              <span>ViperPerp.sol</span>
+                              <span>PositionRouter.sol</span>
                             </li>
                             <li className="flex items-center gap-1">
                               <span className="text-blue-400">›</span>
@@ -1051,7 +1032,7 @@ export default function DocsPage() {
                         },
                         {
                           group: "REGISTRY LAYER",
-                          items: ["Base Sepolia NFT Contract", "EVM Node Logs Listener", "GMX Contract Execution", "ERC-20 Collateral Handler"],
+                          items: ["X Layer ViperVault Pool", "EVM Node Logs Listener", "Perp Order Router", "USDC Collateral Handler"],
                         },
                         {
                           group: "RISK PROTOCOL",
@@ -1468,136 +1449,9 @@ contract ViperVault is Ownable, ReentrancyGuard {
                     </div>
                   </section>
                 </article>
-              )}\n\n              {/* ── 5. BASE EVM REGISTRY ─────────────────────────────────── */}
-              {activeSection === "base-contract" && (
-                <article className="space-y-6">
-                  <div>
-                    <h1 className="text-3xl sm:text-4xl font-bold text-foreground font-mono tracking-tight">
-                      Base EVM Registry
-                    </h1>
-                    <p className="t-body mt-4 text-foreground-muted leading-relaxed font-sans">
-                      The EVM registry is a Solidity contract deployed on Base Sepolia. It manages unique string ID lookups 
-                      pointing to agent parameters and owner addresses:
-                    </p>
-                    <div className="mt-3 p-3 rounded-lg border border-border bg-surface/40 font-mono text-xs flex items-center justify-between">
-                      <span className="text-foreground font-bold truncate">0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee</span>
-                      <button
-                        onClick={() => handleCopy("0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee", "base-addr")}
-                        className="text-foreground-faint hover:text-foreground text-[11px] ml-2 shrink-0 cursor-pointer"
-                      >
-                        {copiedCode === "base-addr" ? "✓ Copied!" : "Copy"}
-                      </button>
-                    </div>
-                  </div>
-
-                  <section id="evm-architecture">
-                    <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
-                      <h2 className="text-lg sm:text-xl font-bold text-foreground font-mono">
-                        Solidity Smart Contract Implementation
-                      </h2>
-                      <button
-                        onClick={() => handleCopy(`// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-contract ViperxRegistry {
-    struct Agent {
-        address owner;
-        string agentId;
-        string name;
-        string strategyUri;
-        address vaultAddress;
-        uint256 registeredAt;
-    }
-
-    mapping(string => Agent) private _agents;
-    mapping(address => string[]) private _ownerAgents;
-
-    event AgentRegistered(
-        address indexed owner,
-        string indexed agentId,
-        string name,
-        address vaultAddress
-    );
-
-    function registerAgent(
-        string calldata agentId,
-        string calldata name,
-        string calldata strategyUri,
-        address vaultAddress
-    ) external {
-        require(bytes(agentId).length > 0, "Empty ID");
-        require(_agents[agentId].owner == address(0), "ID already in use");
-
-        _agents[agentId] = Agent({
-            owner: msg.sender,
-            agentId: agentId,
-            name: name,
-            strategyUri: strategyUri,
-            vaultAddress: vaultAddress,
-            registeredAt: block.timestamp
-        });
-
-        _ownerAgents[msg.sender].push(agentId);
-        emit AgentRegistered(msg.sender, agentId, name, vaultAddress);
-    }
-}`, "sol-reg")}
-                        className="text-xs font-mono text-foreground-muted hover:text-foreground cursor-pointer"
-                      >
-                        {copiedCode === "sol-reg" ? "✓ Copied Code!" : "Copy Solidity"}
-                      </button>
-                    </div>
-                    <pre className="mt-4 p-4 rounded-xl bg-surface/40 border border-border font-mono text-[11px] text-foreground-muted overflow-x-auto leading-relaxed">
-{`// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-contract ViperxRegistry {
-    struct Agent {
-        address owner;
-        string agentId;
-        string name;
-        string strategyUri;
-        address vaultAddress;
-        uint256 registeredAt;
-    }
-
-    mapping(string => Agent) private _agents;
-    mapping(address => string[]) private _ownerAgents;
-
-    event AgentRegistered(
-        address indexed owner,
-        string indexed agentId,
-        string name,
-        address vaultAddress
-    );
-
-    function registerAgent(
-        string calldata agentId,
-        string calldata name,
-        string calldata strategyUri,
-        address vaultAddress
-    ) external {
-        require(bytes(agentId).length > 0, "Empty ID");
-        require(_agents[agentId].owner == address(0), "ID already in use");
-
-        _agents[agentId] = Agent({
-            owner: msg.sender,
-            agentId: agentId,
-            name: name,
-            strategyUri: strategyUri,
-            vaultAddress: vaultAddress,
-            registeredAt: block.timestamp
-        });
-
-        _ownerAgents[msg.sender].push(agentId);
-        emit AgentRegistered(msg.sender, agentId, name, vaultAddress);
-    }
-}`}
-                    </pre>
-                  </section>
-                </article>
               )}
 
-              {/* ── 6. PNL INDEXER ────────────────────────────────────────── */}
+              {/* ── 5. PNL INDEXER ────────────────────────────────────────── */}
               {activeSection === "indexer" && (
                 <article className="space-y-6">
                   <div>
@@ -1621,7 +1475,7 @@ contract ViperxRegistry {
                       </div>
                       <div className="border border-border p-5 rounded-xl bg-surface/30">
                         <p className="font-semibold text-foreground text-sm">2. Position Monitoring</p>
-                        <p className="text-xs mt-1.5 font-sans leading-relaxed">Independent indexer loops monitor trade collateral vaults. For Base, it tracks ViperVault position states and Pyth updates. For Solana, it polls Velocity perp positions.</p>
+                        <p className="text-xs mt-1.5 font-sans leading-relaxed">Independent indexer loops monitor trade collateral vaults. For X Layer, it tracks ViperVault position states and Pyth updates. For Solana, it polls Velocity perp positions.</p>
                       </div>
                       <div className="border border-border p-5 rounded-xl bg-surface/30">
                         <p className="font-semibold text-foreground text-sm">3. Settlement Verification</p>

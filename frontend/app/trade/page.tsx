@@ -192,7 +192,7 @@ export default function TradePage() {
   const { trades: liveProtocolTrades } = useLiveTrades(20, 2500);
   const orderBook = useOrderBook(selectedMarket, stats.markPrice);
 
-  // On-Chain Positions Hook (Base Sepolia)
+  // On-Chain Positions Hook (OKX X Layer)
   const {
     onChainPositions,
     poolCollateralUsd,
@@ -200,7 +200,7 @@ export default function TradePage() {
     handleCloseOnChainPosition,
   } = useViperOnChainPositions();
 
-  // Read Real On-Chain USDC Balance (Dynamic for X Layer Testnet & Base Sepolia)
+  // Read Real On-Chain USDC Balance (Dynamic for X Layer Testnet)
   const isEvmChain = selectedChain === "base" || selectedChain === "xlayer";
   const currentUsdcAddress = selectedChain === "xlayer" ? USDC_XLAYER_TESTNET : USDC_BASE_SEPOLIA;
 
@@ -354,11 +354,10 @@ export default function TradePage() {
       let finalTxHash = "";
 
       if (isEvmChain && hasEvmWallet && evmAddress) {
-        const isXLayer = selectedChain === "xlayer";
-        const requiredChainId = isXLayer ? 1952 : 84532;
+        const requiredChainId = 1952;
         const targetVault = getViperVaultAddress(requiredChainId);
-        const activeUsdc = isXLayer ? USDC_XLAYER_TESTNET : USDC_BASE_SEPOLIA;
-        const chainLabel = isXLayer ? "OKX X Layer Testnet" : "Base Sepolia";
+        const activeUsdc = USDC_XLAYER_TESTNET;
+        const chainLabel = "OKX X Layer Testnet";
 
         if (currentChainId && currentChainId !== requiredChainId && switchChainAsync) {
           try {
@@ -388,9 +387,7 @@ export default function TradePage() {
             if (userUsdcBal < rawCollateral) {
               setNotification({
                 type: "error",
-                msg: isXLayer
-                  ? `Insufficient X Layer USDC (${(Number(userUsdcBal) / 1e6).toFixed(2)} USDC). Click 'Claim 10,000 USDC Faucet' above!`
-                  : `Insufficient Base Sepolia USDC balance (${(Number(userUsdcBal) / 1e6).toFixed(2)} USDC). Claim free testnet USDC at faucet.circle.com.`,
+                msg: `Insufficient X Layer USDC (${(Number(userUsdcBal) / 1e6).toFixed(2)} USDC). Click 'Claim 10,000 USDC Faucet' above!`,
               });
               return;
             }
@@ -608,7 +605,7 @@ export default function TradePage() {
     setSubmitStatusText("Settling position on-chain...");
     setNotification(null);
 
-    const chainLabel = selectedChain === "xlayer" ? "OKX X Layer" : "Base Sepolia";
+    const chainLabel = selectedChain === "xlayer" ? "OKX X Layer" : "Solana";
     const canCloseOnChain = Boolean(
       pos.positionKey && isEvmChain && isEvmConnected && evmAddress
     );
@@ -645,12 +642,12 @@ export default function TradePage() {
         try {
           closeTxHash = await handleCloseOnChainPosition(pos.positionKey);
           if (publicClient && closeTxHash && closeTxHash.startsWith("0x")) {
-            setSubmitStatusText(selectedChain === "xlayer" ? "Confirming on OKX X Layer..." : "Confirming on Base Sepolia...");
+            setSubmitStatusText("Confirming on OKX X Layer...");
             const receipt = await publicClient.waitForTransactionReceipt({
               hash: closeTxHash as `0x${string}`,
             });
             if (receipt.status === "reverted") {
-              throw new Error(selectedChain === "xlayer" ? "Close transaction reverted on OKX X Layer." : "Close transaction reverted on Base Sepolia.");
+              throw new Error("Close transaction reverted on OKX X Layer.");
             }
           }
           await Promise.all([refetchOnChainPositions(), refetchUsdcBalance()]);
@@ -844,24 +841,6 @@ export default function TradePage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setSelectedChain("base");
-                    localStorage.setItem("viperx-active-chain", "base");
-                    window.dispatchEvent(new Event("viperx-chain-changed"));
-                    setNetworkDropdownOpen(false);
-                  }}
-                  className={cn(
-                    "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold transition-colors cursor-pointer",
-                    selectedChain === "base"
-                      ? "bg-[#f2f4f8] dark:bg-[#1c1c1c] text-foreground font-bold"
-                      : "text-foreground-muted hover:bg-surface hover:text-foreground"
-                  )}
-                >
-                  <BaseLogo className="h-3.5 w-3.5" />
-                  <span>Base</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
                     setSelectedChain("solana");
                     localStorage.setItem("viperx-active-chain", "solana");
                     window.dispatchEvent(new Event("viperx-chain-changed"));
@@ -927,11 +906,9 @@ export default function TradePage() {
             {notification.tx && (
               <a
                 href={
-                  selectedChain === "xlayer"
-                    ? `https://www.oklink.com/xlayer-test/tx/${notification.tx}`
-                    : selectedChain === "base"
-                    ? `https://sepolia.basescan.org/tx/${notification.tx}`
-                    : `https://solscan.io/tx/${notification.tx}?cluster=devnet`
+                  selectedChain === "solana"
+                    ? `https://explorer.solana.com/tx/${notification.tx}?cluster=devnet`
+                    : `https://www.oklink.com/xlayer-test/tx/${notification.tx}`
                 }
                 target="_blank"
                 rel="noreferrer"

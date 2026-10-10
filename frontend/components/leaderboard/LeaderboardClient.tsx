@@ -52,7 +52,7 @@ export function LeaderboardClient({
   initialError,
 }: LeaderboardClientProps) {
   const [selectedWindow, setSelectedWindow] = useState<LeaderboardWindow>(initialWindow);
-  const [activeChain, setActiveChain] = useState<"base" | "solana">("base");
+  const [activeChain, setActiveChain] = useState<"xlayer" | "solana">("xlayer");
   const [cache, setCache] = useState<Partial<Record<LeaderboardWindow, LeaderboardAgent[]>>>({
     [initialWindow]: initialAgents,
   });
@@ -64,10 +64,10 @@ export function LeaderboardClient({
     setMounted(true);
     const update = () => {
       const saved = localStorage.getItem("viperx-active-chain");
-      if (saved === "solana" || saved === "base") {
-        setActiveChain(saved as "base" | "solana");
+      if (saved === "solana" || saved === "xlayer") {
+        setActiveChain(saved as "xlayer" | "solana");
       } else {
-        setActiveChain("base");
+        setActiveChain("xlayer");
       }
     };
     update();
@@ -142,6 +142,12 @@ export function LeaderboardClient({
   const ranked = agents.filter((a) => a.onchain_verified);
   const pending = agents.filter((a) => !a.onchain_verified);
 
+  // Count ranked agents on the OTHER chain so we can hint users to switch
+  const otherChain = activeChain === "xlayer" ? "solana" : "xlayer";
+  const otherChainRanked = rawAgents.filter(
+    (a) => getAgentChain(a) === otherChain && a.onchain_verified
+  ).length;
+
   return (
     <div>
       {/* ── Page Header matching ViperX theme ── */}
@@ -195,6 +201,21 @@ export function LeaderboardClient({
               ? `${ranked.length} ranked agent${ranked.length === 1 ? "" : "s"}`
               : `${pending.length} active agent${pending.length === 1 ? "" : "s"}`}
           </span>
+          {/* Cross-chain ranked hint — only show when other chain has verified agents */}
+          {otherChainRanked > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                const newChain = otherChain;
+                localStorage.setItem("viperx-active-chain", newChain);
+                window.dispatchEvent(new Event("viperx-chain-changed"));
+              }}
+              className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-surface px-2 py-0.5 font-mono text-[10px] text-foreground-faint hover:border-border-strong hover:text-foreground transition-all cursor-pointer"
+              title={`Switch to ${otherChain === "solana" ? "Solana" : "X Layer"} to see more`}
+            >
+              +{otherChainRanked} on {otherChain === "solana" ? "Solana" : "X Layer"}
+            </button>
+          )}
         </div>
       </div>
 
@@ -253,10 +274,13 @@ export function LeaderboardClient({
                         </div>
                         {agent.wash_trading_flagged && (
                           <span
-                            className="mt-1 inline-block text-[0.6875rem] font-medium text-negative"
-                            title={agent.flagged_reason || "Flagged for wash trading patterns"}
+                            className="mt-1.5 inline-flex items-center gap-1 rounded-md border border-negative/30 bg-negative/10 px-1.5 py-0.5 font-mono text-[9px] font-bold text-negative tracking-wide"
+                            title={agent.flagged_reason || "Flagged for wash trading or PnL divergence"}
                           >
-                            Flagged
+                            <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor" className="shrink-0">
+                              <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                            </svg>
+                            DIVERGENCE FLAGGED
                           </span>
                         )}
                       </td>
@@ -358,10 +382,13 @@ export function LeaderboardClient({
                           </div>
                           {agent.wash_trading_flagged && (
                             <span
-                              className="mt-1 inline-block text-[0.6875rem] font-medium text-negative"
-                              title={agent.flagged_reason || "Flagged for wash trading patterns"}
+                              className="mt-1.5 inline-flex items-center gap-1 rounded-md border border-negative/30 bg-negative/10 px-1.5 py-0.5 font-mono text-[9px] font-bold text-negative tracking-wide"
+                              title={agent.flagged_reason || "Flagged for wash trading or PnL divergence"}
                             >
-                              Flagged
+                              <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor" className="shrink-0">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                              </svg>
+                              DIVERGENCE FLAGGED
                             </span>
                           )}
                         </td>

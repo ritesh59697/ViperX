@@ -33,43 +33,36 @@ interface EventLog {
 }
 
 /**
- * High-definition Ethereum Diamond vector badge
+ * Official Ethereum badge from thesvg.org
  */
-function EthTokenBadge({ size = 22 }: { size?: number }) {
+function EthTokenBadge({ size = 20 }: { size?: number }) {
   return (
-    <div
-      className="inline-flex items-center justify-center rounded-full bg-[#627EEA]/15 border border-[#627EEA]/30 shrink-0"
+    <img
+      src="/tokens/eth.svg"
+      alt="Ethereum (ETH)"
+      width={size}
+      height={size}
+      className="rounded-full object-contain shrink-0"
       style={{ width: size, height: size }}
       title="Ethereum (ETH)"
-    >
-      <svg width={size * 0.58} height={size * 0.58} viewBox="0 0 256 417" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M127.961 0L125.166 9.5V285.168L127.961 287.958L255.923 212.32L127.961 0Z" fill="#627EEA" />
-        <path d="M127.962 0L0 212.32L127.962 287.958V154.43V0Z" fill="#627EEA" fillOpacity="0.75" />
-        <path d="M127.961 312.187L126.386 314.106V413.791L127.961 416.57L256 236.587L127.961 312.187Z" fill="#627EEA" />
-        <path d="M127.962 416.57V312.187L0 236.587L127.962 416.57Z" fill="#627EEA" fillOpacity="0.75" />
-        <path d="M127.961 287.958L255.923 212.32L127.961 154.43V287.958Z" fill="#8A92B2" />
-        <path d="M0 212.32L127.962 287.958V154.43L0 212.32Z" fill="#AAB0CE" />
-      </svg>
-    </div>
+    />
   );
 }
 
 /**
- * High-definition Solana vector badge
+ * Official Solana badge from thesvg.org
  */
-function SolTokenBadge({ size = 22 }: { size?: number }) {
+function SolTokenBadge({ size = 20 }: { size?: number }) {
   return (
-    <div
-      className="inline-flex items-center justify-center rounded-full bg-[#14F195]/15 border border-[#14F195]/30 shrink-0"
+    <img
+      src="/tokens/sol.svg"
+      alt="Solana (SOL)"
+      width={size}
+      height={size}
+      className="rounded-full object-contain shrink-0"
       style={{ width: size, height: size }}
       title="Solana (SOL)"
-    >
-      <svg width={size * 0.58} height={size * 0.58} viewBox="0 0 397 311" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h313.7c6 0 9 7.3 4.7 11.5l-54.8 54.8c-2.4 2.4-5.7 3.8-9.2 3.8H14.7c-6 0-9-7.3-4.7-11.5l54.6-54.8z" fill="#00FFA3" />
-        <path d="M64.6 3.8C67 1.4 70.3 0 73.8 0h313.7c6 0 9 7.3 4.7 11.5L337.4 66.3c-2.4 2.4-5.7 3.8-9.2 3.8H14.7c-6 0-9-7.3-4.7-11.5L64.6 3.8z" fill="#00FFA3" />
-        <path d="M332.4 120.9c-2.4-2.4-5.7-3.8-9.2-3.8H9.5c-6 0-9 7.3-4.7 11.5l54.8 54.8c2.4 2.4 5.7 3.8 9.2 3.8h313.7c6 0 9-7.3 4.7-11.5l-54.8-54.8z" fill="#DC1FFF" />
-      </svg>
-    </div>
+    />
   );
 }
 
@@ -81,7 +74,7 @@ export function AgentLiveTelemetry({ agent }: AgentLiveTelemetryProps) {
 
   const targetAsset = isBase ? "ETH" : "SOL";
   const binanceSymbol = isBase ? "ETHUSDT" : "SOLUSDT";
-  const venueLabel = isBase ? "Base Sepolia" : "Solana Devnet";
+  const venueLabel = isBase ? "OKX X Layer" : "Solana Devnet";
 
   // Parse strategy specs with beginner-friendly explanations
   const strategyInfo = useMemo(() => {

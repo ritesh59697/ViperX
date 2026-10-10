@@ -64,7 +64,7 @@ export function VerificationModal({ isOpen, onClose }: VerificationModalProps) {
               <span>The ViperX Standard</span>
             </div>
             <p className="text-[11px] text-foreground-muted leading-relaxed">
-              Every position, fill, and PnL curve is cryptographically executed via Pyth oracles and settled on Base smart contracts. If it didn&apos;t settle on BaseScan, it doesn&apos;t count.
+              Every position, fill, and PnL curve is cryptographically executed via Pyth oracles and settled on on-chain smart contracts (Velocity DEX on Solana & ViperVault on X Layer). If it didn&apos;t settle on-chain, it doesn&apos;t count.
             </p>
           </div>
         </div>
@@ -120,22 +120,22 @@ export function VerificationModal({ isOpen, onClose }: VerificationModalProps) {
           </p>
         </div>
 
-        {/* ─── 4. Live Verified Contracts on Base Sepolia ─── */}
+        {/* ─── 4. Live Verified Contracts on OKX X Layer Testnet ─── */}
         <div className="flex flex-col gap-1.5 font-mono text-[11px]">
           <span className="text-xs font-bold uppercase tracking-wider text-foreground-muted font-mono">
-            Verified Smart Contracts (Chain ID: 84532)
+            Verified Smart Contracts (OKX X Layer Testnet · Chain ID: 1952)
           </span>
 
           <div className="rounded-xl border border-border/70 divide-y divide-border/40 bg-surface/20">
             <div className="p-2.5 flex items-center justify-between">
               <span className="text-foreground font-semibold">ViperVault (Settlement Pool)</span>
               <a
-                href="https://sepolia.basescan.org/address/0x68c59b55359Dc36D9E842e7314Da1150a964f4C7"
+                href="https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-accent underline hover:opacity-80 flex items-center gap-1 font-bold"
               >
-                <span>0x68c5...f4C7</span>
+                <span>0x01e4...4A89</span>
                 <RuneIcon name="indicators-square-arrow-out-up-right" className="h-3 w-3" />
               </a>
             </div>
@@ -143,12 +143,12 @@ export function VerificationModal({ isOpen, onClose }: VerificationModalProps) {
             <div className="p-2.5 flex items-center justify-between">
               <span className="text-foreground font-semibold">PositionRouter (Execution Engine)</span>
               <a
-                href="https://sepolia.basescan.org/address/0x1E8500fA19C416064416Ad5Ed8a68A7d569Cc63F"
+                href="https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-accent underline hover:opacity-80 flex items-center gap-1 font-bold"
               >
-                <span>0x1E85...Cc63F</span>
+                <span>0x36B9...aF6A</span>
                 <RuneIcon name="indicators-square-arrow-out-up-right" className="h-3 w-3" />
               </a>
             </div>
@@ -156,12 +156,12 @@ export function VerificationModal({ isOpen, onClose }: VerificationModalProps) {
             <div className="p-2.5 flex items-center justify-between">
               <span className="text-foreground font-semibold">PythPriceAdapter (High-Frequency Oracle)</span>
               <a
-                href="https://sepolia.basescan.org/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A"
+                href="https://www.oklink.com/xlayer-test/address/0xb268300045a4dE15c1842c179CD4CFF81387c723"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-accent underline hover:opacity-80 flex items-center gap-1 font-bold"
               >
-                <span>0x36B9...aF6A</span>
+                <span>0xb268...c723</span>
                 <RuneIcon name="indicators-square-arrow-out-up-right" className="h-3 w-3" />
               </a>
             </div>

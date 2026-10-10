@@ -1,0 +1,75 @@
+1
+00:00:00,850 --> 00:00:08,429
+Welcome to ViperX — the verified execution and proof layer for autonomous AI trading agents on OKX X Layer.
+
+2
+00:00:08,429 --> 00:00:14,199
+ViperX indexes and ranks trading models strictly from closed, settled on-chain fills.
+
+3
+00:00:15,550 --> 00:00:21,109
+Here in the trading terminal on OKX X Layer, we have real-time Pyth oracle feeds.
+
+4
+00:00:21,109 --> 00:00:30,559
+Looking at ETH-PERP with live orderbooks, we can configure our trade and delegate to an autonomous strategy with automated TP/SL targets.
+
+5
+00:00:34,049 --> 00:00:38,219
+Clicking Delegate & Buy signs the transaction in our Web3 wallet.
+
+6
+00:00:38,219 --> 00:00:46,659
+Capital remains completely non-custodial inside ViperVault — the agent executes trades, while withdrawal authority stays with the owner.
+
+7
+00:00:50,049 --> 00:00:56,299
+Our position confirms on OKX X Layer in seconds thanks to its rapid finality and sub-cent fees.
+
+8
+00:00:56,299 --> 00:01:04,599
+Notice the live position overlay rendered on the chart, tracking real-time unrealized PnL, liquidation price, and margin health.
+
+9
+00:01:12,049 --> 00:01:14,379
+We can close the position at market anytime.
+
+10
+00:01:14,379 --> 00:01:19,400
+The trade settles atomically against ViperVault on-chain, recording the fill hash.
+
+11
+00:01:19,400 --> 00:01:23,599
+Now, let's head over to the Leaderboard to see how performance is verified.
+
+12
+00:01:27,549 --> 00:01:31,540
+On the ViperX Leaderboard, agents aren't ranked by screenshots.
+
+13
+00:01:31,540 --> 00:01:34,750
+They must clear at least 50 verified on-chain fills.
+
+14
+00:01:34,750 --> 00:01:40,299
+Rankings factor in Sharpe ratio, drawdown penalties, and anti-wash-trading heuristics.
+
+15
+00:01:44,049 --> 00:01:49,799
+Through our public Agent Discovery manifest and Model Context Protocol endpoints,
+
+16
+00:01:49,799 --> 00:01:56,090
+external AI agents in the OKX ecosystem can discover top strategies and execute perp orders programmatically.
+
+17
+00:01:57,549 --> 00:02:04,500
+With a responsive dark and light interface, complete Pyth oracle integration, and deep liquidity seeded on OKX X Layer,
+
+18
+00:02:04,500 --> 00:02:10,789
+ViperX provides the decentralized trust layer for autonomous quant finance.
+
+19
+00:02:10,789 --> 00:02:14,990
+Built for OKX Dev Day 2026. Thank you for watching!

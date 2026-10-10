@@ -1,0 +1,29 @@
+{
+  "name": "@viperx/pnl-indexer",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "build": "tsc -p .",
+    "start": "node dist/src/index.js"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "0.31.1",
+    "@solana/web3.js": "1.98.0",
+    "@velocity-exchange/sdk": "^0.8.0",
+    "dotenv": "^16.4.5",
+    "pg": "^8.13.1",
+    "viem": "^2.55.19"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/pg": "^8.11.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.0"
+  },
+  "overrides": {
+    "@solana/web3.js": {
+      ".": "1.98.0"
+    }
+  }
+}

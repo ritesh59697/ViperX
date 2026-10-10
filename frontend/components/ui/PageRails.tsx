@@ -1,15 +1,19 @@
 "use client";
 
 import React from "react";
+import { usePathname } from "next/navigation";
 
 /**
  * Continuous Blueprint Rails running down the page gutters.
- * Seamless, unbroken by section boundaries, and symmetrically mirrored:
- * - Left rail: 1px hairline on left, 9px horizontal ticks pointing inward (right).
- * - Right rail: 1px hairline on right, 9px horizontal ticks pointing inward (left).
- * - Symmetrically equalized and positioned near the outer edges of the viewport.
+ * Disabled on /trade terminal to avoid unwanted vertical lines in the trading UI.
  */
 export function PageRails() {
+  const pathname = usePathname();
+
+  if (pathname === "/trade" || pathname?.startsWith("/trade")) {
+    return null;
+  }
+
   return (
     <div
       aria-hidden="true"

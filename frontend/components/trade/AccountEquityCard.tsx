@@ -43,13 +43,11 @@ export function AccountEquityCard({
 
   const { selectedChain } = useTradeStore();
   const explorerUrl =
-    selectedChain === "xlayer"
-      ? "https://www.oklink.com/xlayer-test/address/0x9Dcfe752AC97F167763FeD87f4100F33cD29dbb7"
-      : selectedChain === "solana"
+    selectedChain === "solana"
       ? "https://explorer.solana.com/?cluster=devnet"
-      : "https://sepolia.basescan.org/address/0x68c59b55359Dc36D9E842e7314Da1150a964f4C7";
+      : "https://www.oklink.com/xlayer-test/address/0x9Dcfe752AC97F167763FeD87f4100F33cD29dbb7";
   const explorerName =
-    selectedChain === "xlayer" ? "OKLink" : selectedChain === "solana" ? "Explorer" : "BaseScan";
+    selectedChain === "solana" ? "Solana Explorer" : "OKLink";
 
   return (
     <div className="flex flex-col border-t border-[#e2e5eb] dark:border-[#1e1e1e] bg-[#f8f9fb] dark:bg-[#080808] p-3 text-[11px] font-mono select-none">

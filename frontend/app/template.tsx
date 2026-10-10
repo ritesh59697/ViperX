@@ -1,47 +1,24 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 /**
- * template.tsx re-mounts on every route change in Next.js App Router,
- * unlike layout.tsx which persists. This gives us a clean hook to run
- * a fade+slide-up animation on every navigation.
+ * template.tsx re-mounts on every route change in Next.js App Router.
+ * Uses safe CSS animations instead of inline opacity:0 to prevent blank white screens
+ * if hydration or Web Animations API is interrupted.
  */
 export default function Template({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    // Kick off the animation after mount
-    const anim = el.animate(
-      [
-        { opacity: 0, transform: "translateY(10px)" },
-        { opacity: 1, transform: "translateY(0px)" },
-      ],
-      {
-        duration: 220,
-        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
-        fill: "forwards",
-      }
-    );
-
-    anim.finished
-      .then(() => {
-        el.style.opacity = "1";
-        el.style.transform = "none";
-        anim.cancel();
-      })
-      .catch(() => {});
-
-    return () => {
-      anim.cancel();
-    };
-  }, []);
+  // On /trade terminal, render instantly with zero animation delay
+  if (pathname?.startsWith("/trade")) {
+    return <>{children}</>;
+  }
 
   return (
-    <div ref={ref} style={{ opacity: 0 }}>
+    <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-200">
       {children}
     </div>
   );
 }
+

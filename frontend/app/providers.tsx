@@ -18,7 +18,7 @@ import {
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import { WagmiProvider, http } from "wagmi";
-import { xLayerTestnet as viemXLayerTestnet, baseSepolia } from "viem/chains";
+import { xLayerTestnet as viemXLayerTestnet } from "viem/chains";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 import "@solana/wallet-adapter-react-ui/styles.css";
@@ -79,7 +79,7 @@ const queryClient = new QueryClient();
 const config = getDefaultConfig({
   appName: "ViperX",
   projectId: "990176cdfaec50875c754d9b62fefd7a",
-  chains: [xLayerTestnet, baseSepolia],
+  chains: [xLayerTestnet],
   wallets: [
     {
       groupName: "Featured (OKX Dev Day)",
@@ -88,7 +88,6 @@ const config = getDefaultConfig({
   ],
   transports: {
     [xLayerTestnet.id]: http("https://testrpc.xlayer.tech"),
-    [baseSepolia.id]: http(),
   },
   ssr: true,
 });

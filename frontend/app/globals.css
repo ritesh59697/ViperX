@@ -58,17 +58,17 @@
   color-scheme: dark;
 
   --background: #000000;
-  --background-elevated: rgba(255, 255, 255, 0.035);
-  --background-elevated-hover: rgba(255, 255, 255, 0.06);
-  --background-elevated-solid: #0d0e12;
-  --background-muted: rgba(255, 255, 255, 0.04);
+  --background-elevated: #0a0a0a;
+  --background-elevated-hover: #141414;
+  --background-elevated-solid: #0a0a0a;
+  --background-muted: #080808;
 
-  --foreground: #f2f3f5;
-  --foreground-muted: #b6bcc7;
-  --foreground-faint: #99a0ac;
+  --foreground: #f2f4f7;
+  --foreground-muted: #888e9b;
+  --foreground-faint: #555b66;
 
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.18);
+  --border: #1e1e1e;
+  --border-strong: #2c2c2c;
 
   /* #f42601 measured 4.37:1 as text on --background-elevated (needs 4.5) and
      only 4.10:1 under white text as a fill. #f83a18 clears 4.78:1 as text;
@@ -82,8 +82,8 @@
      "SHORT", error copy), so it needs the lighter value to clear 4.5:1. */
   --negative: #f83a18;
 
-  --surface: rgba(255, 255, 255, 0.05);
-  --surface-hover: rgba(255, 255, 255, 0.09);
+  --surface: #121212;
+  --surface-hover: #1a1a1a;
 }
 
 @theme inline {

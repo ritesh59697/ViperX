@@ -18,22 +18,15 @@ export function SharePnlModal({ position, onClose }: SharePnlModalProps) {
   if (!position) return null;
 
   const isProfit = position.pnlPercent >= 0;
-  const isXLayer = position.chain === "xlayer";
-  const isBase = position.chain === "base";
+  const isSolana = position.chain === "solana";
 
-  const chainLabel = isXLayer
-    ? "X Layer"
-    : isBase
-    ? "Base Sepolia"
-    : "Solana Devnet";
+  const chainLabel = isSolana ? "Solana Devnet" : "OKX X Layer";
 
-  const explorerUrl = isXLayer
-    ? position.txHash?.startsWith("0x") && position.txHash.length === 66
-      ? `https://www.oklink.com/xlayer-test/tx/${position.txHash}`
-      : `https://www.oklink.com/xlayer-test/address/${position.txHash || "0x9Dcfe752AC97F167763FeD87f4100F33cD29dbb7"}`
-    : isBase
-    ? `https://sepolia.basescan.org/tx/${position.txHash}`
-    : `https://explorer.solana.com/tx/${position.txHash}?cluster=devnet`;
+  const explorerUrl = isSolana
+    ? `https://explorer.solana.com/tx/${position.txHash}?cluster=devnet`
+    : position.txHash?.startsWith("0x") && position.txHash.length === 66
+    ? `https://www.oklink.com/xlayer-test/tx/${position.txHash}`
+    : `https://www.oklink.com/xlayer-test/address/${position.txHash || "0x9Dcfe752AC97F167763FeD87f4100F33cD29dbb7"}`;
 
   const shortTx = position.txHash
     ? `${position.txHash.slice(0, 6)}...${position.txHash.slice(-4)}`

@@ -54,8 +54,8 @@ const FAQ_ITEMS: FaqItem[] = [
     tag: "SAFETY",
     question: "Is ViperX live on mainnet?",
     answer:
-      "Not yet. ViperX is live on Base Sepolia testnet and Solana Devnet for live agent verification, tournament dry-runs, and execution latency benchmarking while we finalize security audits and liquidity integrations before mainnet launch.",
-    badges: ["BASE SEPOLIA ACTIVE", "SOLANA DEVNET", "PRE-MAINNET AUDITS"],
+      "Not yet. ViperX is live on OKX X Layer Testnet and Solana Devnet for live agent verification, tournament dry-runs, and execution latency benchmarking while we finalize security audits and liquidity integrations before mainnet launch.",
+    badges: ["OKX X LAYER TESTNET", "SOLANA DEVNET", "PRE-MAINNET AUDITS"],
   },
   {
     id: "06",

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "NODE_OPTIONS='--max-old-space-size=4096' next dev --webpack",
     "dev:turbo": "next dev --turbo",
     "build": "next build",
     "start": "next start",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@coral-xyz/anchor": "0.31.1",
+    "@radix-ui/react-tooltip": "^1.2.16",
     "@rainbow-me/rainbowkit": "^2.2.11",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
@@ -21,19 +22,24 @@
     "@solana/wallet-adapter-wallets": "^0.19.38",
     "@solana/web3.js": "1.98.4",
     "@tanstack/react-query": "^5.101.4",
+    "@types/pg": "^8.23.1",
     "@velocity-exchange/sdk": "^0.8.0",
     "@x402/core": "^2.23.0",
     "@x402/evm": "^2.23.0",
     "@x402/svm": "^2.23.0",
     "bs58": "^4.0.1",
+    "clsx": "^2.1.1",
     "lottie-react": "^2.4.1",
     "motion": "^12.42.2",
     "next": "16.2.10",
+    "pg": "^8.23.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "tailwind-merge": "^3.6.0",
     "three": "^0.185.1",
     "viem": "^2.55.19",
-    "wagmi": "^2.19.5"
+    "wagmi": "^2.19.5",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

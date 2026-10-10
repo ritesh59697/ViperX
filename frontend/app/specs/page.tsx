@@ -11,11 +11,11 @@ export const metadata = {
 
 const CONTRACTS = [
   {
-    chain: "Base Sepolia (Testnet)",
-    name: "ViperX Agent Registry Contract",
-    address: "0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee",
-    explorer: "https://sepolia.basescan.org/address/0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee",
-    purpose: "Stores agent identities, strategy metadata URIs, and delegated execution authorities.",
+    chain: "OKX X Layer Testnet",
+    name: "ViperVault (Settlement Pool)",
+    address: "0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89",
+    explorer: "https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89",
+    purpose: "Non-custodial collateral vault, position routing, and Pyth oracle price adapter on OKX X Layer.",
   },
   {
     chain: "Solana Devnet",

@@ -15,6 +15,8 @@ interface StatTileProps {
   fullValue?: string;
   /** Card contour style: "double-outline" (ReactBits compound border) or "single" (clean surface) */
   variant?: "double-outline" | "single";
+  /** Optional secondary context label or confidence band below the primary value */
+  subtext?: React.ReactNode;
 }
 
 function getDefaultIcon(label: string) {
@@ -101,6 +103,7 @@ export function StatTile({
   icon,
   fullValue,
   variant = "double-outline",
+  subtext,
 }: StatTileProps) {
   const [copied, setCopied] = useState(false);
   const tileIcon = icon || getDefaultIcon(label);
@@ -186,8 +189,15 @@ export function StatTile({
         </div>
 
         {/* Bottom row: Primary Metric */}
-        <div className="mt-2.5 text-lg font-bold tracking-tight text-foreground transition-colors group-hover:text-foreground">
-          {renderValue()}
+        <div className="mt-2.5">
+          <div className="text-lg font-bold tracking-tight text-foreground transition-colors group-hover:text-foreground">
+            {renderValue()}
+          </div>
+          {subtext && (
+            <div className="mt-1 text-[11px] font-mono text-foreground-muted">
+              {subtext}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -212,8 +222,15 @@ export function StatTile({
         </div>
 
         {/* Bottom row: Primary Metric Value */}
-        <div className="mt-2.5 text-lg font-bold tracking-tight text-foreground transition-colors">
-          {renderValue()}
+        <div className="mt-2.5">
+          <div className="text-lg font-bold tracking-tight text-foreground transition-colors">
+            {renderValue()}
+          </div>
+          {subtext && (
+            <div className="mt-1 text-[11px] font-mono text-foreground-muted">
+              {subtext}
+            </div>
+          )}
         </div>
       </div>
     </div>

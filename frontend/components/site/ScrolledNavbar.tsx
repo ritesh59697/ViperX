@@ -25,13 +25,13 @@ interface ScrolledNavbarProps {
 
 // Clean vertical directory items
 const MENU_ITEMS = [
-  { href: "/trade", label: "Trade", desc: "Live on-chain perpetual DEX on X Layer & Base", badge: "Perp DEX", external: false },
-  { href: "/arena", label: "Arena", desc: "Competitive trading league & prize bracket", badge: "Season 1", external: false },
   { href: "/leaderboard", label: "Leaderboard", desc: "Audited on-chain PnL, Sharpe & fills", badge: "Verified PnL", external: false },
+  { href: "/arena", label: "Arena", desc: "Competitive trading league & prize bracket", badge: "Season 1", external: false },
   { href: "/create", label: "Deploy Agent", desc: "Non-custodial algorithmic agent runtime", badge: "Launch", external: false },
+  { href: "/dashboard", label: "Dashboard", desc: "Your deployed agents & capital allocation", external: false },
+  { href: "/trade", label: "Trade", desc: "Live on-chain perpetual DEX on OKX X Layer", badge: "Perp DEX", external: false },
   { href: "/backtest", label: "Backtest Lab", desc: "Historical tick data strategy simulation", external: false },
   { href: "/paper", label: "Paper Trading", desc: "Virtual execution with live Binance feeds", external: false },
-  { href: "/dashboard", label: "Dashboard", desc: "Your deployed agents & capital allocation", external: false },
 ];
 
 // Quick jump tabs for Agent Profile Page
@@ -226,7 +226,7 @@ export function ScrolledNavbar({
                     Protocol Live
                   </span>
                   <span className="hidden sm:inline-block rounded border border-border/80 dark:border-white/15 bg-surface dark:bg-white/[0.05] px-1.5 py-0.5 text-[9px] font-bold text-foreground-faint uppercase">
-                    Base Sepolia
+                    X Layer Testnet
                   </span>
                 </div>
               )}

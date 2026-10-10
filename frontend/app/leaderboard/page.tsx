@@ -5,6 +5,7 @@ import {
   LeaderboardAgent,
   LeaderboardWindow,
 } from "@/lib/leaderboardApi";
+import { getLeaderboardFromDb } from "@/lib/server/leaderboardService";
 import { Section } from "@/components/ui/Section";
 import { LeaderboardClient } from "@/components/leaderboard/LeaderboardClient";
 
@@ -25,10 +26,15 @@ export default async function LeaderboardPage({
   let agents: LeaderboardAgent[] = [];
   let fetchError: string | null = null;
   try {
-    const data = await fetchLeaderboard(window);
-    agents = data.agents.filter((a) => !isBlockedAgent(a));
+    const data = await getLeaderboardFromDb(window);
+    agents = (data.agents as any[]).filter((a) => !isBlockedAgent(a));
   } catch (err) {
-    fetchError = err instanceof Error ? err.message : "Failed to reach leaderboard-api.";
+    try {
+      const fallback = await fetchLeaderboard(window);
+      agents = fallback.agents.filter((a) => !isBlockedAgent(a));
+    } catch {
+      fetchError = err instanceof Error ? err.message : "Failed to load leaderboard.";
+    }
   }
 
   return (

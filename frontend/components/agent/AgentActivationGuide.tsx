@@ -32,7 +32,7 @@ export function AgentActivationGuide({ agent }: AgentActivationGuideProps) {
     agent.owner.startsWith("0x");
 
   const assetSymbol = isBase ? "ETH" : "SOL";
-  const venueLabel = isBase ? "Base Sepolia" : "Solana Devnet";
+  const venueLabel = isBase ? "OKX X Layer" : "Solana Devnet";
   const [livePrice, setLivePrice] = useState<number>(isBase ? 2450.0 : 102.5);
 
   // Fetch live market price
