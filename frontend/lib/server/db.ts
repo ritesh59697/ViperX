@@ -3,9 +3,10 @@ import { Pool } from "pg";
 const globalForPg = globalThis as unknown as { pgPool?: Pool };
 
 function getConnectionString(): string {
-  let conn =
-    process.env.DATABASE_URL ||
-    "postgresql://postgres.ltookoufiiwhcdqibmry:gcWQdQguzSY9UUxT@aws-0-ap-south-1.pooler.supabase.com:6543/postgres";
+  let conn = process.env.DATABASE_URL || "";
+  if (!conn) {
+    conn = "postgres://postgres:postgres@localhost:5432/viperx";
+  }
   // Supabase pooler on port 5432 is Session Mode (limited to 15 clients).
   // Port 6543 is Transaction Mode (designed for serverless/lambdas, supporting thousands of concurrent queries).
   if (conn.includes(".pooler.supabase.com:5432")) {
