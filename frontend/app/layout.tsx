@@ -5,7 +5,6 @@ import { Providers } from "./providers";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { GlobalDither } from "@/components/ui/DitherField";
 import { PageRails } from "@/components/ui/PageRails";
-import { SitePreloader } from "@/components/site/SitePreloader";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -182,7 +181,6 @@ export default function RootLayout({
           Skip to content
         </a>
         <Providers>
-          <SitePreloader />
           {/* Fixed behind every route — the one background the whole site shares. */}
           <GlobalDither />
           <SiteHeader />
