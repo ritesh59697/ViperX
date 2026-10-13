@@ -22,7 +22,7 @@ import { BaseConnectButton } from "@/components/ui/BaseConnectButton";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
-import { useTradeStore, TradePosition } from "@/lib/trade/tradeStore";
+import { useTradeStore, TradePosition, SUPPORTED_MARKETS } from "@/lib/trade/tradeStore";
 import {
   calcPositionSize,
   calcLiquidationPrice,
@@ -305,11 +305,17 @@ export default function TradePage() {
             (cp.market === sp.market && cp.side === sp.side)
         );
         if (!alreadyInCombined) {
-          const currentPnlUsd = calcUnrealizedPnl(sp.side, sp.sizeUsd, sp.entryPrice, stats.markPrice);
+          const targetMarket = SUPPORTED_MARKETS.find((m) => m.symbol === sp.market);
+          const currentMarketPrice =
+            sp.market === selectedMarket.symbol
+              ? stats.markPrice
+              : (targetMarket?.basePrice || sp.entryPrice);
+
+          const currentPnlUsd = calcUnrealizedPnl(sp.side, sp.sizeUsd, sp.entryPrice, currentMarketPrice);
           const currentPnlPct = calcPnlPercentage(currentPnlUsd, sp.collateralUsd);
           combined.push({
             ...sp,
-            markPrice: stats.markPrice,
+            markPrice: currentMarketPrice,
             pnlUsd: currentPnlUsd,
             pnlPercent: currentPnlPct,
           });
@@ -318,7 +324,7 @@ export default function TradePage() {
     });
 
     return combined;
-  }, [onChainPositions, sessionPositions, closedPositionIds, stats.markPrice]);
+  }, [onChainPositions, sessionPositions, closedPositionIds, stats.markPrice, selectedMarket.symbol]);
 
   const activeMarketPosition = useMemo(
     () => allDisplayPositions.find((p) => p.market === selectedMarket.symbol) || null,
