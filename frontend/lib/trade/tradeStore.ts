@@ -60,7 +60,7 @@ export const SUPPORTED_MARKETS: PerpMarket[] = [
     binanceSymbol: "OKBUSDT",
     tvSymbol: "OKX:OKBUSDT",
     pythFeedId: "0x7179069d2d0b5220c74cfcf5705a2e5e8e8156cd0c558c407c6f0e4d0fb8396e",
-    basePrice: 48.0,
+    basePrice: 121.7,
     minCollateral: 5,
     maxLeverage: 10,
     precision: 2,

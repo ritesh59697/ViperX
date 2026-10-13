@@ -103,7 +103,10 @@ export function useLiveTrades(limit = 15, pollIntervalMs = 4000) {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 2000);
-      const res = await fetch(`${LEADERBOARD_API_URL}/trades/recent?limit=${limit}`, {
+      const url = LEADERBOARD_API_URL
+        ? `${LEADERBOARD_API_URL}/api/trades/recent?limit=${limit}`
+        : `/api/trades/recent?limit=${limit}`;
+      const res = await fetch(url, {
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
@@ -118,7 +121,7 @@ export function useLiveTrades(limit = 15, pollIntervalMs = 4000) {
           agentPda: t.agentPda || t.agent_pda || "0x0...0",
           agentName: t.agentName || t.agent_name || "Viper Agent",
           agentId: t.agentId || t.agent_id || "agent",
-          marketSymbol: t.marketSymbol || t.market_symbol || "ETH-PERP",
+          marketSymbol: t.marketSymbol || t.market_symbol || "OKB-PERP",
           side: t.side === "short" ? "short" : "long",
           sizeUsd: Number(t.sizeUsd ?? t.size_usd ?? t.size ?? 0),
           entryPrice: Number(t.entryPrice ?? t.entry_price ?? t.price ?? 0),
@@ -133,27 +136,7 @@ export function useLiveTrades(limit = 15, pollIntervalMs = 4000) {
         setError(null);
       }
     } catch {
-      // Fallback silently without throwing unhandled network errors
-      // Add periodic simulated execution so trades tab stays alive
-      setTrades((prev) => {
-        const isLong = Math.random() > 0.45;
-        const randomAgent = AGENT_NAMES[Math.floor(Math.random() * AGENT_NAMES.length)];
-        const newTrade: LiveTrade = {
-          agentPda: `0x${Math.random().toString(16).slice(2, 6)}...${Math.random().toString(16).slice(2, 6)}`,
-          agentName: randomAgent,
-          agentId: randomAgent.toLowerCase().replace(/\s+/g, "-"),
-          marketSymbol: "ETH-PERP",
-          side: isLong ? "long" : "short",
-          sizeUsd: Math.floor(Math.random() * 4000) + 150,
-          entryPrice: 2521.0 + (Math.random() * 2 - 1),
-          exitPrice: 2521.0 + (Math.random() * 2 - 1),
-          realizedPnl: Number((Math.random() * 50 * (isLong ? 1 : -0.5)).toFixed(2)),
-          closedAt: new Date().toISOString(),
-          txSignature: `0x${Math.random().toString(16).slice(2, 10)}...`,
-          onchainVerified: true,
-        };
-        return [newTrade, ...prev.slice(0, limit - 1)];
-      });
+      // Keep real verified trades in state without injecting fake synthetic trades
     } finally {
       setIsLoading(false);
     }

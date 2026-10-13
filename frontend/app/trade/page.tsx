@@ -866,11 +866,32 @@ export default function TradePage() {
               type="button"
               onClick={handleClaimXLayerFaucet}
               disabled={isClaimingFaucet}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 text-[11px] font-medium transition-colors cursor-pointer disabled:opacity-50"
+              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#d2d6df] dark:border-[#1e1e1e] bg-white dark:bg-[#121212] px-3 text-xs font-semibold text-foreground transition-all duration-200 hover:border-emerald-500/50 hover:bg-emerald-500/5 cursor-pointer shadow-xs disabled:opacity-50"
               title="Claim 10,000 Test USDC on X Layer Testnet"
             >
-              <RuneIcon name="action-sparkle" className="h-3 w-3 text-emerald-400" />
-              <span>{isClaimingFaucet ? "Claiming..." : "Faucet (+10K USDC)"}</span>
+              {isClaimingFaucet ? (
+                <>
+                  <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+                  <span className="text-xs font-medium text-foreground">Claiming...</span>
+                </>
+              ) : (
+                <>
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <svg
+                      className="h-2.5 w-2.5"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                    </svg>
+                  </span>
+                  <span>Faucet</span>
+                  <span className="rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                    +10K
+                  </span>
+                </>
+              )}
             </button>
           )}
 

@@ -29,54 +29,103 @@ export function useOrderBook(market: PerpMarket, markPrice: number) {
 
   const fetchRealDepth = useCallback(async () => {
     try {
-      const res = await fetch(
-        `https://api.binance.com/api/v3/depth?symbol=${market.binanceSymbol}&limit=12`
-      );
-      if (res.ok) {
-        const data = await res.json();
-        
-        let cumAsk = 0;
-        const rawAsks = (data.asks as [string, string][]).map(([p, s]) => {
-          const price = parseFloat(p);
-          const size = parseFloat(s);
-          cumAsk += size;
-          return { price, size, total: cumAsk };
-        });
+      // 1. OKX Native Markets (e.g. OKB)
+      if (market.symbol.includes("OKB") || market.tvSymbol?.startsWith("OKX:")) {
+        const instId = market.symbol.includes("OKB") ? "OKB-USDT" : "OKB-USDT";
+        const res = await fetch(`https://www.okx.com/api/v5/market/books?instId=${instId}&sz=12`);
+        if (res.ok) {
+          const json = await res.json();
+          const book = json?.data?.[0];
+          if (book?.asks?.length && book?.bids?.length) {
+            let cumAsk = 0;
+            const rawAsks = (book.asks as [string, string][]).map(([p, s]) => {
+              const price = parseFloat(p);
+              const size = parseFloat(s);
+              cumAsk += size;
+              return { price, size, total: cumAsk };
+            });
 
-        let cumBid = 0;
-        const rawBids = (data.bids as [string, string][]).map(([p, s]) => {
-          const price = parseFloat(p);
-          const size = parseFloat(s);
-          cumBid += size;
-          return { price, size, total: cumBid };
-        });
+            let cumBid = 0;
+            const rawBids = (book.bids as [string, string][]).map(([p, s]) => {
+              const price = parseFloat(p);
+              const size = parseFloat(s);
+              cumBid += size;
+              return { price, size, total: cumBid };
+            });
 
-        const maxTotal = Math.max(cumAsk, cumBid) || 1;
+            const maxTotal = Math.max(cumAsk, cumBid) || 1;
+            const asks: OrderBookLevel[] = rawAsks.map((item) => ({
+              ...item,
+              depthPercent: Math.min(100, Math.round((item.total / maxTotal) * 100)),
+            }));
+            const bids: OrderBookLevel[] = rawBids.map((item) => ({
+              ...item,
+              depthPercent: Math.min(100, Math.round((item.total / maxTotal) * 100)),
+            }));
 
-        const asks: OrderBookLevel[] = rawAsks.map((item) => ({
-          ...item,
-          depthPercent: Math.min(100, Math.round((item.total / maxTotal) * 100)),
-        }));
+            const bestAsk = asks[0]?.price || markPrice * 1.0001;
+            const bestBid = bids[0]?.price || markPrice * 0.9999;
+            const spread = Math.max(0, bestAsk - bestBid);
+            const spreadPercent = (spread / (bestAsk || 1)) * 100;
+            const midPrice = (bestAsk + bestBid) / 2;
 
-        const bids: OrderBookLevel[] = rawBids.map((item) => ({
-          ...item,
-          depthPercent: Math.min(100, Math.round((item.total / maxTotal) * 100)),
-        }));
+            setOrderBook({ asks, bids, spread, spreadPercent, midPrice });
+            return;
+          }
+        }
+      }
 
-        const bestAsk = asks[0]?.price || markPrice * 1.0001;
-        const bestBid = bids[0]?.price || markPrice * 0.9999;
-        const spread = Math.max(0, bestAsk - bestBid);
-        const spreadPercent = (spread / (bestAsk || 1)) * 100;
-        const midPrice = (bestAsk + bestBid) / 2;
+      // 2. Binance Markets (BTC, ETH, SOL)
+      if (market.binanceSymbol) {
+        const res = await fetch(
+          `https://api.binance.com/api/v3/depth?symbol=${market.binanceSymbol}&limit=12`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          
+          let cumAsk = 0;
+          const rawAsks = (data.asks as [string, string][]).map(([p, s]) => {
+            const price = parseFloat(p);
+            const size = parseFloat(s);
+            cumAsk += size;
+            return { price, size, total: cumAsk };
+          });
 
-        setOrderBook({
-          asks,
-          bids,
-          spread,
-          spreadPercent,
-          midPrice,
-        });
-        return;
+          let cumBid = 0;
+          const rawBids = (data.bids as [string, string][]).map(([p, s]) => {
+            const price = parseFloat(p);
+            const size = parseFloat(s);
+            cumBid += size;
+            return { price, size, total: cumBid };
+          });
+
+          const maxTotal = Math.max(cumAsk, cumBid) || 1;
+
+          const asks: OrderBookLevel[] = rawAsks.map((item) => ({
+            ...item,
+            depthPercent: Math.min(100, Math.round((item.total / maxTotal) * 100)),
+          }));
+
+          const bids: OrderBookLevel[] = rawBids.map((item) => ({
+            ...item,
+            depthPercent: Math.min(100, Math.round((item.total / maxTotal) * 100)),
+          }));
+
+          const bestAsk = asks[0]?.price || markPrice * 1.0001;
+          const bestBid = bids[0]?.price || markPrice * 0.9999;
+          const spread = Math.max(0, bestAsk - bestBid);
+          const spreadPercent = (spread / (bestAsk || 1)) * 100;
+          const midPrice = (bestAsk + bestBid) / 2;
+
+          setOrderBook({
+            asks,
+            bids,
+            spread,
+            spreadPercent,
+            midPrice,
+          });
+          return;
+        }
       }
     } catch {
       // Fallback generator below if network drops

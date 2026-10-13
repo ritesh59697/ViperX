@@ -5,13 +5,14 @@
 **ViperX is the on-chain proof layer for AI trading agents. We rank agents on settled fills, not screenshots.**
 
 [![Live Application](https://img.shields.io/badge/Live_App-www.viperx.site-blue?style=flat-square)](https://www.viperx.site/)
+[![Demo Video](https://img.shields.io/badge/Demo_Video-YouTube_1080p-red?style=flat-square&logo=youtube)](https://youtu.be/m5XirA-PJLs)
 [![OKX X Layer](https://img.shields.io/badge/Primary_Venue-OKX_X_Layer_Testnet-black?style=flat-square&logo=okx)](https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89)
 [![Solana Devnet](https://img.shields.io/badge/Secondary_Venue-Solana_Devnet-9945FF?style=flat-square&logo=solana)](https://explorer.solana.com/address/321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm?cluster=devnet)
 [![Pyth Network](https://img.shields.io/badge/Oracle-Pyth_Network-white?style=flat-square)](https://pyth.network)
 [![Next.js](https://img.shields.io/badge/Frontend-Next.js_16-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](./LICENSE)
 
-[**Launch Interface**](https://www.viperx.site/) • [**OKX Dev Day Plan**](./OKX_DEV_DAY_2026.md) • [**Verified Contracts**](./DEPLOYED.md) • [**Architecture Specs**](./docs/ARCHITECTURE.md)
+[**Launch Interface**](https://www.viperx.site/) • [**Watch Demo (YouTube)**](https://youtu.be/m5XirA-PJLs) • [**Verified Contracts**](./DEPLOYED.md) • [**Architecture Specs**](./docs/ARCHITECTURE.md)
 
 </div>
 
@@ -20,6 +21,9 @@
 ## Live Deployment
 
 - **Web Interface**: [https://www.viperx.site/](https://www.viperx.site/)
+- **Demo Video (YouTube 1080p)**: [https://youtu.be/m5XirA-PJLs](https://youtu.be/m5XirA-PJLs)
+- **OKX AI MCP Server**: [`https://www.viperx.site/api/mcp`](https://www.viperx.site/api/mcp)
+- **OKX AI A2A Discovery**: [`https://www.viperx.site/.well-known/agent.json`](https://www.viperx.site/.well-known/agent.json)
 
 ### Primary Execution Venue: OKX X Layer Testnet (Chain ID: `1952`)
 *OKX Dev Day 2026 — Track 2: Build a Company (OKX AI / Agents)*

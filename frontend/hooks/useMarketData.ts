@@ -110,7 +110,48 @@ export function useMarketData(market: PerpMarket, timeframe: string = "15m") {
       }
     }
 
-    // 2. Crypto Market handling via Binance
+    // 2a. OKX Native Markets (e.g. OKB-PERP)
+    if (market.symbol.includes("OKB") || market.tvSymbol?.startsWith("OKX:")) {
+      try {
+        const instId = market.symbol.includes("OKB") ? "OKB-USDT" : "OKB-USDT";
+        const res = await fetch(`https://www.okx.com/api/v5/market/ticker?instId=${instId}`);
+        if (res.ok) {
+          const data = await res.json();
+          const item = data?.data?.[0];
+          if (item) {
+            const currentPrice = parseFloat(item.last);
+            const openPrice = parseFloat(item.open24h) || currentPrice;
+            const changePct = openPrice > 0 ? ((currentPrice - openPrice) / openPrice) * 100 : 0;
+            const high = parseFloat(item.high24h) || currentPrice;
+            const low = parseFloat(item.low24h) || currentPrice;
+            const vol = parseFloat(item.volCcy24h) || 15000000;
+
+            if (currentPrice > 0) {
+              setStats({
+                markPrice: currentPrice,
+                indexPrice: currentPrice * 0.9998,
+                high24h: high,
+                low24h: low,
+                change24h: changePct,
+                volume24hUsd: vol,
+                fundingRateHourly: 0.0012,
+              });
+
+              setMarkPrice(currentPrice);
+              setPrice24hChange(changePct);
+              pushPriceTick(currentPrice);
+              syncPositionsMarkPrice(market.symbol, currentPrice);
+              setIsLoading(false);
+              return;
+            }
+          }
+        }
+      } catch {
+        // Fallback below
+      }
+    }
+
+    // 2b. Crypto Market handling via Binance
     if (market.binanceSymbol) {
       try {
         const res = await fetch(
