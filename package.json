@@ -4,6 +4,7 @@
   "private": true,
   "description": "ViperX — Autonomous, Non-Custodial Quant Trading Protocol & Proof-of-Execution Engine",
   "scripts": {
+    "build:deweb": "bun scripts/build-deweb.ts",
     "verify-agent": "bun scripts/verify-agent-cli.ts",
     "verify-agent:node": "ts-node scripts/verify-agent-cli.ts",
     "dev:frontend": "cd frontend && bun run dev",

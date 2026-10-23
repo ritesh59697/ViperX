@@ -157,24 +157,8 @@ export default function TradePage() {
 
   useEffect(() => {
     setMounted(true);
-    const saved = localStorage.getItem("viperx-active-chain");
-    if (saved === "solana" || saved === "base" || saved === "xlayer") {
-      setSelectedChain(saved as "solana" | "base" | "xlayer");
-    } else {
-      setSelectedChain("xlayer");
-    }
-    const handleChainChange = () => {
-      const current = localStorage.getItem("viperx-active-chain");
-      if (current === "solana" || current === "base" || current === "xlayer") {
-        setSelectedChain(current as "solana" | "base" | "xlayer");
-      }
-    };
-    window.addEventListener("viperx-chain-changed", handleChainChange);
-    window.addEventListener("storage", handleChainChange);
-    return () => {
-      window.removeEventListener("viperx-chain-changed", handleChainChange);
-      window.removeEventListener("storage", handleChainChange);
-    };
+    setSelectedChain("xlayer");
+    localStorage.setItem("viperx-active-chain", "xlayer");
   }, [setSelectedChain]);
 
   // Market Feeds & Hooks
@@ -332,7 +316,7 @@ export default function TradePage() {
   );
 
   const hasEvmWallet = Boolean(evmAddress) || isEvmConnected;
-  const isWalletConnected = isEvmChain ? hasEvmWallet : !!solanaPublicKey;
+  const isWalletConnected = hasEvmWallet;
 
   const handleCloseAllPositions = async () => {
     const toClose = [...allDisplayPositions];
@@ -611,7 +595,7 @@ export default function TradePage() {
     setSubmitStatusText("Settling position on-chain...");
     setNotification(null);
 
-    const chainLabel = selectedChain === "xlayer" ? "OKX X Layer" : "Solana";
+    const chainLabel = "OKX X Layer";
     const canCloseOnChain = Boolean(
       pos.positionKey && isEvmChain && isEvmConnected && evmAddress
     );
@@ -783,87 +767,10 @@ export default function TradePage() {
           <ThemeToggle />
 
           {/* Network Switcher Dropdown (Matching Landing Page) */}
-          <div className="relative" ref={networkDropdownRef}>
-            <button
-              type="button"
-              onClick={() => setNetworkDropdownOpen((v) => !v)}
-              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#d2d6df] dark:border-[#1e1e1e] bg-white dark:bg-[#121212] px-3 text-xs font-semibold text-foreground transition-colors hover:border-border-strong cursor-pointer shadow-xs"
-            >
-              {selectedChain === "solana" ? (
-                <>
-                  <SolanaLogo className="h-3.5 w-3.5" />
-                  <span>Solana</span>
-                </>
-              ) : selectedChain === "xlayer" ? (
-                <>
-                  <XLayerLogo className="h-3.5 w-3.5" />
-                  <span>X Layer</span>
-                </>
-              ) : (
-                <>
-                  <BaseLogo className="h-3.5 w-3.5" />
-                  <span>Base</span>
-                </>
-              )}
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-                className={cn(
-                  "shrink-0 text-foreground-muted transition-transform duration-200",
-                  networkDropdownOpen ? "rotate-180" : ""
-                )}
-              >
-                <path
-                  d="M2 4l4 4 4-4"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-            {networkDropdownOpen && (
-              <div className="absolute right-0 mt-1.5 w-36 rounded-xl border border-[#d2d6df] dark:border-[#262626] bg-white/95 dark:bg-[#0f0f0f]/95 p-1 shadow-xl backdrop-blur-xl z-50">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedChain("xlayer");
-                    localStorage.setItem("viperx-active-chain", "xlayer");
-                    window.dispatchEvent(new Event("viperx-chain-changed"));
-                    setNetworkDropdownOpen(false);
-                  }}
-                  className={cn(
-                    "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold transition-colors cursor-pointer",
-                    selectedChain === "xlayer"
-                      ? "bg-[#f2f4f8] dark:bg-[#1c1c1c] text-foreground font-bold"
-                      : "text-foreground-muted hover:bg-surface hover:text-foreground"
-                  )}
-                >
-                  <XLayerLogo className="h-3.5 w-3.5" />
-                  <span>X Layer</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedChain("solana");
-                    localStorage.setItem("viperx-active-chain", "solana");
-                    window.dispatchEvent(new Event("viperx-chain-changed"));
-                    setNetworkDropdownOpen(false);
-                  }}
-                  className={cn(
-                    "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold transition-colors cursor-pointer",
-                    selectedChain === "solana"
-                      ? "bg-[#f2f4f8] dark:bg-[#1c1c1c] text-foreground font-bold"
-                      : "text-foreground-muted hover:bg-surface hover:text-foreground"
-                  )}
-                >
-                  <SolanaLogo className="h-3.5 w-3.5" />
-                  <span>Solana</span>
-                </button>
-              </div>
-            )}
+          {/* Active Network Indicator */}
+          <div className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#d2d6df] dark:border-[#1e1e1e] bg-white dark:bg-[#121212] px-3 text-xs font-semibold text-foreground shadow-xs">
+            <XLayerLogo className="h-3.5 w-3.5" />
+            <span>OKX X Layer</span>
           </div>
 
           {/* X Layer Faucet Quick Claim Button */}
@@ -932,11 +839,7 @@ export default function TradePage() {
             <span>{notification.msg}</span>
             {notification.tx && (
               <a
-                href={
-                  selectedChain === "solana"
-                    ? `https://explorer.solana.com/tx/${notification.tx}?cluster=devnet`
-                    : `https://www.oklink.com/xlayer-test/tx/${notification.tx}`
-                }
+                href={`https://www.oklink.com/xlayer-test/tx/${notification.tx}`}
                 target="_blank"
                 rel="noreferrer"
                 className="underline ml-2 hover:opacity-80 flex items-center gap-1"

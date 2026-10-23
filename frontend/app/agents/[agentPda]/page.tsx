@@ -275,7 +275,7 @@ export default async function AgentProfilePage({
                 <InfoTooltip content="Live metrics, performance stats, and on-chain verification status." />
               </div>
               <span className="text-[10px] font-mono uppercase tracking-wider text-foreground-muted font-semibold">
-                {data.agent.chain === "base" || data.agent.owner.startsWith("0x") ? "OKX X Layer" : "Solana Devnet"}
+                OKX X Layer
               </span>
             </div>
 
@@ -471,7 +471,7 @@ export default async function AgentProfilePage({
                             </span>
                           </div>
                           <p className="mt-1.5 max-w-2xl text-xs leading-relaxed text-foreground-muted">
-                            Active on {data.agent.chain === "base" || data.agent.owner.startsWith("0x") ? "OKX X Layer" : "Solana Devnet"}. The runtime scans oracle prices every 15s and fires orders once volatility crosses strategy thresholds.
+                            Active on OKX X Layer. The runtime scans oracle prices every 15s and fires orders once volatility crosses strategy thresholds.
                           </p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">

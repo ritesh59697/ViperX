@@ -9,12 +9,14 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.s
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IViperVault } from "../interfaces/IViperVault.sol";
 import { IPositionRouter } from "../interfaces/IPositionRouter.sol";
+import { ITapeOutCircuitGuardian } from "../interfaces/ITapeOutCircuitGuardian.sol";
 import { PythPriceAdapter } from "./PythPriceAdapter.sol";
 import { ViperVault } from "./ViperVault.sol";
 
 /**
  * @title PositionRouter
- * @notice Advanced order router for ViperX with EIP-712 signed agent delegation and Stop-Loss/Take-Profit triggers.
+ * @notice Advanced order router for ViperX with EIP-712 signed agent delegation,
+ *         TapeOut hardware-grade circuit risk guardian, and Stop-Loss/Take-Profit triggers.
  */
 contract PositionRouter is IPositionRouter, EIP712, ReentrancyGuard, Ownable {
     using SafeERC20 for IERC20;
@@ -28,9 +30,12 @@ contract PositionRouter is IPositionRouter, EIP712, ReentrancyGuard, Ownable {
     IERC20 public immutable usdc;
     PythPriceAdapter public immutable priceAdapter;
 
+    ITapeOutCircuitGuardian public circuitGuardian;
     uint256 public minExecutionFeeUsd; // Execution reward for keeper executing trigger orders
     mapping(address => uint256) public agentNonces;
     mapping(bytes32 => TriggerOrder) public triggerOrders;
+
+    event CircuitGuardianSet(address indexed guardian);
 
     error IntentExpired();
     error SlippageExceeded();
@@ -38,6 +43,7 @@ contract PositionRouter is IPositionRouter, EIP712, ReentrancyGuard, Ownable {
     error OrderNotFound();
     error OrderNotTriggerable();
     error Unauthorized();
+    error CircuitRiskRejected(uint32 diagnosticBits);
 
     constructor(
         address _vault,
@@ -48,6 +54,14 @@ contract PositionRouter is IPositionRouter, EIP712, ReentrancyGuard, Ownable {
         usdc = IERC20(_usdc);
         priceAdapter = PythPriceAdapter(_priceAdapter);
         minExecutionFeeUsd = 1 * 1e18; // $1.00 keeper bounty
+    }
+
+    /**
+     * @notice Connects or updates the TapeOut Circuit Guardian on X Layer.
+     */
+    function setCircuitGuardian(address _guardian) external onlyOwner {
+        circuitGuardian = ITapeOutCircuitGuardian(_guardian);
+        emit CircuitGuardianSet(_guardian);
     }
 
     // =========================================================================
@@ -93,6 +107,12 @@ contract PositionRouter is IPositionRouter, EIP712, ReentrancyGuard, Ownable {
             if (markPrice < intent.maxSlippagePrice) revert SlippageExceeded();
         }
 
+        // 2b. Evaluate Hardware Circuit Guardian on X Layer if active
+        if (address(circuitGuardian) != address(0)) {
+            (bool passed, uint32 diagBits,) = circuitGuardian.validateIntent(intent, markPrice);
+            if (!passed) revert CircuitRiskRejected(diagBits);
+        }
+
         // 3. Transfer USDC from agent to this router, approve vault, and open position
         uint256 rawUsdc = _fromUsd18(intent.collateralUsd);
         usdc.safeTransferFrom(intent.agent, address(this), rawUsdc);
@@ -104,6 +124,10 @@ contract PositionRouter is IPositionRouter, EIP712, ReentrancyGuard, Ownable {
             intent.sizeUsd,
             intent.collateralUsd
         );
+
+        if (address(circuitGuardian) != address(0)) {
+            circuitGuardian.recordExecution(intent.agent);
+        }
     }
 
     // =========================================================================

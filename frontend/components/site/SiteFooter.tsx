@@ -196,12 +196,12 @@ export function SiteFooter() {
                 </li>
                 <li>
                   <a
-                    href={`https://explorer.solana.com/address/${PROGRAM_ID}?cluster=devnet`}
+                    href="https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-foreground-muted transition-colors hover:text-foreground"
                   >
-                    Solana program
+                    TapeOut Guardian (101)
                   </a>
                 </li>
                 <li>
@@ -227,7 +227,7 @@ export function SiteFooter() {
             </span>
             <span className="text-border-strong select-none">•</span>
             <span className="text-xs text-foreground-faint font-mono">
-              Live on OKX X Layer, Base & Solana.
+              Live on OKX X Layer & TapeOut DeWEB.
             </span>
           </div>
           <nav className="flex flex-wrap gap-x-6 gap-y-2">

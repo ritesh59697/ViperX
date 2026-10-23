@@ -424,7 +424,7 @@ export default function PaperTradingPage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full border border-foreground-faint shrink-0" />
-                  <span>Deploy on Live Testnet (X Layer / Solana)</span>
+                  <span>Deploy on Live Testnet (OKX X Layer)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full border border-foreground-faint shrink-0" />

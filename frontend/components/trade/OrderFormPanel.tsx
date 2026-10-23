@@ -552,6 +552,26 @@ export function OrderFormPanel({
           </span>
         </div>
       </div>
+
+      {/* ─── 10. Hardware-Grade Risk Guardian (TapeOut Protocol on X Layer) ─── */}
+      {selectedChain === "xlayer" && (
+        <div className="mt-3 flex items-center justify-between px-2.5 py-1.5 bg-background border border-border font-mono text-[10px]">
+          <div className="flex items-center gap-1.5">
+            <span className={cn(
+              "h-1.5 w-1.5 rounded-full",
+              leverage <= 20 ? "bg-positive animate-pulse" : "bg-accent"
+            )} />
+            <span className="text-foreground-muted">CIRCUIT GUARDIAN:</span>
+            <span className="text-accent font-semibold">TAPE-101</span>
+          </div>
+          <span className={cn(
+            "font-medium",
+            leverage <= 20 ? "text-positive" : "text-accent"
+          )}>
+            {leverage <= 20 ? "GATE PASS" : "LEV EXCEEDED (MAX 20x)"}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

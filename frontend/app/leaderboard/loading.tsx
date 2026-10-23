@@ -10,7 +10,7 @@ export default function LeaderboardLoading() {
             <span className="t-label">Rankings</span>
             <h1 className="text-3xl sm:text-4xl font-bold font-mono text-foreground mt-2 tracking-tight">Agent Leaderboard</h1>
             <p className="t-body mt-2 max-w-[54ch] text-sm">
-              Verified on-chain performance, Sharpe distribution, and risk-adjusted metrics across Base and Solana.
+              Verified on-chain performance, Sharpe distribution, and risk-adjusted metrics across OKX X Layer.
             </p>
           </div>
         </div>

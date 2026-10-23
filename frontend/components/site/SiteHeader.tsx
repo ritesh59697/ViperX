@@ -233,21 +233,8 @@ export function SiteHeader() {
   }, []);
 
   useEffect(() => {
-    const updateNetwork = () => {
-      const saved = localStorage.getItem("viperx-active-chain");
-      if (saved === "solana" || saved === "base" || saved === "xlayer") {
-        setSelectedNetwork(saved as "solana" | "base" | "xlayer");
-      } else {
-        setSelectedNetwork("xlayer");
-      }
-    };
-    updateNetwork();
-    window.addEventListener("storage", updateNetwork);
-    window.addEventListener("viperx-chain-changed", updateNetwork);
-    return () => {
-      window.removeEventListener("storage", updateNetwork);
-      window.removeEventListener("viperx-chain-changed", updateNetwork);
-    };
+    setSelectedNetwork("xlayer");
+    localStorage.setItem("viperx-active-chain", "xlayer");
   }, []);
 
   useEffect(() => {
@@ -298,28 +285,12 @@ export function SiteHeader() {
           id="mobile-nav"
           className="fixed top-16 left-0 right-0 z-[60] md:hidden border-b border-border bg-background/95 backdrop-blur-2xl shadow-2xl"
         >
-            {/* Network selector */}
-            <div className="px-5 py-4 border-b border-border">
-              <div className="flex gap-2">
-                {(["xlayer", "solana"] as const).map((net) => (
-                  <button
-                    key={net}
-                    type="button"
-                    onClick={() => handleNetworkChange(net)}
-                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border py-2.5 text-xs font-semibold transition-all cursor-pointer ${
-                      selectedNetwork === net
-                        ? "border-border-strong bg-surface text-foreground shadow-sm"
-                        : "border-border text-foreground-muted hover:bg-surface/50 hover:text-foreground"
-                    }`}
-                  >
-                    {net === "solana" ? (
-                      <SolanaLogo className="h-3.5 w-3.5" />
-                    ) : (
-                      <XLayerLogo className="h-3.5 w-3.5" />
-                    )}
-                    {net === "solana" ? "Solana" : "X Layer"}
-                  </button>
-                ))}
+            {/* Network indicator */}
+            <div className="px-5 py-3 border-b border-border flex items-center justify-between">
+              <span className="font-mono text-[10px] text-foreground-muted uppercase tracking-wider">Network</span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border bg-surface font-mono text-xs font-semibold text-foreground">
+                <XLayerLogo className="h-3.5 w-3.5" />
+                <span>OKX X Layer</span>
               </div>
             </div>
 
@@ -419,15 +390,8 @@ export function SiteHeader() {
                 </a>
               </div>
               <div className="flex items-center justify-between font-mono text-[10px] text-foreground-faint">
-                <span>SOL PROGRAM</span>
-                <a
-                  href="https://explorer.solana.com/address/321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm?cluster=devnet"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-foreground break-all"
-                >
-                  321hJ...QVRm
-                </a>
+                <span>CIRCUIT GUARDIAN</span>
+                <span className="text-accent font-semibold">TAPE-101 (ARMED)</span>
               </div>
             </div>
 
@@ -634,56 +598,15 @@ export function SiteHeader() {
 
             <ThemeToggle />
 
-            {/* Desktop: network picker */}
-            <div className="relative hidden md:block" ref={networkDropdownRef}>
-              <button
-                type="button"
-                onClick={() => setNetworkDropdownOpen((v) => !v)}
-                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-background-elevated px-3 text-xs font-semibold text-foreground transition-colors hover:border-border-strong cursor-pointer"
-              >
-                {selectedNetwork === "solana" ? (
-                  <>
-                    <SolanaLogo />
-                    <span>Solana</span>
-                  </>
-                ) : selectedNetwork === "xlayer" ? (
-                  <>
-                    <XLayerLogo />
-                    <span>X Layer</span>
-                  </>
-                ) : (
-                  <>
-                    <BaseLogo />
-                    <span>Base</span>
-                  </>
-                )}
-                <ChevronDown open={networkDropdownOpen} />
-              </button>
-              {networkDropdownOpen && (
-                <div className="absolute right-0 mt-1.5 w-36 rounded-xl border border-border bg-background/95 p-1 shadow-xl backdrop-blur-xl z-50">
-                  <button
-                    type="button"
-                    onClick={() => handleNetworkChange("xlayer")}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-surface cursor-pointer"
-                  >
-                    <XLayerLogo />
-                    <span>X Layer</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleNetworkChange("solana")}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-surface cursor-pointer"
-                  >
-                    <SolanaLogo />
-                    <span>Solana</span>
-                  </button>
-                </div>
-              )}
+            {/* Desktop: network indicator */}
+            <div className="hidden md:flex items-center gap-1.5 rounded-full border border-border bg-background-elevated px-3 py-1.5 text-xs font-semibold text-foreground">
+              <XLayerLogo className="h-3.5 w-3.5" />
+              <span>OKX X Layer</span>
             </div>
 
             {/* Connect Wallet Button — always visible in navbar on both mobile & desktop */}
             <div className="flex items-center">
-              {selectedNetwork === "solana" ? <WalletMultiButton /> : <BaseConnectButton />}
+              <BaseConnectButton />
             </div>
 
             {/* Hamburger — mobile only */}

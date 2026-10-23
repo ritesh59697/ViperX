@@ -164,7 +164,7 @@ export default function DashboardPage() {
                 <span className="text-foreground-muted text-[11px]">Connected Wallet</span>
                 <span className="font-semibold text-foreground tracking-wide">{shortenedAddress}</span>
                 <span className="text-[10px] text-foreground-faint uppercase tracking-wider font-semibold">
-                  {activeChain === "xlayer" ? "OKX X Layer Testnet" : "Solana Devnet"}
+                  OKX X Layer Testnet
                 </span>
               </div>
             </div>
@@ -518,7 +518,7 @@ export default function DashboardPage() {
           <div className="flex flex-col items-center justify-center gap-4 rounded-lg bg-white p-12 text-center font-mono text-xs dark:bg-[#0a0a0a]">
             <span className="text-foreground-muted">Connect your wallet to initialize this workspace.</span>
             <div className="flex gap-4">
-              {activeChain === "solana" ? <SolanaConnectButton /> : <BaseConnectButton />}
+              <BaseConnectButton />
             </div>
           </div>
         </div>

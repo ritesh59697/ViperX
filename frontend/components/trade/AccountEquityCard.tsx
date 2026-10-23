@@ -41,13 +41,8 @@ export function AccountEquityCard({
 
   const isProfit = totalUnrealizedPnl >= 0;
 
-  const { selectedChain } = useTradeStore();
-  const explorerUrl =
-    selectedChain === "solana"
-      ? "https://explorer.solana.com/?cluster=devnet"
-      : "https://www.oklink.com/xlayer-test/address/0x9Dcfe752AC97F167763FeD87f4100F33cD29dbb7";
-  const explorerName =
-    selectedChain === "solana" ? "Solana Explorer" : "OKLink";
+  const explorerUrl = "https://www.oklink.com/xlayer-test/address/0x9Dcfe752AC97F167763FeD87f4100F33cD29dbb7";
+  const explorerName = "OKLink (X Layer)";
 
   return (
     <div className="flex flex-col border-t border-[#e2e5eb] dark:border-[#1e1e1e] bg-[#f8f9fb] dark:bg-[#080808] p-3 text-[11px] font-mono select-none">
@@ -55,7 +50,7 @@ export function AccountEquityCard({
       <div className="grid grid-cols-2 gap-2 mb-3">
         <button
           type="button"
-          onClick={() => window.open(selectedChain === "xlayer" ? "https://www.okx.com/xlayer" : "https://faucet.circle.com/", "_blank")}
+          onClick={() => window.open("https://www.okx.com/xlayer", "_blank")}
           className="flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-white hover:bg-[#edf0f5] dark:bg-[#121212] hover:dark:bg-[#1a1a1a] border border-[#d2d6df] dark:border-[#222222] text-foreground font-semibold text-xs transition-colors cursor-pointer shadow-xs dark:shadow-none"
         >
           <RuneIcon name="actions-plus" className="h-3 w-3 text-accent" />

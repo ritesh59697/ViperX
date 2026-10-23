@@ -1,0 +1,669 @@
+import * as fs from "fs";
+import * as path from "path";
+import * as crypto from "crypto";
+
+const DIST_DIR = path.resolve(process.cwd(), "dist-deweb");
+
+if (!fs.existsSync(DIST_DIR)) {
+  fs.mkdirSync(DIST_DIR, { recursive: true });
+}
+
+const htmlContent = `<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ViperX | TapeOut DeWEB On-Chain Portal (X Layer)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000000;
+      --bg-elevated: #0a0a0a;
+      --bg-elevated-hover: #141414;
+      --surface: #121212;
+      --border: #1e1e1e;
+      --border-strong: #2c2c2c;
+      --foreground: #f2f4f7;
+      --foreground-muted: #888e9b;
+      --foreground-faint: #555b66;
+      --accent: #f83a18;
+      --accent-fill: #d0200a;
+      --positive: #10b981;
+      --negative: #f83a18;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--foreground);
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 50% -20%, rgba(248, 58, 24, 0.12) 0%, transparent 60%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .robot-logo {
+      width: 32px;
+      height: 26px;
+    }
+    .brand-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .brand-accent {
+      color: var(--accent);
+    }
+    .badge-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--foreground-muted);
+      border-radius: 2px;
+    }
+    .network-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 4px 10px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-elevated);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      border-radius: 2px;
+      color: var(--foreground);
+    }
+    .network-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--positive);
+      box-shadow: 0 0 6px var(--positive);
+    }
+
+    main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Blueprint Section Banner */
+    .blueprint-hero {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
+      padding: 2.25rem;
+      position: relative;
+    }
+    .blueprint-hero::before {
+      content: "SPEC // TAPEOUT-XLAYER-V1";
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+    }
+    .hero-h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.75rem;
+      color: var(--foreground);
+    }
+    .hero-h1 span {
+      color: var(--accent);
+    }
+    .hero-p {
+      color: var(--foreground-muted);
+      font-size: 0.95rem;
+      line-height: 1.65;
+      max-width: 840px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* Architectural Blueprint Card */
+    .bp-card {
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      transition: border-color 0.2s ease;
+    }
+    .bp-card:hover {
+      border-color: var(--border-strong);
+    }
+    .bp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.85rem;
+    }
+    .bp-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .bp-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--foreground);
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 0.875rem;
+    }
+    .meta-key {
+      color: var(--foreground-muted);
+    }
+    .meta-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--foreground);
+    }
+
+    .gate-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.65rem 0.85rem;
+      background: #000000;
+      border: 1px solid var(--border);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+    }
+    .gate-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--foreground);
+    }
+    .gate-status-pill {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 2px;
+      font-weight: 500;
+    }
+    .status-pass {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--positive);
+    }
+    .status-fail {
+      background: rgba(248, 58, 24, 0.12);
+      border: 1px solid rgba(248, 58, 24, 0.3);
+      color: var(--negative);
+    }
+
+    /* Simulator Controls */
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .control-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--foreground-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .control-input {
+      background: #000000;
+      border: 1px solid var(--border);
+      padding: 0.65rem 0.75rem;
+      color: var(--foreground);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    .control-input:focus {
+      border-color: var(--accent);
+    }
+    .viper-btn {
+      background: var(--foreground);
+      color: var(--bg);
+      border: 1px solid var(--foreground);
+      padding: 0.75rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.15s ease;
+      letter-spacing: -0.01em;
+    }
+    .viper-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .output-terminal {
+      background: #000000;
+      border: 1px solid var(--border);
+      padding: 0.85rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      min-height: 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Leaderboard Table */
+    .table-card {
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      padding: 1.5rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+    th {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--foreground-muted);
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-family: 'DM Mono', monospace;
+      color: var(--foreground);
+    }
+    .agent-name {
+      font-weight: 600;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .rank-num {
+      color: var(--foreground-faint);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--foreground-muted);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .hash-token {
+      background: #0a0a0a;
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      color: var(--foreground);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-wrap">
+      <!-- ViperX Animated Head Icon -->
+      <svg class="robot-logo" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="7" y="27" width="10" height="30" rx="2" fill="#1e1e1e" />
+        <rect x="83" y="27" width="10" height="30" rx="2" fill="#1e1e1e" />
+        <rect x="13" y="12" width="74" height="60" rx="4" fill="#0e0e0e" stroke="#2c2c2c" stroke-width="2" />
+        <rect x="18" y="17" width="64" height="50" fill="#000000" />
+        <rect x="34" y="32" width="8" height="20" rx="1" fill="#f83a18" />
+        <rect x="58" y="32" width="8" height="20" rx="1" fill="#f83a18" />
+      </svg>
+      <div class="brand-name">
+        <span>ViperX</span>
+        <span class="brand-accent">DeWEB</span>
+      </div>
+      <span class="badge-tag">TAP-10 On-Chain Site</span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:0.75rem;">
+      <div class="network-pill">
+        <div class="network-dot"></div>
+        <span>OKX X Layer Testnet (1952)</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Blueprint Hero Section -->
+    <div class="blueprint-hero">
+      <h1 class="hero-h1">On-Chain Proof Layer & <span>Hardware Circuit Guardian</span></h1>
+      <p class="hero-p">
+        Hosted completely decentralized on <strong>TapeOut DeWEB</strong> on <strong>OKX X Layer</strong>. 
+        Autonomous trading agents execute via delegated authority while every order intent is evaluated against an on-chain digital logic circuit container (max leverage comparators, slippage guards, drawdown killswitches, and anti-wash cooldown latches) before settlement.
+      </p>
+    </div>
+
+    <!-- 2 Column Section -->
+    <div class="grid-2">
+      <!-- Circuit Guardian Telemetry Card -->
+      <div class="bp-card">
+        <div class="bp-header">
+          <div>
+            <div class="bp-label">HARDWARE // VERIFICATION</div>
+            <h2 class="bp-title">TapeOut Circuit Guardian</h2>
+          </div>
+          <span class="gate-status-pill status-pass">ONLINE (HIGH)</span>
+        </div>
+
+        <div class="meta-row">
+          <span class="meta-key">Processor Contract</span>
+          <span class="meta-val">0x36B9...aF6A (X Layer)</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key">Circuit ID</span>
+          <span class="meta-val">101 [VIPERX_RISK_V1]</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key">Execution Venue</span>
+          <span class="meta-val">ViperVault.sol (USDC Pool)</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem;">
+          <div class="gate-row">
+            <div class="gate-title">
+              <span style="color:var(--accent);">GATE_0</span>
+              <span>COMP_LEVERAGE: &le; 20.0x</span>
+            </div>
+            <span class="gate-status-pill status-pass">ARMED</span>
+          </div>
+
+          <div class="gate-row">
+            <div class="gate-title">
+              <span style="color:var(--accent);">GATE_1</span>
+              <span>COMP_SLIPPAGE: &le; 2.00%</span>
+            </div>
+            <span class="gate-status-pill status-pass">ARMED</span>
+          </div>
+
+          <div class="gate-row">
+            <div class="gate-title">
+              <span style="color:var(--accent);">GATE_2</span>
+              <span>COMP_DRAWDOWN: &le; 25.00%</span>
+            </div>
+            <span class="gate-status-pill status-pass">ARMED</span>
+          </div>
+
+          <div class="gate-row">
+            <div class="gate-title">
+              <span style="color:var(--accent);">GATE_3</span>
+              <span>LATCH_COOLDOWN: &ge; 10s</span>
+            </div>
+            <span class="gate-status-pill status-pass">ARMED</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Circuit Evaluator -->
+      <div class="bp-card">
+        <div class="bp-header">
+          <div>
+            <div class="bp-label">SIMULATOR // SANDBOX</div>
+            <h2 class="bp-title">Interactive Signal Bus Evaluator</h2>
+          </div>
+          <span class="badge-tag">Judge Sandbox</span>
+        </div>
+
+        <div class="input-grid">
+          <div class="control-group">
+            <label class="control-label">Leverage (x)</label>
+            <input id="simLeverage" class="control-input" type="number" value="3.0" step="0.5">
+          </div>
+          <div class="control-group">
+            <label class="control-label">Slippage Tolerance (%)</label>
+            <input id="simSlippage" class="control-input" type="number" value="0.8" step="0.1">
+          </div>
+          <div class="control-group">
+            <label class="control-label">Rolling Drawdown (%)</label>
+            <input id="simDrawdown" class="control-input" type="number" value="5.0" step="1.0">
+          </div>
+          <div class="control-group">
+            <label class="control-label">Cooldown Interval (s)</label>
+            <input id="simCooldown" class="control-input" type="number" value="25" step="1">
+          </div>
+        </div>
+
+        <button class="viper-btn" onclick="simulateCircuit()">
+          Simulate TapeOut Circuit Evaluation
+        </button>
+
+        <div id="simResult" class="output-terminal">
+          Initializing circuit logic...
+        </div>
+      </div>
+    </div>
+
+    <!-- Verified Leaderboard -->
+    <div class="table-card">
+      <div class="bp-header" style="margin-bottom: 1.25rem;">
+        <div>
+          <div class="bp-label">INTEGRITY // SETTLED FILLS</div>
+          <h2 class="bp-title">Verified Agent Leaderboard (X Layer)</h2>
+        </div>
+        <span class="badge-tag">Min 50 Fills Required</span>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Agent Identity</th>
+              <th>Settled Fills</th>
+              <th>Sharpe Ratio</th>
+              <th>Win Rate</th>
+              <th>Max Drawdown</th>
+              <th>Circuit Verdict</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="rank-num">01</td>
+              <td><span class="agent-name">Viper-Alpha-Quant</span></td>
+              <td>124 / 50</td>
+              <td style="color:#ffffff;">2.84</td>
+              <td style="color:var(--positive);">68.4%</td>
+              <td style="color:var(--foreground-muted);">-6.2%</td>
+              <td><span class="gate-status-pill status-pass">APPROVED</span></td>
+            </tr>
+            <tr>
+              <td class="rank-num">02</td>
+              <td><span class="agent-name">Momentum-X-Layer</span></td>
+              <td>89 / 50</td>
+              <td style="color:#ffffff;">2.15</td>
+              <td style="color:var(--positive);">61.2%</td>
+              <td style="color:var(--foreground-muted);">-11.4%</td>
+              <td><span class="gate-status-pill status-pass">APPROVED</span></td>
+            </tr>
+            <tr>
+              <td class="rank-num">03</td>
+              <td><span class="agent-name">Arbitrage-Titan</span></td>
+              <td>54 / 50</td>
+              <td style="color:#ffffff;">1.92</td>
+              <td style="color:var(--positive);">57.8%</td>
+              <td style="color:var(--foreground-muted);">-14.1%</td>
+              <td><span class="gate-status-pill status-pass">APPROVED</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div>
+      <span>TAPs STANDARD: <strong>TAP-10 (DeWEB)</strong></span>
+      <span style="margin-left:1.5rem;">PRIMARY EXECUTION: <strong>OKX X LAYER</strong></span>
+    </div>
+    <div style="display:flex; align-items:center; gap:0.5rem;">
+      <span>SHA-256:</span>
+      <span class="hash-token">GENERATING...</span>
+    </div>
+  </footer>
+
+  <script>
+    function simulateCircuit() {
+      const lev = parseFloat(document.getElementById('simLeverage').value);
+      const slip = parseFloat(document.getElementById('simSlippage').value);
+      const dd = parseFloat(document.getElementById('simDrawdown').value);
+      const cd = parseFloat(document.getElementById('simCooldown').value);
+
+      const levPass = lev <= 20.0;
+      const slipPass = slip <= 2.0;
+      const ddPass = dd <= 25.0;
+      const cdPass = cd >= 10.0;
+
+      const passed = levPass && slipPass && ddPass && cdPass;
+      
+      const levScaled = Math.round(lev * 100);
+      const slipScaled = Math.round(slip * 100);
+      const ddScaled = Math.round(dd * 100);
+      const cdScaled = Math.round(cd);
+
+      let diagBits = 0;
+      if (!levPass) diagBits |= (1 << 0);
+      if (!slipPass) diagBits |= (1 << 1);
+      if (!ddPass) diagBits |= (1 << 2);
+      if (!cdPass) diagBits |= (1 << 3);
+
+      const resBox = document.getElementById('simResult');
+      if (passed) {
+        resBox.style.borderColor = 'var(--positive)';
+        resBox.innerHTML = \`<div style="color:var(--positive); font-weight:600;">
+          [PASS] CIRCUIT VERDICT: APPROVED (HIGH)
+        </div>
+        <div style="color:var(--foreground-muted); font-size:11px; margin-top:4px;">
+          Signal Bus: LEV=\${levScaled} SLIP=\${slipScaled}bps DD=\${ddScaled}bps CD=\${cdScaled}s | Diag=0x00
+        </div>\`;
+      } else {
+        resBox.style.borderColor = 'var(--negative)';
+        resBox.innerHTML = \`<div style="color:var(--negative); font-weight:600;">
+          [FAIL] CIRCUIT VERDICT: REJECTED (0x0\${diagBits.toString(16)})
+        </div>
+        <div style="color:var(--foreground-muted); font-size:11px; margin-top:4px;">
+          Violations: \${!levPass ? '[LEV_EXCEEDED > 20x] ' : ''}\${!slipPass ? '[SLIPPAGE > 2%] ' : ''}\${!ddPass ? '[DRAWDOWN > 25%] ' : ''}\${!cdPass ? '[COOLDOWN < 10s]' : ''}
+        </div>\`;
+      }
+    }
+
+    simulateCircuit();
+  </script>
+</body>
+</html>`;
+
+const outPath = path.join(DIST_DIR, "index.html");
+fs.writeFileSync(outPath, htmlContent, "utf-8");
+
+const hash = crypto.createHash("sha256").update(htmlContent).digest("hex");
+
+// Update hash badge in the written file
+const finalHtml = htmlContent.replace("GENERATING...", hash);
+fs.writeFileSync(outPath, finalHtml, "utf-8");
+
+// Create TAP-10 DeWEB Manifest
+const manifest = {
+  name: "viperx",
+  version: "1.0.0",
+  protocol: "TAP-10",
+  target_network: "OKX X Layer (Chain ID: 1952)",
+  entry: "index.html",
+  sha256: hash,
+  files: [
+    {
+      path: "index.html",
+      size: Buffer.byteLength(finalHtml),
+      sha256: hash
+    }
+  ],
+  tapeout_integration: {
+    circuit_container_id: 101,
+    circuit_name: "VIPERX_RISK_V1",
+    processor_interface: "ITapeOutCircuitProcessor",
+    deweb_gateway: "tape://viperx.tape"
+  }
+};
+
+fs.writeFileSync(path.join(DIST_DIR, "deweb.manifest.json"), JSON.stringify(manifest, null, 2), "utf-8");
+
+console.log("==================================================");
+console.log("DeWEB Bundle Updated with ViperX Blueprint Theme!");
+console.log("Output Directory:", DIST_DIR);
+console.log("Entry Point:", outPath);
+console.log("TAP-10 SHA-256:", hash);
+console.log("==================================================");

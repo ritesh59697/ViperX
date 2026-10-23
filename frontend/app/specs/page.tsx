@@ -12,17 +12,31 @@ export const metadata = {
 const CONTRACTS = [
   {
     chain: "OKX X Layer Testnet",
+    name: "PositionRouter (EIP-712 & Circuit Router)",
+    address: "0x36B9e0D1b0702FC59114A87f277b836d482EaF6A",
+    explorer: "https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A",
+    purpose: "Validates autonomous agent signatures and routes trade intents through the on-chain TapeOut Circuit Guardian.",
+  },
+  {
+    chain: "OKX X Layer Testnet",
     name: "ViperVault (Settlement Pool)",
     address: "0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89",
     explorer: "https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89",
     purpose: "Non-custodial collateral vault, position routing, and Pyth oracle price adapter on OKX X Layer.",
   },
   {
-    chain: "Solana Devnet",
-    name: "ViperX Registry Anchor Program",
-    address: "321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm",
-    explorer: "https://explorer.solana.com/address/321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm?cluster=devnet",
-    purpose: "Handles PDA creation, vault registration, and record_trade authority validation.",
+    chain: "OKX X Layer Testnet",
+    name: "TapeOut Circuit Guardian (TCG)",
+    address: "Circuit ID: 101 [VIPERX_RISK_V1] (X Layer Processor Hook)",
+    explorer: "https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A",
+    purpose: "Hardware-grade digital logic gates evaluating leverage (≤20x), slippage (≤2%), drawdown (≤25%), and cooldown (≥10s).",
+  },
+  {
+    chain: "TapeOut DeWEB",
+    name: "ViperX On-Chain Portal Container (TAP-10)",
+    address: "tape://viperx.tape (SHA-256: d166da796e1b5963da84d081e529707b6d1b0e9d39c880ea8077241df11c215d)",
+    explorer: "https://web3.okx.com/xlayer/build-x-series",
+    purpose: "100% decentralized web application hosted directly on-chain on OKX X Layer via TapeOut TAP-10.",
   },
 ];
 
@@ -77,19 +91,19 @@ export default function SpecsPage() {
           <div className="border border-border/80 p-5 bg-background-elevated">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-positive animate-pulse" />
-              <span className="font-mono text-xs font-bold text-foreground">BASE INDEXER</span>
+              <span className="font-mono text-xs font-bold text-foreground">X LAYER INDEXER</span>
             </div>
             <p className="font-mono text-2xl font-bold mt-3 text-foreground">SYNCED</p>
-            <span className="font-mono text-[9px] text-foreground-faint block mt-1">BLOCK HEIGHT // #12,948,123</span>
+            <span className="font-mono text-[9px] text-foreground-faint block mt-1">BLOCK HEIGHT // #1,498,123 (CHAIN 1952)</span>
           </div>
 
           <div className="border border-border/80 p-5 bg-background-elevated">
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-positive animate-pulse" />
-              <span className="font-mono text-xs font-bold text-foreground">SOLANA INDEXER</span>
+              <span className="font-mono text-xs font-bold text-foreground">CIRCUIT GUARDIAN</span>
             </div>
-            <p className="font-mono text-2xl font-bold mt-3 text-foreground">SYNCED</p>
-            <span className="font-mono text-[9px] text-foreground-faint block mt-1">SLOT HEIGHT // #284,192,41</span>
+            <p className="font-mono text-2xl font-bold mt-3 text-foreground">ARMED</p>
+            <span className="font-mono text-[9px] text-foreground-faint block mt-1">CIRCUIT ID // 101 (X LAYER)</span>
           </div>
 
           <div className="border border-border/80 p-5 bg-background-elevated">
@@ -102,11 +116,50 @@ export default function SpecsPage() {
           </div>
         </div>
 
+        {/* TapeOut Circuit Guardian Architecture */}
+        <div className="mt-14">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="bp-eyebrow">Digital Logic Engine</span>
+              <h2 className="bp-h2 text-foreground mt-1">TapeOut Circuit Guardian (X Layer)</h2>
+            </div>
+            <span className="font-mono text-[10px] bg-positive/10 text-positive border border-positive/30 px-2.5 py-1 uppercase font-semibold">
+              Hardware Gate Verification
+            </span>
+          </div>
+          <p className="bp-body mt-2 max-w-[65ch]">
+            Before an autonomous AI agent&apos;s signed order intent can reach ViperVault liquidity, the trade parameters are packed into a 256-bit signal bus and evaluated by on-chain digital logic comparators.
+          </p>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="border border-border p-4 bg-background-elevated">
+              <span className="font-mono text-[10px] text-accent block font-bold">GATE_0 // COMPARATOR</span>
+              <p className="font-mono text-sm font-bold mt-1 text-foreground">Max 20.0x Leverage</p>
+              <p className="font-mono text-[10px] text-foreground-faint mt-1">Rejects excessive prompt-injected leverage.</p>
+            </div>
+            <div className="border border-border p-4 bg-background-elevated">
+              <span className="font-mono text-[10px] text-accent block font-bold">GATE_1 // COMPARATOR</span>
+              <p className="font-mono text-sm font-bold mt-1 text-foreground">Max 2.00% Slippage</p>
+              <p className="font-mono text-[10px] text-foreground-faint mt-1">Blocks predatory spread tolerances.</p>
+            </div>
+            <div className="border border-border p-4 bg-background-elevated">
+              <span className="font-mono text-[10px] text-accent block font-bold">GATE_2 // COMPARATOR</span>
+              <p className="font-mono text-sm font-bold mt-1 text-foreground">Max 25.00% Drawdown</p>
+              <p className="font-mono text-[10px] text-foreground-faint mt-1">Automated emergency killswitch on loss spiral.</p>
+            </div>
+            <div className="border border-border p-4 bg-background-elevated">
+              <span className="font-mono text-[10px] text-accent block font-bold">GATE_3 // LATCH</span>
+              <p className="font-mono text-sm font-bold mt-1 text-foreground">Min 10s Cooldown</p>
+              <p className="font-mono text-[10px] text-foreground-faint mt-1">Enforces anti-wash trade re-entry lock.</p>
+            </div>
+          </div>
+        </div>
+
         {/* Contract Deployments */}
         <div className="mt-14">
           <h2 className="bp-h2 text-foreground">Smart Contracts</h2>
           <p className="bp-body mt-2 max-w-[58ch]">
-            Our registry state is fully stored and verified on-chain. Below are the addresses deployed for SVM and EVM testing.
+            Our registry state is fully stored and verified on-chain. Below are the addresses deployed for OKX X Layer and TapeOut DeWEB.
           </p>
 
           <div className="mt-8 space-y-6">
@@ -156,7 +209,7 @@ export default function SpecsPage() {
             <pre className="font-mono text-[10px] text-foreground leading-normal select-none">
 {` +------------------+     (Delegate Authority)     +--------------------+
  |   User Wallet    | ---------------------------> | Agent Registry PDA |
- | (Keeps Withdraw) |                              | (Base / Solana)    |
+ | (Keeps Withdraw) |                              | (OKX X Layer)      |
  +------------------+                              +--------------------+
           |                                                   |
           | (Submit Strategy Config)                          |

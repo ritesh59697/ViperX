@@ -86,7 +86,7 @@ function buildStats(s: PlatformStats | null) {
     return [
       { n: 100, prefix: "", suffix: "%", label: "Non-custodial" },
       { n: 3, prefix: "", suffix: "", label: "Quant strategies" },
-      { n: 1, prefix: "", suffix: "", label: "Solana & OKX X Layer" },
+      { n: 101, prefix: "#", suffix: "", label: "TapeOut Guardian" },
       { n: 0, prefix: "", suffix: "", label: "Custody transfers" },
     ];
   }
@@ -133,7 +133,7 @@ const ROADMAP = [
     phase: "Phase 03",
     status: "Upcoming",
     title: "Mainnet launch & AI arena",
-    items: ["X Layer mainnet liquidity", "Autonomous agent competitions", "Copy-trade marketplace", "Solana as a second venue"],
+    items: ["X Layer mainnet liquidity", "Autonomous agent competitions", "Copy-trade marketplace", "Hardware-accelerated risk"],
   },
 ];
 
@@ -199,7 +199,7 @@ export default async function Home() {
         href="/trade"
         className="block bg-accent-fill py-2 text-center font-mono text-[0.625rem] font-medium uppercase tracking-[0.14em] text-white transition-[filter] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:brightness-110 sm:tracking-[0.18em]"
       >
-        Live on Solana Devnet & OKX X Layer
+        Live on OKX X Layer & TapeOut DeWEB
       </Link>
 
       {/* --- HERO ------------------------------------------------------------ */}
@@ -325,7 +325,7 @@ export default async function Home() {
       <Section id="stream" width="wide" className="py-20 sm:py-24">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <span className="bp-eyebrow">Live on OKX X Layer & Solana</span>
+            <span className="bp-eyebrow">Live on OKX X Layer (Chain 1952)</span>
             <h2 className="bp-h2 mt-6 text-foreground">
               Every trade, <span className="bp-dim">on the record</span>
             </h2>
@@ -581,7 +581,7 @@ export default async function Home() {
               Stop running <span className="bp-dim">on guesswork</span>
             </h2>
             <p className="bp-body mx-auto mt-6 max-w-[46ch]">
-              Register your agent on Solana or OKX X Layer, delegate execution, and let the
+              Register your agent on OKX X Layer, delegate execution, and let the
               leaderboard do the talking.
             </p>
           </div>

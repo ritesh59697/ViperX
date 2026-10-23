@@ -43,7 +43,7 @@ export default function LoadingAgentProfile() {
 
           <div className="flex items-center gap-2 shrink-0 font-mono text-[10px] text-foreground-faint">
             <span className="px-2.5 py-1 rounded bg-surface border border-border">
-              Base & Solana
+              OKX X Layer
             </span>
             <span className="px-2.5 py-1 rounded bg-surface border border-border text-accent">
               50+ Fills Bar

@@ -127,12 +127,7 @@ export default function CreateAgentPage() {
 
   // Load and sync network selection & drafts
   useEffect(() => {
-    const saved = localStorage.getItem("viperx-active-chain");
-    if (saved === "solana" || saved === "base" || saved === "xlayer") {
-      setActiveChain(saved);
-    } else {
-      setActiveChain("xlayer");
-    }
+    setActiveChain("xlayer");
 
     // Parse backtest redirect query params (avoids Next.js useSearchParams + Suspense overhead)
     const qp = new URLSearchParams(window.location.search);
@@ -557,32 +552,10 @@ export default function CreateAgentPage() {
 
       {/* --- Chain Selector Tab ------------------------------------------- */}
       <div className="mb-8 border-b border-border pb-6">
-        <label className="t-label block mb-3">1. Select Network</label>
-        <div className="flex flex-wrap gap-2 p-1 bg-surface border border-border rounded-xl w-fit">
-          <button
-            type="button"
-            onClick={() => handleNetworkChange("xlayer")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono text-xs font-semibold cursor-pointer transition-all ${
-              activeChain === "xlayer"
-                ? "bg-foreground text-background shadow"
-                : "text-foreground-muted hover:text-foreground"
-            }`}
-          >
-            <XLayerLogo className="h-3.5 w-3.5" />
-            OKX X Layer
-          </button>
-          <button
-            type="button"
-            onClick={() => handleNetworkChange("solana")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono text-xs font-semibold cursor-pointer transition-all ${
-              activeChain === "solana"
-                ? "bg-foreground text-background shadow"
-                : "text-foreground-muted hover:text-foreground"
-            }`}
-          >
-            <SolanaLogo className="h-3.5 w-3.5" />
-            Solana Devnet
-          </button>
+        <label className="t-label block mb-3">1. Network</label>
+        <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg font-mono text-xs font-semibold bg-foreground text-background shadow w-fit">
+          <XLayerLogo className="h-3.5 w-3.5" />
+          <span>OKX X Layer Testnet (Chain 1952)</span>
         </div>
       </div>
 
@@ -665,22 +638,17 @@ export default function CreateAgentPage() {
         </div>
       </div>
 
-      {/* Single wallet connect hint — only shown if the relevant wallet isn't yet connected */}
-      {((activeChain === "solana" && !publicKey) ||
-        (activeChain === "xlayer" && !isEvmConnected)) && (
+      {/* Single wallet connect hint — only shown if EVM wallet isn't yet connected */}
+      {!isEvmConnected && (
         <div className="mb-8 rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
           <div className="flex flex-col gap-4 rounded-lg bg-white p-4 text-left sm:flex-row sm:items-center sm:justify-between dark:bg-[#0a0a0a]">
             <span className="text-sm text-foreground-muted">
-              {activeChain === "solana"
-                ? isPaperMode
-                  ? "Connect a Solana wallet to sign the paper registration. No on-chain TX required."
-                  : <>Connect a devnet wallet to register an agent via <code className="font-mono">register_agent</code>. You sign — nothing is custodied by this app.</>
-                : isPaperMode
+              {isPaperMode
                 ? "Connect an OKX X Layer wallet to sign the paper registration. No on-chain TX required."
                 : "Connect an OKX X Layer wallet to register on the EVM registry contract."}
             </span>
             <div className="shrink-0">
-              {activeChain === "solana" ? <WalletMultiButton /> : <BaseConnectButton />}
+              <BaseConnectButton />
             </div>
           </div>
         </div>
@@ -743,17 +711,11 @@ export default function CreateAgentPage() {
             />
             {!isPaperMode && (
               <Field
-                label={activeChain === "solana" ? "Vault Pubkey (optional)" : "Vault Address (optional)"}
-                hint={activeChain === "solana"
-                  ? "Owner pubkey that holds collateral. Leave blank to default to your connected wallet."
-                  : "Owner address that holds collateral. Leave blank to default to your connected EVM wallet."
-                }
+                label="Vault Address (optional)"
+                hint="Owner address that holds collateral. Leave blank to default to your connected EVM wallet."
                 value={vaultPubkey}
                 onChange={handleVaultPubkeyChange}
-                placeholder={activeChain === "solana"
-                  ? (publicKey ? `${publicKey.toBase58().slice(0, 6)}...${publicKey.toBase58().slice(-4)} (Your connected wallet)` : "Connected wallet")
-                  : (evmAddress ? `${evmAddress.slice(0, 6)}...${evmAddress.slice(-4)} (Your connected EVM wallet)` : "Connected EVM wallet")
-                }
+                placeholder={evmAddress ? `${evmAddress.slice(0, 6)}...${evmAddress.slice(-4)} (Your connected EVM wallet)` : "Connected EVM wallet"}
               />
             )}
 
@@ -808,7 +770,7 @@ export default function CreateAgentPage() {
                         Agent Registered On-Chain!
                       </div>
                       <p className="max-w-md text-xs text-foreground-muted">
-                        Transaction confirmed on {activeChain === "xlayer" ? "OKX X Layer Testnet" : "Solana devnet"}. Your agent account is live and indexing.
+                        Transaction confirmed on OKX X Layer Testnet. Your agent account is live and indexing.
                       </p>
                       <div className="flex gap-3">
                         <Button href={`/agents/${state.agentPda}`}>View Agent Profile</Button>
@@ -822,11 +784,7 @@ export default function CreateAgentPage() {
               )}
             </AnimatePresence>
 
-            {state.status === "confirmed" && activeChain === "solana" && (
-              <FundAndDelegate agentPda={state.agentPda} />
-            )}
-
-            {state.status === "confirmed" && (activeChain === "base" || activeChain === "xlayer") && (
+            {state.status === "confirmed" && (
               <div className="mt-6 rounded-xl border border-black/10 bg-neutral-200/60 p-1 dark:border-[#262626] dark:bg-[#141414]">
                 <div className="flex flex-col gap-3 rounded-lg bg-white p-5 text-left dark:bg-[#0a0a0a]">
                   <h3 className="font-mono text-sm font-semibold text-foreground">
@@ -842,20 +800,18 @@ export default function CreateAgentPage() {
             {state.status !== "confirmed" && (
               <Button
                 type="submit"
-                disabled={!canSubmit || state.status === "signing" || (!isPaperMode && activeChain === "xlayer" && isEvmConfirming)}
+                disabled={!canSubmit || state.status === "signing" || (!isPaperMode && isEvmConfirming)}
                 className="mt-2 justify-center py-3"
               >
                 {state.status === "signing" ? (
                   isPaperMode ? "Signing paper registration..." : "Signing transaction..."
-                ) : !isPaperMode && activeChain === "xlayer" && isEvmConfirming ? (
+                ) : !isPaperMode && isEvmConfirming ? (
                   "Confirming on OKX X Layer..."
                 ) : (
                   <>
                     <ArrowRightGlyph />
                     {isPaperMode
                       ? "Register Paper Agent (No TX)"
-                      : activeChain === "solana"
-                      ? "Register Agent on Solana Devnet"
                       : "Register Agent on OKX X Layer"}
                   </>
                 )}

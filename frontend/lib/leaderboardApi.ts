@@ -42,12 +42,8 @@ export function getAgentChain(agent: {
   chain?: string | null;
   agent_pda?: string;
   owner?: string;
-}): "xlayer" | "solana" {
-  const c = agent.chain?.toLowerCase();
-  if (c === "xlayer" || c === "base") return "xlayer";
-  if (c === "solana") return "solana";
-  if (agent.agent_pda?.startsWith("0x") || agent.owner?.startsWith("0x")) return "xlayer";
-  return "solana";
+}): "xlayer" {
+  return "xlayer";
 }
 
 export interface LeaderboardResponse {

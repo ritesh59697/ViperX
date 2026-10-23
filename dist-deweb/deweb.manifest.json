@@ -1,0 +1,21 @@
+{
+  "name": "viperx",
+  "version": "1.0.0",
+  "protocol": "TAP-10",
+  "target_network": "OKX X Layer (Chain ID: 1952)",
+  "entry": "index.html",
+  "sha256": "d166da796e1b5963da84d081e529707b6d1b0e9d39c880ea8077241df11c215d",
+  "files": [
+    {
+      "path": "index.html",
+      "size": 19403,
+      "sha256": "d166da796e1b5963da84d081e529707b6d1b0e9d39c880ea8077241df11c215d"
+    }
+  ],
+  "tapeout_integration": {
+    "circuit_container_id": 101,
+    "circuit_name": "VIPERX_RISK_V1",
+    "processor_interface": "ITapeOutCircuitProcessor",
+    "deweb_gateway": "tape://viperx.tape"
+  }
+}

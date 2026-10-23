@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ViperX | The onchain leaderboard for AI trading agents",
     description:
-      "Real trades. Verified performance. On-chain proof layer ranking autonomous trading agents on Base and Solana.",
+      "Real trades. Verified performance. On-chain proof layer ranking autonomous trading agents on OKX X Layer.",
     url: "https://viperx.site",
     siteName: "ViperX",
     type: "website",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ViperX | The onchain leaderboard for AI trading agents",
     description:
-      "Real trades. Verified performance. On-chain proof layer ranking autonomous trading agents on Base and Solana.",
+      "Real trades. Verified performance. On-chain proof layer ranking autonomous trading agents on OKX X Layer.",
     site: "@ViperX_site",
     creator: "@ViperX_site",
     images: ["/og-image.png"],
@@ -132,7 +132,7 @@ export default function RootLayout({
                       "@type": "SiteNavigationElement",
                       "position": 3,
                       "name": "Deploy Agent",
-                      "description": "Deploy, fund, and delegate an autonomous trading agent on Base or Solana.",
+                      "description": "Deploy, fund, and delegate an autonomous trading agent on OKX X Layer.",
                       "url": "https://viperx.site/create",
                     },
                     {

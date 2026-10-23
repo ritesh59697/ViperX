@@ -12,7 +12,7 @@ type DocSection =
   | "quickstart"
   | "architecture"
   | "xlayer-contracts"
-  | "solana-program"
+  | "tapeout-guardian"
   | "indexer"
   | "anti-gaming";
 
@@ -41,7 +41,7 @@ const GROUPS: SidebarGroup[] = [
     title: "Smart Contracts",
     items: [
       { id: "xlayer-contracts", label: "OKX X Layer Perpetuals", badge: "Solidity / Pyth", description: "ViperVault, PositionRouter & Pyth feeds on X Layer" },
-      { id: "solana-program", label: "Solana SVM Program", badge: "Anchor", description: "PDA storage accounts and instruction specs" },
+      { id: "tapeout-guardian", label: "TapeOut Circuit Guardian", badge: "Hardware Gates", description: "Digital logic risk engine & DeWEB specs on X Layer" },
     ],
   },
   {
@@ -105,8 +105,8 @@ const SEARCHABLE_DOCS: SearchableDoc[] = [
     title: "Prerequisites & Tools",
     group: "Documentation",
     category: "Getting Started",
-    description: "Required dependencies: Node.js 18+, Foundry for OKX X Layer, and Solana CLI tools & local keypair.",
-    keywords: ["prerequisites", "node", "foundry", "forge", "solana cli", "cast", "tools", "install"],
+    description: "Required dependencies: Node.js 18+, Foundry for OKX X Layer, cast, and Web3 browser wallet.",
+    keywords: ["prerequisites", "node", "foundry", "forge", "cast", "tools", "install", "xlayer"],
   },
   {
     id: "quickstart",
@@ -114,16 +114,16 @@ const SEARCHABLE_DOCS: SearchableDoc[] = [
     title: "Clone & Install Dependencies",
     group: "Documentation",
     category: "Getting Started",
-    description: "Clone repository, install root dependencies, and build Anchor and Hardhat contract packages.",
-    keywords: ["clone", "install", "dependencies", "build", "git", "setup", "step 1"],
+    description: "Clone repository, install root dependencies, and build Foundry contracts & TapeOut DeWEB artifacts.",
+    keywords: ["clone", "install", "dependencies", "build", "git", "setup", "step 1", "deweb"],
   },
   {
     id: "architecture",
     title: "System Architecture",
     group: "Documentation",
     category: "Getting Started",
-    description: "The ViperX protocol is composed of three interconnected layers: on-chain smart contracts (Registry), off-chain log scanners (Indexer), and the web client.",
-    keywords: ["system architecture", "architecture", "three interconnected layers", "smart contracts", "log scanners", "indexer", "client"],
+    description: "The ViperX protocol is composed of three interconnected layers: on-chain smart contracts (Registry & TapeOut Guardian), off-chain log scanners (Indexer), and the DeWEB client.",
+    keywords: ["system architecture", "architecture", "three interconnected layers", "smart contracts", "log scanners", "indexer", "client", "deweb"],
   },
   {
     id: "architecture",
@@ -131,8 +131,8 @@ const SEARCHABLE_DOCS: SearchableDoc[] = [
     title: "Three-Tier Protocol Diagram",
     group: "Documentation",
     category: "Getting Started",
-    description: "Tier 01 Client Layer (Next.js 16, RainbowKit, Solana Wallet Adapter) and Tier 02 Consensus Indexer & Oracles (Fastify, Pyth feeds).",
-    keywords: ["three-tier", "protocol diagram", "client layer", "consensus indexer & oracles", "tier 01", "tier 02", "fastify", "pyth", "rainbowkit", "diagram"],
+    description: "Tier 01 Client Layer (Next.js 16, Wagmi / Viem, TapeOut TAP-10) and Tier 02 Consensus Indexer & Oracles (Fastify, Pyth feeds).",
+    keywords: ["three-tier", "protocol diagram", "client layer", "consensus indexer & oracles", "tier 01", "tier 02", "fastify", "pyth", "diagram", "deweb"],
   },
   {
     id: "architecture",
@@ -140,36 +140,36 @@ const SEARCHABLE_DOCS: SearchableDoc[] = [
     title: "Layer Specifications",
     group: "Documentation",
     category: "Getting Started",
-    description: "Vault Layer (Program Registry PDA, Velocity Deposit Escrow), Registry Layer (X Layer Registry Contract), Risk Protocol, and Platform Suite.",
-    keywords: ["layer specifications", "vault layer", "registry layer", "risk protocol", "platform suite", "escrow", "gmx", "drawdown", "specs"],
+    description: "Vault Layer (ViperVault, Collateral Escrow), Guardian Layer (TapeOut Circuit Guardian), Risk Protocol, and Platform Suite.",
+    keywords: ["layer specifications", "vault layer", "guardian layer", "tapeout", "risk protocol", "platform suite", "escrow", "drawdown", "specs"],
   },
 
   // ── Smart Contracts ──
   {
-    id: "solana-program",
-    title: "Solana SVM Program",
+    id: "tapeout-guardian",
+    title: "TapeOut Circuit Guardian (Circuit 101)",
     group: "Documentation",
     category: "Smart Contracts",
-    description: "On Solana, registry data is managed by an Anchor program deployed to Devnet at 321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm.",
-    keywords: ["solana svm program", "solana", "svm", "anchor", "devnet", "program", "rust", "321hjbtty"],
+    description: "Hardware-grade digital logic gates evaluating leverage (≤20x), slippage (≤2%), drawdown (≤25%), and cooldown (≥10s) on OKX X Layer.",
+    keywords: ["tapeout", "circuit guardian", "circuit 101", "hardware gates", "digital logic", "microprocessor", "bus", "x layer"],
   },
   {
-    id: "solana-program",
-    anchor: "account-structure",
-    title: "Account Structure (PDA)",
+    id: "tapeout-guardian",
+    anchor: "signal-bus",
+    title: "256-Bit Risk Signal Bus Architecture",
     group: "Documentation",
     category: "Smart Contracts",
-    description: "Every agent is initialized as a Program Derived Address (PDA) using seeds = [b\"agent\", owner_pubkey, agent_id_bytes].",
-    keywords: ["account structure", "pda", "program derived address", "seeds", "agent", "owner_pubkey", "anchor"],
+    description: "Bit-level layout packing leverage, slippage, drawdown, and cooldown into a single microprocessor evaluation word.",
+    keywords: ["signal bus", "256-bit", "bus", "microprocessor", "leverage", "slippage", "drawdown", "cooldown"],
   },
   {
-    id: "solana-program",
-    anchor: "anchor-code",
-    title: "Rust Anchor Code Specification",
+    id: "tapeout-guardian",
+    anchor: "deweb-container",
+    title: "TapeOut DeWEB Container (TAP-10)",
     group: "Documentation",
     category: "Smart Contracts",
-    description: "Full annotated Rust code for initialize_agent, record_trade, and update_strategy_params instructions.",
-    keywords: ["rust anchor code", "rust", "code specification", "register_agent", "registeragent", "system_program"],
+    description: "Decentralized on-chain web hosting protocol (TAP-10) running ViperX entirely on OKX X Layer without DNS/centralized cloud.",
+    keywords: ["deweb", "tap-10", "container", "tapeout", "on-chain web", "decentralized web", "manifest"],
   },
   {
     id: "xlayer-contracts",
@@ -535,7 +535,7 @@ export default function DocsPage() {
                       </p>
                       <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
                         <span className="text-[10px] font-mono text-foreground-faint">Suggestions:</span>
-                        {["X Layer", "Solana", "Anchor", "PnL", "Anti-Gaming", "Oracles"].map((term) => (
+                        {["X Layer", "TapeOut", "Circuit 101", "DeWEB", "PnL", "Anti-Gaming"].map((term) => (
                           <button
                             key={term}
                             type="button"
@@ -682,12 +682,12 @@ export default function DocsPage() {
               <ExternalLinkGlyph className="h-3.5 w-3.5 text-foreground-faint group-hover:text-foreground transition-colors" />
             </a>
             <a
-              href="https://explorer.solana.com/address/321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm?cluster=devnet"
+              href="https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground flex items-center justify-between transition-colors group"
             >
-              <span>Solana Devnet Explorer</span>
+              <span>TapeOut Guardian on OKLink</span>
               <ExternalLinkGlyph className="h-3.5 w-3.5 text-foreground-faint group-hover:text-foreground transition-colors" />
             </a>
           </div>
@@ -756,7 +756,7 @@ export default function DocsPage() {
                     <div>
                       <span className="font-bold text-blue-400 block mb-0.5">Trustless Verification</span>
                       <span className="text-foreground-muted font-sans text-xs">
-                        All agent metrics (PnL, MDD, Sharpe) are verified on-chain against OKX X Layer Testnet and Solana Devnet block heights with zero client-side self-reporting.
+                        All agent metrics (PnL, MDD, Sharpe) are verified on-chain against OKX X Layer Testnet block heights with zero client-side self-reporting.
                       </span>
                     </div>
                   </div>
@@ -782,7 +782,7 @@ export default function DocsPage() {
                       <Card variant="muted" className="p-5 font-mono text-xs border border-border bg-surface/30">
                         <p className="font-semibold text-foreground text-sm">On-Chain Registry</p>
                         <p className="text-xs text-foreground-muted mt-2 leading-relaxed font-mono">
-                          Agent configurations, ownership keys, and parameters are stored directly on the OKX X Layer EVM and Solana SVM registries.
+                          Agent configurations, ownership keys, and parameters are stored directly on the OKX X Layer EVM registry and evaluated by TapeOut Circuit Guardian.
                         </p>
                       </Card>
                       <Card variant="muted" className="p-5 font-mono text-xs border border-border bg-surface/30">
@@ -829,9 +829,9 @@ export default function DocsPage() {
                         </span>
                       </div>
                       <div className="p-4 rounded-xl border border-border bg-surface/30">
-                        <span className="font-bold text-foreground block mb-1 text-sm">Solana Devnet</span>
+                        <span className="font-bold text-foreground block mb-1 text-sm">TapeOut DeWEB Container</span>
                         <span className="text-foreground-muted text-xs leading-relaxed">
-                          Funded with at least 0.2 Devnet SOL to rent space for the Agent Registry PDA account.
+                          Accessible at tape://viperx.tape or via localhost DeWEB runner with zero cloud dependencies.
                         </span>
                       </div>
                     </div>
@@ -867,7 +867,7 @@ export default function DocsPage() {
                         <div>
                           <p className="font-bold text-foreground text-sm">Authorize Transaction</p>
                           <p className="text-xs text-foreground-muted mt-1 leading-relaxed font-sans">
-                            Sign the deployment transaction. This logs mappings to the X Layer contract or allocates storage accounts on Solana. Once confirmed, the indexer starts tracking trades automatically.
+                            Sign the deployment transaction on OKX X Layer. This records your agent identity on-chain and arms the TapeOut Circuit Guardian.
                           </p>
                         </div>
                       </div>
@@ -909,13 +909,13 @@ export default function DocsPage() {
                           </span>
                         </div>
                         <p className="mt-2.5 text-xs text-foreground font-medium">
-                          Next.js 16 WebApp · RainbowKit (X Layer EVM) · Solana Wallet Adapter
+                          Next.js 16 WebApp · Wagmi / Viem (X Layer EVM) · TapeOut TAP-10 DeWEB
                         </p>
                         <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] text-foreground-muted">
                           <span className="rounded bg-background/80 px-2 py-0.5 border border-border/50">App Router</span>
                           <span className="rounded bg-background/80 px-2 py-0.5 border border-border/50">Turbopack</span>
                           <span className="rounded bg-background/80 px-2 py-0.5 border border-border/50">wagmi / viem</span>
-                          <span className="rounded bg-background/80 px-2 py-0.5 border border-border/50">@solana/web3.js</span>
+                          <span className="rounded bg-background/80 px-2 py-0.5 border border-border/50">TapeOut TAP-10</span>
                         </div>
                       </div>
 
@@ -949,7 +949,7 @@ export default function DocsPage() {
                         </div>
                       </div>
 
-                      {/* Forked Arrow Connector 2 -> 3 (Split into X Layer & Solana) */}
+                      {/* Forked Arrow Connector 2 -> 3 (Split into Contracts & Circuit Guardian) */}
                       <div className="w-full flex justify-around my-2 px-12">
                         <div className="flex flex-col items-center">
                           <svg width="18" height="24" viewBox="0 0 18 24" fill="none" className="text-border-strong">
@@ -961,11 +961,11 @@ export default function DocsPage() {
                           <svg width="18" height="24" viewBox="0 0 18 24" fill="none" className="text-border-strong">
                             <path d="M9 0V20M9 20L4 14M9 20L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
-                          <span className="text-[9px] text-foreground-faint mt-0.5 font-mono">SVM</span>
+                          <span className="text-[9px] text-foreground-faint mt-0.5 font-mono">CIRCUIT</span>
                         </div>
                       </div>
 
-                      {/* Tier 3: Dual-Chain Smart Contract Registries */}
+                      {/* Tier 3: X Layer Smart Contracts & TapeOut Circuit Guardian */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
                         {/* OKX X Layer Card */}
                         <div className="rounded-xl border border-border bg-surface/50 p-4 shadow-xs">
@@ -992,27 +992,27 @@ export default function DocsPage() {
                           </ul>
                         </div>
 
-                        {/* Solana Devnet Card */}
+                        {/* TapeOut Circuit Guardian Card */}
                         <div className="rounded-xl border border-border bg-surface/50 p-4 shadow-xs">
                           <div className="flex items-center justify-between gap-1 border-b border-border/60 pb-2">
                             <div className="flex items-center gap-1.5">
-                              <span className="h-2 w-2 rounded-full bg-purple-500" />
-                              <span className="text-xs font-bold text-foreground">Solana Devnet</span>
+                              <span className="h-2 w-2 rounded-full bg-accent" />
+                              <span className="text-xs font-bold text-foreground">TapeOut Guardian</span>
                             </div>
-                            <span className="text-[9px] font-mono text-foreground-faint">Devnet</span>
+                            <span className="text-[9px] font-mono text-accent font-semibold">TAPE-101</span>
                           </div>
                           <ul className="mt-2.5 space-y-1 text-[11px] text-foreground-muted font-mono">
                             <li className="flex items-center gap-1">
-                              <span className="text-purple-400">›</span>
-                              <span>viperx_registry</span>
+                              <span className="text-accent">›</span>
+                              <span>TapeOutCircuitGuardian.sol</span>
                             </li>
                             <li className="flex items-center gap-1">
-                              <span className="text-purple-400">›</span>
-                              <span>Agent PDA Accounts</span>
+                              <span className="text-accent">›</span>
+                              <span>256-Bit Hardware Risk Bus</span>
                             </li>
                             <li className="flex items-center gap-1">
-                              <span className="text-purple-400">›</span>
-                              <span>Velocity Perp Stream</span>
+                              <span className="text-accent">›</span>
+                              <span>TAP-10 DeWEB Container</span>
                             </li>
                           </ul>
                         </div>
@@ -1040,7 +1040,7 @@ export default function DocsPage() {
                         },
                         {
                           group: "PLATFORM SUITE",
-                          items: ["Leaderboard API (Next ISR)", "Solana Program PDA Creator", "Arena Matchmaking Queue", "Wallet Ownership Signer"],
+                          items: ["Leaderboard API (Next ISR)", "Pyth Oracle Listener", "Arena Matchmaking Queue", "EIP-712 Intent Router"],
                         },
                       ].map((col, i) => (
                         <div key={i} className="flex flex-col gap-2 bg-surface/30 border border-border rounded-xl p-4">
@@ -1060,111 +1060,93 @@ export default function DocsPage() {
                 </article>
               )}
 
-              {/* ── 4. SOLANA SVM PROGRAM ──────────────────────────────────── */}
-              {activeSection === "solana-program" && (
+              {/* ── 4. TAPEOUT CIRCUIT GUARDIAN & DEWEB ──────────────────────── */}
+              {activeSection === "tapeout-guardian" && (
                 <article className="space-y-6">
                   <div>
+                    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-border bg-surface text-xs font-mono text-accent mb-3">
+                      <span>On-Chain Hardware Gates</span>
+                      <span>•</span>
+                      <span>TapeOut Accelerate Hackathon Qualified</span>
+                    </div>
                     <h1 className="text-3xl sm:text-4xl font-bold text-foreground font-mono tracking-tight">
-                      Solana SVM Program
+                      TapeOut Circuit Guardian (TCG)
                     </h1>
                     <p className="t-body mt-4 text-foreground-muted leading-relaxed font-sans">
-                      On Solana, registry data is managed by an Anchor program deployed to Devnet at address:
+                      Autonomous AI agents often suffer from prompt injection, runaway position loops, or toxic slippage tolerances. 
+                      ViperX integrates the <strong>TapeOut Circuit Guardian</strong> on OKX X Layer (Circuit ID: 101 <code className="font-mono text-accent">VIPERX_RISK_V1</code>), 
+                      translating volatile trade metrics into a 256-bit digital hardware bus before orders can touch liquidity pools.
                     </p>
-                    <div className="mt-3 p-3 rounded-lg border border-border bg-surface/40 font-mono text-xs flex items-center justify-between">
-                      <span className="text-foreground font-bold truncate">321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm</span>
-                      <button
-                        onClick={() => handleCopy("321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm", "sol-prog")}
-                        className="text-foreground-faint hover:text-foreground text-[11px] ml-2 shrink-0 cursor-pointer"
-                      >
-                        {copiedCode === "sol-prog" ? "✓ Copied!" : "Copy"}
-                      </button>
-                    </div>
                   </div>
 
-                  <section id="account-structure">
+                  <section id="signal-bus">
                     <h2 className="text-lg sm:text-xl font-bold text-foreground font-mono border-b border-border/60 pb-2.5">
-                      Account Structure
+                      256-Bit Risk Signal Bus Architecture
                     </h2>
                     <p className="t-body mt-3 text-foreground-muted leading-relaxed font-sans">
-                      Every agent is initialized as a Program Derived Address (PDA) using seed formatting to guarantee uniqueness:
-                      <br />
-                      <code className="font-mono text-foreground font-bold text-xs">seeds = [b"agent", owner_pubkey, agent_id_bytes]</code>.
+                      Before PositionRouter executes an EIP-712 trade intent, trade parameters are packed into a 256-bit bus word:
                     </p>
+                    <div className="mt-4 p-4 rounded-xl border border-border bg-surface/40 font-mono text-xs overflow-x-auto">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-foreground-muted">
+                        <div className="p-3 border border-border/60 rounded-lg bg-background">
+                          <span className="text-accent font-bold block mb-1">BITS [0..15] // LEVERAGE</span>
+                          <span>Maximum: 2,000 bps (20.0x). Rejects over-leveraged liquidation traps.</span>
+                        </div>
+                        <div className="p-3 border border-border/60 rounded-lg bg-background">
+                          <span className="text-accent font-bold block mb-1">BITS [16..31] // SLIPPAGE</span>
+                          <span>Maximum: 200 bps (2.00%). Blocks predatory spread manipulation.</span>
+                        </div>
+                        <div className="p-3 border border-border/60 rounded-lg bg-background">
+                          <span className="text-accent font-bold block mb-1">BITS [32..47] // DRAWDOWN</span>
+                          <span>Maximum: 2,500 bps (25.00%). Hardware circuit breaker on loss spiral.</span>
+                        </div>
+                        <div className="p-3 border border-border/60 rounded-lg bg-background">
+                          <span className="text-accent font-bold block mb-1">BITS [48..79] // COOLDOWN</span>
+                          <span>Minimum: 10 seconds. Hardware latch preventing wash trading ticks.</span>
+                        </div>
+                      </div>
+                    </div>
                   </section>
 
-                  <section id="anchor-code">
-                    <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
-                      <h2 className="text-lg sm:text-xl font-bold text-foreground font-mono">
-                        Rust Anchor Code Specification
-                      </h2>
-                      <button
-                        onClick={() => handleCopy(`#[program]
-pub mod viperx_registry {
-    use super::*;
-
-    pub fn register_agent(
-        ctx: Context<RegisterAgent>,
-        agent_id: String,
-        name: String,
-        strategy_uri: String,
-        vault_address: Pubkey,
-    ) -> Result<()> {
-        let agent = &mut ctx.accounts.agent;
-        agent.owner = *ctx.accounts.owner.key;
-        agent.vault = vault_address;
-        agent.agent_id = agent_id;
-        agent.name = name;
-        agent.strategy_uri = strategy_uri;
-        agent.trade_count = 0;
-        Ok(())
-    }
-}`, "sol-code")}
-                        className="text-xs font-mono text-foreground-muted hover:text-foreground cursor-pointer"
-                      >
-                        {copiedCode === "sol-code" ? "✓ Copied Code!" : "Copy Rust"}
-                      </button>
-                    </div>
+                  <section id="circuit-revert">
+                    <h2 className="text-lg sm:text-xl font-bold text-foreground font-mono border-b border-border/60 pb-2.5">
+                      Digital Logic Comparator Revert Diagnostics
+                    </h2>
+                    <p className="t-body mt-3 text-foreground-muted leading-relaxed font-sans">
+                      If any comparator trips, the processor halts execution and triggers a custom revert containing the exact failed gate mask:
+                    </p>
                     <pre className="mt-4 p-4 rounded-xl bg-surface/40 border border-border font-mono text-[11px] text-foreground-muted overflow-x-auto leading-relaxed">
-{`#[program]
-pub mod viperx_registry {
-    use super::*;
-
-    pub fn register_agent(
-        ctx: Context<RegisterAgent>,
-        agent_id: String,
-        name: String,
-        strategy_uri: String,
-        vault_address: Pubkey,
-    ) -> Result<()> {
-        let agent = &mut ctx.accounts.agent;
-        agent.owner = *ctx.accounts.owner.key;
-        agent.vault = vault_address;
-        agent.agent_id = agent_id;
-        agent.name = name;
-        agent.strategy_uri = strategy_uri;
-        agent.trade_count = 0;
-        Ok(())
-    }
-}
-
-#[derive(Accounts)]
-#[instruction(agent_id: String)]
-pub struct RegisterAgent<'info> {
-    #[account(mut)]
-    pub owner: Signer<'info>,
-
-    #[account(
-        init,
-        payer = owner,
-        space = 8 + 32 + 32 + 32 + 64 + 64 + 8,
-        seeds = [b"agent", owner.key().as_ref(), agent_id.as_bytes()],
-        bump
-    )]
-    pub agent: Account<'info, Agent>,
-
-    pub system_program: Program<'info, System>,
+{`// TapeOut Circuit Guardian Interface
+interface ITapeOutCircuitGuardian {
+    error CircuitRiskRejected(uint256 diagBits);
+    
+    function evaluateTrade(
+        bytes32 agentId,
+        uint256 leverageBps,
+        uint256 slippageBps,
+        uint256 drawdownBps
+    ) external returns (bool approved, uint256 diagBits);
 }`}
                     </pre>
+                  </section>
+
+                  <section id="deweb-container">
+                    <h2 className="text-lg sm:text-xl font-bold text-foreground font-mono border-b border-border/60 pb-2.5">
+                      TapeOut DeWEB Container (TAP-10)
+                    </h2>
+                    <p className="t-body mt-3 text-foreground-muted leading-relaxed font-sans">
+                      The ViperX trading interface is exported as a standalone, zero-dependency DeWEB container running on OKX X Layer without reliance on centralized clouds or DNS providers:
+                    </p>
+                    <div className="mt-4 space-y-3 font-mono text-xs">
+                      <div className="p-3 rounded-lg border border-border bg-surface/40 flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-foreground-muted">TAP-10 URI:</span>
+                        <code className="text-foreground font-bold">tape://viperx.tape</code>
+                      </div>
+                      <div className="p-3 rounded-lg border border-border bg-surface/40 flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-foreground-muted">SHA-256 Checksum:</span>
+                        <code className="text-accent font-bold break-all">d166da796e1b5963da84d081e529707b6d1b0e9d39c880ea8077241df11c215d</code>
+                      </div>
+                    </div>
                   </section>
                 </article>
               )}
@@ -1475,7 +1457,7 @@ contract ViperVault is Ownable, ReentrancyGuard {
                       </div>
                       <div className="border border-border p-5 rounded-xl bg-surface/30">
                         <p className="font-semibold text-foreground text-sm">2. Position Monitoring</p>
-                        <p className="text-xs mt-1.5 font-sans leading-relaxed">Independent indexer loops monitor trade collateral vaults. For X Layer, it tracks ViperVault position states and Pyth updates. For Solana, it polls Velocity perp positions.</p>
+                        <p className="text-xs mt-1.5 font-sans leading-relaxed">Independent indexer loops monitor trade collateral vaults. For OKX X Layer, it tracks ViperVault position states and Pyth oracle updates in real time.</p>
                       </div>
                       <div className="border border-border p-5 rounded-xl bg-surface/30">
                         <p className="font-semibold text-foreground text-sm">3. Settlement Verification</p>

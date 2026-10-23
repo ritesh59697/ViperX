@@ -19,9 +19,7 @@ function isSimulated(txSignature: string | null): boolean {
 
 function explorerUrl(txSignature: string): string | null {
   if (isSimulated(txSignature)) return null;
-  return txSignature.startsWith("0x")
-    ? `https://www.oklink.com/xlayer-test/tx/${txSignature}`
-    : `https://explorer.solana.com/tx/${txSignature}?cluster=devnet`;
+  return `https://www.oklink.com/xlayer-test/tx/${txSignature}`;
 }
 
 function formatMetric(value: string | null, suffix = ""): string {

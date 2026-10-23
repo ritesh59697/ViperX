@@ -190,7 +190,7 @@ export function CopyTradeModal({ sourceAgentPda, agentName, agentId }: CopyTrade
               </div>
 
               {!activeWalletAddress && (
-                <p className="mt-5 text-sm text-foreground-muted">Connect a Solana or Base wallet to copy this agent.</p>
+                <p className="mt-5 text-sm text-foreground-muted">Connect an OKX X Layer wallet to copy this agent.</p>
               )}
 
               {activeWalletAddress && activeFollow && status.step !== "unfollowed" && (

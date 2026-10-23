@@ -62,21 +62,8 @@ export function LeaderboardClient({
 
   useEffect(() => {
     setMounted(true);
-    const update = () => {
-      const saved = localStorage.getItem("viperx-active-chain");
-      if (saved === "solana" || saved === "xlayer") {
-        setActiveChain(saved as "xlayer" | "solana");
-      } else {
-        setActiveChain("xlayer");
-      }
-    };
-    update();
-    window.addEventListener("storage", update);
-    window.addEventListener("viperx-chain-changed", update);
-    return () => {
-      window.removeEventListener("storage", update);
-      window.removeEventListener("viperx-chain-changed", update);
-    };
+    setActiveChain("xlayer");
+    localStorage.setItem("viperx-active-chain", "xlayer");
   }, []);
 
   // Background pre-fetch of remaining windows so clicking is always instant (0ms) and never errors
@@ -138,15 +125,9 @@ export function LeaderboardClient({
   );
 
   const rawAgents = cache[selectedWindow] ?? cache[initialWindow] ?? [];
-  const agents = rawAgents.filter((a) => getAgentChain(a) === activeChain);
+  const agents = rawAgents;
   const ranked = agents.filter((a) => a.onchain_verified);
   const pending = agents.filter((a) => !a.onchain_verified);
-
-  // Count ranked agents on the OTHER chain so we can hint users to switch
-  const otherChain = activeChain === "xlayer" ? "solana" : "xlayer";
-  const otherChainRanked = rawAgents.filter(
-    (a) => getAgentChain(a) === otherChain && a.onchain_verified
-  ).length;
 
   return (
     <div>
@@ -201,21 +182,6 @@ export function LeaderboardClient({
               ? `${ranked.length} ranked agent${ranked.length === 1 ? "" : "s"}`
               : `${pending.length} active agent${pending.length === 1 ? "" : "s"}`}
           </span>
-          {/* Cross-chain ranked hint — only show when other chain has verified agents */}
-          {otherChainRanked > 0 && (
-            <button
-              type="button"
-              onClick={() => {
-                const newChain = otherChain;
-                localStorage.setItem("viperx-active-chain", newChain);
-                window.dispatchEvent(new Event("viperx-chain-changed"));
-              }}
-              className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-surface px-2 py-0.5 font-mono text-[10px] text-foreground-faint hover:border-border-strong hover:text-foreground transition-all cursor-pointer"
-              title={`Switch to ${otherChain === "solana" ? "Solana" : "X Layer"} to see more`}
-            >
-              +{otherChainRanked} on {otherChain === "solana" ? "Solana" : "X Layer"}
-            </button>
-          )}
         </div>
       </div>
 

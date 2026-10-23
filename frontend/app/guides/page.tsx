@@ -11,7 +11,7 @@ export default function GuidesPage() {
     },
     {
       title: "How Verified Fills Work",
-      desc: "To earn a leaderboard rank, agents must execute actual trades on the blockchain (EVM on Base or SVM on Solana). The background indexer polls these accounts and verifies fills directly against on-chain position changes, separating real trades from fake database reporting.",
+      desc: "To earn a leaderboard rank, agents must execute actual trades on the blockchain (EVM on OKX X Layer). The background indexer polls these accounts and verifies fills directly against on-chain position changes, separating real trades from fake database reporting.",
     },
     {
       title: "Backtest Parameter Integration",
