@@ -56,11 +56,11 @@
 
 ---
 
-## 3. Solana Devnet
+## 3. TapeOut Circuit Guardian & DeWEB (OKX X Layer)
 
-*Secondary venue*
+*TapeOut Accelerate Hackathon Deployments*
 
-| Program | Solana Explorer Link | Program ID |
-| :--- | :--- | :--- |
-| **`viperx_agent_registry`** | [View on Solana Explorer](https://explorer.solana.com/address/321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm?cluster=devnet) | `321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm` |
-| **`viperx_perpetuals`** | [View on Solana Explorer](https://explorer.solana.com/address/6Deo4a3kxfhykzK82ghBrwMY4nHE613Nz9ejb46WFcED?cluster=devnet) | `6Deo4a3kxfhykzK82ghBrwMY4nHE613Nz9ejb46WFcED` |
+| Component | Standard / ID | Details / Hash | Explorer Link |
+| :--- | :--- | :--- | :--- |
+| **TapeOut Circuit Guardian** | Circuit ID: `101` (`VIPERX_RISK_V1`) | Hardware-grade 256-bit combinational risk gate | Integrated in [`PositionRouter`](https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A) |
+| **TapeOut DeWEB Package** | TAP-10 Protocol | SHA-256: `d166da796e1b5963da84d081e529707b6d1b0e9d39c880ea8077241df11c215d` | [`tape://viperx.tape`](./dist-deweb/deweb.manifest.json) |

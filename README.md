@@ -5,14 +5,14 @@
 **ViperX is the on-chain proof layer for AI trading agents. We rank agents on settled fills, not screenshots.**
 
 [![Live Application](https://img.shields.io/badge/Live_App-www.viperx.site-blue?style=flat-square)](https://www.viperx.site/)
-[![Demo Video](https://img.shields.io/badge/Demo_Video-YouTube_1080p-red?style=flat-square&logo=youtube)](https://youtu.be/m5XirA-PJLs)
+[![TapeOut DeWEB](https://img.shields.io/badge/DeWEB-TAP--10_Container-orange?style=flat-square)](./dist-deweb/deweb.manifest.json)
 [![OKX X Layer](https://img.shields.io/badge/Primary_Venue-OKX_X_Layer_Testnet-black?style=flat-square&logo=okx)](https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89)
-[![Solana Devnet](https://img.shields.io/badge/Secondary_Venue-Solana_Devnet-9945FF?style=flat-square&logo=solana)](https://explorer.solana.com/address/321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm?cluster=devnet)
+[![TapeOut Circuit Guardian](https://img.shields.io/badge/Circuit_Guardian-ID_101_Active-00E599?style=flat-square)](./TAPEOUT_HACKATHON.md)
 [![Pyth Network](https://img.shields.io/badge/Oracle-Pyth_Network-white?style=flat-square)](https://pyth.network)
-[![Next.js](https://img.shields.io/badge/Frontend-Next.js_16-black?style=flat-square&logo=next.js)](https://nextjs.org)
+[![Next.js 16](https://img.shields.io/badge/Frontend-Next.js_16-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](./LICENSE)
 
-[**Launch Interface**](https://www.viperx.site/) • [**Watch Demo (YouTube)**](https://youtu.be/m5XirA-PJLs) • [**TapeOut Hackathon Guide**](./TAPEOUT_HACKATHON.md) • [**Verified Contracts**](./DEPLOYED.md) • [**Architecture Specs**](./docs/ARCHITECTURE.md)
+[**Launch Interface**](https://www.viperx.site/) • [**Watch Demo (YouTube)**](https://youtu.be/m5XirA-PJLs) • [**TapeOut Hackathon Dossier**](./TAPEOUT_HACKATHON.md) • [**Verified Contracts**](./DEPLOYED.md) • [**Architecture Specs**](./docs/ARCHITECTURE.md)
 
 </div>
 
@@ -21,13 +21,13 @@
 ## Live Deployment
 
 - **Web Interface**: [https://www.viperx.site/](https://www.viperx.site/)
-- **TapeOut DeWEB Package**:  ([TAP-10 Manifest](./dist-deweb/deweb.manifest.json))
+- **TapeOut DeWEB Package**: `tape://viperx.tape` ([TAP-10 Manifest](./dist-deweb/deweb.manifest.json))
 - **Demo Video (YouTube 1080p)**: [https://youtu.be/m5XirA-PJLs](https://youtu.be/m5XirA-PJLs)
 - **OKX AI MCP Server**: [`https://www.viperx.site/api/mcp`](https://www.viperx.site/api/mcp)
 - **OKX AI A2A Discovery**: [`https://www.viperx.site/.well-known/agent.json`](https://www.viperx.site/.well-known/agent.json)
 
 ### Primary Execution Venue: OKX X Layer Testnet (Chain ID: `1952`)
-*OKX Build X Series — TapeOut Accelerate Hackathon & OKX Dev Day 2026*
+*OKX Build X Series — TapeOut Accelerate Hackathon*
 
 | Contract / Asset | Address / ID | Explorer Link |
 | :--- | :--- | :--- |
@@ -37,13 +37,6 @@
 | **`MockUSDC` (Faucet)** | `0x6046c644ea622fBa3043F35d979BAEE83339cfEe` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0x6046c644ea622fBa3043F35d979BAEE83339cfEe) |
 | **`MockPyth` (Oracle)** | `0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee) |
 | **TapeOut Circuit Guardian** | `Circuit ID: 101 (VIPERX_RISK_V1)` | Active on X Layer |
-
-### Secondary Execution Venue: Solana Devnet (SVM)
-
-| Program | Program ID | Explorer Link |
-| :--- | :--- | :--- |
-| **`viperx_agent_registry`** | `321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm` | [View on Solana Explorer](https://explorer.solana.com/address/321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm?cluster=devnet) |
-| **`viperx_perpetuals`** | `6Deo4a3kxfhykzK82ghBrwMY4nHE613Nz9ejb46WFcED` | [View on Solana Explorer](https://explorer.solana.com/address/6Deo4a3kxfhykzK82ghBrwMY4nHE613Nz9ejb46WFcED?cluster=devnet) |
 
 ---
 
@@ -58,6 +51,7 @@ ViperX strictly separates what an agent claims from what independent indexers ve
 
 ## Product Wedge
 
+- **TapeOut Digital Logic Circuit Guardian**: Hardware-grade on-chain risk filtering. Every AI agent trade intent must pass combinational digital logic checks (leverage limit, slippage tolerance, drawdown killswitch, and anti-wash cooldown) before reaching vault liquidity.
 - **50 Independently Verified Fills to Rank**: Eligibility for the public leaderboard requires clearing a minimum threshold of 50 closed trades verified directly against on-chain position state.
 - **Anti-Gaming & Heuristic Guardrails**: Automated wash-trade filters disqualify rapid self-trading loops (sub-10s round trips), enforce a $5 minimum collateral floor to prevent dust spamming, and flag divergence between self-reported telemetry and on-chain settled PnL.
 - **Non-Custodial Vault Architecture**: `ViperVault.sol` safeguards trading capital directly under the owner's keys. Autonomous agents receive narrow delegated transaction authority to submit order intents and self-pause—withdrawal rights never leave the owner's wallet.
@@ -65,11 +59,13 @@ ViperX strictly separates what an agent claims from what independent indexers ve
 
 ---
 
-## Why OKX X Layer & Solana
+## Why OKX X Layer & TapeOut Protocol
 
-- **High-Throughput Settlement**: OKX X Layer provides near-instant finality and low transaction fees powered by Polygon CDK, making continuous high-frequency agent execution economically viable.
+- **High-Throughput Settlement**: OKX X Layer provides near-instant finality and low transaction fees powered by Polygon CDK, making continuous high-frequency agent execution economically viable in native OKB.
+- **Hardware-Grade Digital Logic**: TapeOut Circuit Guardian (Circuit ID: `101`) intercepts order intents on-chain, evaluating a 256-bit risk bus across digital comparators before state mutation.
+- **Decentralized Distribution (DeWEB)**: The entire verification terminal and interactive circuit simulator is packaged into a self-contained TAP-10 container hosted on-chain, eliminating DNS and server single-points-of-failure.
 - **Deep Collateral Foundation**: Native USDC and OKB perpetual markets with Pyth Network oracle price feeds.
-- **Multi-Chain Architecture**: OKX X Layer serves as our primary EVM execution venue; Solana provides secondary high-frequency SVM parallelized execution.
+- **Agentic Interoperability**: Exposes verified alpha through Model Context Protocol (`/api/mcp`) and Agent-to-Agent discovery (`/.well-known/agent.json`) for seamless integration with OKX Agentic Wallets.
 
 ---
 
@@ -77,28 +73,36 @@ ViperX strictly separates what an agent claims from what independent indexers ve
 
 ```
 +--------------------------------------------------------------------------------+
-|                                 USER INTERFACE                                 |
-|         Next.js 16 (Turbopack) | Wagmi & RainbowKit | Solana Wallet Adapter    |
-+-----------------------+--------------------------------+-----------------------+
-                        | (Primary EVM)                  | (Secondary SVM)
-                        v                                v
-+------------------------------------+   +---------------------------------------+
-|     OKX X LAYER TESTNET (EVM)      |   |          SOLANA DEVNET (SVM)          |
-|                                    |   |                                       |
-|  * ViperVault.sol (USDC Pool)      |   |  * viperx_agent_registry (PDA Engine) |
-|  * PositionRouter.sol (Orders)     |   |  * viperx_perpetuals (SOL-PERP DEX)   |
-|  * PythPriceAdapter.sol (Oracles)  |   |  * Ed25519 Agent Identity Delegations |
-+-----------------------+------------+   +-------------------+-------------------+
-                        |                                    |
-                        +-----------------+------------------+
-                                          |
-                                          v
+|                       USER INTERFACE & DECENTRALIZED WEB                       |
+|     Next.js 16 (Turbopack) | TapeOut DeWEB (TAP-10) | Wagmi & RainbowKit       |
++---------------------------------------+----------------------------------------+
+                                        |
+                                        v
++--------------------------------------------------------------------------------+
+|                        OKX X LAYER TESTNET (CHAIN ID: 1952)                    |
+|                                                                                |
+|  [EIP-712 Intent]                                                              |
+|         |                                                                      |
+|         v                                                                      |
+|  +---------------------+        +-------------------------------------------+  |
+|  | PositionRouter.sol  | -----> | TapeOutCircuitGuardian.sol                |  |
+|  +----------+----------+        |  * Circuit ID: 101 (VIPERX_RISK_V1)       |  |
+|             | (If Approved)     |  * 256-bit Risk Bus (Leverage, Slippage,   |  |
+|             v                   |    Drawdown Killswitch, Cooldown Latch)   |  |
+|  +---------------------+        +-------------------------------------------+  |
+|  | ViperVault.sol      |                                                       |
+|  |  * Non-Custodial    | <----> PythPriceAdapter.sol (Low-latency feeds)       |
+|  |  * Margin Pools     |                                                       |
+|  +---------------------+                                                       |
++---------------------------------------+----------------------------------------+
+                                        |
+                                        v
 +--------------------------------------------------------------------------------+
 |                         VERIFICATION & SCORING RUNTIME                         |
 |                                                                                |
-|  1. Ingestion: Listens to raw contract events and transaction receipts.        |
-|  2. Anti-Gaming: Filters wash trades, micro-fills, and artificial volume.      |
-|  3. Quantitative Engine: Calculates rolling Sharpe, Max DD, and Win Rates.     |
+|  1. Event Ingestion: Indexes closed position receipts directly on X Layer.    |
+|  2. Anti-Gaming Heuristics: Disqualifies wash-trades and micro-fills (< $5).   |
+|  3. Quantitative Engine: Computes volatility-adjusted Sharpe ratios & Max DD.  |
 |  4. Integrity API: Emits verified agent rankings to public leaderboard.        |
 +--------------------------------------------------------------------------------+
 ```
@@ -109,57 +113,65 @@ ViperX strictly separates what an agent claims from what independent indexers ve
 
 ```
 .
-├── frontend/                   # Next.js 16 Web Application (App Router, Tailwind CSS)
+├── frontend/                   # Next.js 16 Web Application (OKX X Layer exclusive)
 │   ├── app/                    # Route handlers & page views
 │   ├── components/             # Modular UI components & design system
 │   ├── hooks/                  # Web3 wallet & contract hooks
 │   └── lib/                    # SDK interfaces, math routines & API clients
 │
+├── dist-deweb/                 # TapeOut DeWEB (TAP-10) Decentralized Package
+│   ├── index.html              # Zero-dependency reactive portal & circuit simulator
+│   └── deweb.manifest.json     # TAP-10 cryptographic manifest (SHA-256)
+│
 ├── contracts/                  # OKX X Layer Foundry Smart Contract Suite
-│   ├── src/core/               # Vault, position router, and oracle adapters
-│   ├── script/                 # Automated deployment and verification scripts
-│   └── test/                   # Unit, fuzz, and integration tests
+│   ├── src/core/               # ViperVault, PositionRouter, TapeOutCircuitGuardian
+│   ├── src/interfaces/         # ITapeOutCircuitProcessor, ITapeOutCircuitGuardian
+│   ├── script/                 # DeployTapeOutGuardianXLayer.s.sol
+│   └── test/                   # Foundry test suite (13 passing tests)
 │
-├── programs/                   # Solana Devnet Anchor Programs
-│   └── viperx_agent_registry/  # Agent registry and perpetual liquidity engines
-│
-├── scripts/                    # Standalone Zero-Trust Verification CLI
-│   └── verify-agent-cli.ts     # Independent Solana RPC verifier
-│
-├── idl/                        # Solana Anchor IDL definitions
+├── scripts/                    # TapeOut DeWEB builder & verification scripts
+│   ├── build-deweb.ts          # TAP-10 package compilation script
+│   └── verify-agent-cli.ts     # Standalone agent verification CLI
 │
 ├── docs/                       # Technical specifications and architectural models
-│   ├── ARCHITECTURE.md         # Threat model and security boundaries
-│   ├── PERP_DEX_ROADMAP.md     # Dual-chain perpetual protocol specifications
-│   └── GRANT-NARRATIVE.md      # Protocol mission and ecosystem alignment
+│   └── ARCHITECTURE.md         # Threat model and security boundaries
 │
+├── TAPEOUT_HACKATHON.md        # Official TapeOut Accelerate hackathon submission dossier
 ├── DEPLOYED.md                 # Complete record of deployed contracts and Pyth feeds
 ├── INTEGRATION_REPORT.md       # End-to-end integration checklist and test pass report
-├── DEMO_SCRIPT.md              # 3-minute video walkthrough & money-shot transcript
-├── SUBMISSION.md               # Hackathon submission aligning with 6 judging criteria
 └── LICENSE                     # MIT Open Source License
 ```
 
 ---
 
-## Zero-Trust Verifier CLI ("Who Watches the Watcher?")
+## TapeOut Circuit Guardian: 256-Bit Risk Bus
 
-To eliminate reliance on centralized indexers or databases, any judge or user can independently verify an agent's on-chain track record directly from raw Solana RPC state:
+The **TapeOut Circuit Guardian** evaluates four combinational digital logic checks before any trade can touch vault liquidity:
 
-```bash
-# Verify any agent PDA directly against Solana Devnet RPC
-bun run verify-agent <AGENT_PDA>
-
-# Example: Inspect Watcher Verify Bot (51 verified fills)
-bun run verify-agent CLqQSNFHXeoPd3siR2fZxTB31QAyCNid5ymXBpoTutn4
 ```
-
-**What it executes under the hood:**
-1. Connects directly to public Solana Devnet RPC (`https://api.devnet.solana.com`).
-2. Reads the agent PDA from `viperx_agent_registry` (`321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm`).
-3. Fetches the agent's external **Velocity DEX** subaccount (`vELoC1audYbSYVRXn1vPaV8Axoa9oU6BYmNGZZBDZ1P`).
-4. Re-computes confirmed fills, time span, and realized PnL from raw blockchain receipts.
-5. Emits a zero-trust cryptographic verification report.
++---------------------------------------------------------------------------------+
+|                    TAPEOUT CIRCUIT GUARDIAN (X LAYER TESTNET)                   |
+|                                                                                 |
+|   Processor Contract: `ITapeOutCircuitProcessor`                                |
+|   Circuit Container ID: 101 (`VIPERX_RISK_V1`)                                  |
+|                                                                                 |
+|   Input Bus (256-bit):                                                          |
+|     - Bits 0..31:   Leverage Ratio (scaled 1e2, e.g. 2000 = 20.0x)              |
+|     - Bits 32..63:  Slippage Tolerance Bps (e.g. 200 = 2.0%)                    |
+|     - Bits 64..95:  Drawdown Bps (e.g. 2500 = 25.0%)                            |
+|     - Bits 96..127: Cooldown Delta (seconds since last fill)                    |
+|                                                                                 |
+|   Digital Logic Comparators:                                                    |
+|     COMP_0: Leverage <= 2000              ---> [Bit 0 PASS]                     |
+|     COMP_1: Slippage <= 200 bps           ---> [Bit 1 PASS]                     |
+|     COMP_2: Drawdown <= 2500 bps          ---> [Bit 2 PASS]                     |
+|     COMP_3: Cooldown >= 10 seconds        ---> [Bit 3 PASS]                     |
+|                                                     |                           |
+|                                            [MASTER AND GATE]                    |
+|                                                     |                           |
+|                        Verdict: 1 = APPROVED  /  0 = REJECT (with Diag)         |
++---------------------------------------------------------------------------------+
+```
 
 ---
 
@@ -170,24 +182,23 @@ bun run verify-agent CLqQSNFHXeoPd3siR2fZxTB31QAyCNid5ymXBpoTutn4
 1. Navigate to the frontend directory:
    ```bash
    cd frontend
+   bun install
    ```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Configure environment:
+2. Configure environment:
    ```bash
    cp .env.example .env.local
    ```
 
-4. Launch the local development server:
+3. Launch development server:
    ```bash
-   npm run dev
+   bun run dev
    ```
 
-5. Access the application at `http://localhost:3000`.
+4. Typecheck:
+   ```bash
+   bun x tsc --noEmit
+   ```
 
 ### Smart Contracts (Foundry)
 
@@ -196,16 +207,31 @@ bun run verify-agent CLqQSNFHXeoPd3siR2fZxTB31QAyCNid5ymXBpoTutn4
    cd contracts
    ```
 
-2. Execute the test suite:
+2. Execute the full test suite:
    ```bash
-   forge test -vv
+   forge test
    ```
+
+3. Test output:
+   ```
+   Ran 3 test suites: 13 passed, 0 failed, 0 skipped (13 total tests)
+   ```
+
+### Compile TapeOut DeWEB Container
+
+1. Build the standalone TAP-10 container:
+   ```bash
+   bun run build:deweb
+   ```
+
+2. Output files will be generated in `dist-deweb/index.html` and verified via `dist-deweb/deweb.manifest.json`.
 
 ---
 
 ## Security & Verification Standards
 
 - **Collateral Protection**: Non-custodial contracts ensure that only authorized owner keys can deposit, withdraw, or modify strategy parameters.
+- **Hardware-Grade Circuit Checks**: Every signed intent is verified by `TapeOutCircuitGuardian.sol` before execution.
 - **Oracle Staleness Guards**: Pyth price updates require fresh cryptographic proofs with explicit maximum staleness boundaries (30 seconds) and confidence interval enforcement.
 - **Testing & Verification**: Contract test suites and integration verifications are documented in [INTEGRATION_REPORT.md](./INTEGRATION_REPORT.md).
 
