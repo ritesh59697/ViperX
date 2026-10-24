@@ -18,15 +18,11 @@ export function SharePnlModal({ position, onClose }: SharePnlModalProps) {
   if (!position) return null;
 
   const isProfit = position.pnlPercent >= 0;
-  const isSolana = position.chain === "solana";
+  const chainLabel = "OKX X Layer";
 
-  const chainLabel = isSolana ? "Solana Devnet" : "OKX X Layer";
-
-  const explorerUrl = isSolana
-    ? `https://explorer.solana.com/tx/${position.txHash}?cluster=devnet`
-    : position.txHash?.startsWith("0x") && position.txHash.length === 66
+  const explorerUrl = position.txHash?.startsWith("0x") && position.txHash.length === 66
     ? `https://www.oklink.com/xlayer-test/tx/${position.txHash}`
-    : `https://www.oklink.com/xlayer-test/address/${position.txHash || "0x9Dcfe752AC97F167763FeD87f4100F33cD29dbb7"}`;
+    : `https://www.oklink.com/xlayer-test/address/${position.txHash || "0x36B9e0D1b0702FC59114A87f277b836d482EaF6A"}`;
 
   const shortTx = position.txHash
     ? `${position.txHash.slice(0, 6)}...${position.txHash.slice(-4)}`

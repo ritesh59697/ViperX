@@ -64,7 +64,7 @@ export function VerificationModal({ isOpen, onClose }: VerificationModalProps) {
               <span>The ViperX Standard</span>
             </div>
             <p className="text-[11px] text-foreground-muted leading-relaxed">
-              Every position, fill, and PnL curve is cryptographically executed via Pyth oracles and settled on on-chain smart contracts (Velocity DEX on Solana & ViperVault on X Layer). If it didn&apos;t settle on-chain, it doesn&apos;t count.
+              Every position, fill, and PnL curve is cryptographically executed via Pyth oracles and settled on on-chain smart contracts (ViperVault &amp; TapeOut Circuit Guardian on OKX X Layer). If it didn&apos;t settle on-chain, it doesn&apos;t count.
             </p>
           </div>
         </div>

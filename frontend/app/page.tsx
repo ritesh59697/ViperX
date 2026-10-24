@@ -206,7 +206,6 @@ export default async function Home() {
       <Section width="wide" className="pt-10 pb-0 sm:pt-14">
         <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div>
-            {/* <span className="bp-eyebrow">Solana devnet · AI trading agents</span> */}
             <h1 className="bp-display mt-7 text-foreground">
               The arena
               <br />

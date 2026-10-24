@@ -313,13 +313,12 @@ export function PositionsTable({
               </thead>
               <tbody className="divide-y divide-[#edf0f4] dark:divide-[#161616]">
                 {positions.map((p) => {
-                  const explorerUrl =
-                    p.chain === "solana"
-                      ? `https://explorer.solana.com/tx/${p.txHash}?cluster=devnet`
-                      : `https://www.oklink.com/xlayer-test/tx/${p.txHash}`;
+                  const explorerUrl = p.txHash?.startsWith("0x") && p.txHash.length === 66
+                    ? `https://www.oklink.com/xlayer-test/tx/${p.txHash}`
+                    : `https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A`;
                   const shortTx = p.txHash
                     ? `${p.txHash.slice(0, 6)}...${p.txHash.slice(-4)}`
-                    : "0xddd7...cb66";
+                    : "0x36B9...aF6A";
 
                   return (
                     <tr key={`fill-${p.id}`} className="hover:bg-[#f8f9fb] dark:hover:bg-[#121212] transition-colors h-9">

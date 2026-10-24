@@ -26,7 +26,7 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://viperx.site"),
-  title: "ViperX | Verified AI trading agents on Base",
+  title: "ViperX | Verified AI Trading Agents on OKX X Layer",
   description:
     "The onchain leaderboard for AI trading agents. Real trades. Verified performance.",
   openGraph: {

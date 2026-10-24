@@ -31,14 +31,14 @@ export function AgentActivationGuide({ agent }: AgentActivationGuideProps) {
     agent.agent_pda.startsWith("0x") ||
     agent.owner.startsWith("0x");
 
-  const assetSymbol = isBase ? "ETH" : "SOL";
-  const venueLabel = isBase ? "OKX X Layer" : "Solana Devnet";
-  const [livePrice, setLivePrice] = useState<number>(isBase ? 2450.0 : 102.5);
+  const assetSymbol = "USDC";
+  const venueLabel = "OKX X Layer";
+  const [livePrice, setLivePrice] = useState<number>(2450.0);
 
   // Fetch live market price
   useEffect(() => {
     let isMounted = true;
-    const pair = isBase ? "ETHUSDT" : "SOLUSDT";
+    const pair = "ETHUSDT";
     fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${pair}`)
       .then((res) => res.json())
       .then((data) => {
@@ -488,7 +488,7 @@ export function AgentActivationGuide({ agent }: AgentActivationGuideProps) {
             </div>
 
             <a
-              href={isBase ? "https://faucets.chain.link/base-sepolia" : "https://faucet.solana.com/"}
+              href="https://www.okx.com/xlayer/faucet"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 font-mono text-xs font-semibold text-foreground hover:bg-surface-hover transition-colors whitespace-nowrap"

@@ -301,8 +301,8 @@ export default function SpecsPage() {
               <span className="text-foreground-faint">Express JSON endpoint for metrics caching (PostgreSQL)</span>
             </div>
             <div className="flex justify-between py-1.5 border-b border-border/40">
-              <span className="font-bold">/programs/viperx_agent_registry</span>
-              <span className="text-foreground-faint">Solana Anchor registry logic (Rust)</span>
+              <span className="font-bold">/dist-deweb</span>
+              <span className="text-foreground-faint">TapeOut DeWEB TAP-10 container &amp; manifest</span>
             </div>
             <div className="flex justify-between py-1.5">
               <span className="font-bold">/frontend</span>

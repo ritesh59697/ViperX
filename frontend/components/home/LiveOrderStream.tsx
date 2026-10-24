@@ -67,10 +67,9 @@ export function LiveOrderStream({ trades: initialTrades }: { trades: RecentTrade
             const side = t.side.toUpperCase();
             const isLong = side === "LONG";
             const price = t.exitPrice ?? t.entryPrice;
-            const isSolana = t.chain === "solana" || !t.txSignature.startsWith("0x");
-            const explorerUrl = isSolana
-              ? `https://explorer.solana.com/tx/${t.txSignature}?cluster=devnet`
-              : `https://www.oklink.com/xlayer-test/tx/${t.txSignature}`;
+            const explorerUrl = t.txSignature.startsWith("0x")
+              ? `https://www.oklink.com/xlayer-test/tx/${t.txSignature}`
+              : `https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A`;
 
             return (
               <motion.a
@@ -102,12 +101,8 @@ export function LiveOrderStream({ trades: initialTrades }: { trades: RecentTrade
                     </span>
                     <div className="flex items-center gap-1.5 text-[11px] text-foreground-muted">
                       <span>{t.marketSymbol}</span>
-                      <span className={`px-1.5 py-[1px] font-mono text-[9px] uppercase tracking-wider rounded font-medium ${
-                        isSolana 
-                          ? "bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30"
-                          : "bg-neutral-500/15 text-foreground border border-border"
-                      }`}>
-                        {isSolana ? "Solana" : "X Layer"}
+                      <span className="px-1.5 py-[1px] font-mono text-[9px] uppercase tracking-wider rounded font-medium bg-neutral-500/15 text-foreground border border-border">
+                        X Layer
                       </span>
                       {t.onchainVerified && (
                         <span

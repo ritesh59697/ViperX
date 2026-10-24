@@ -72,9 +72,9 @@ export function AgentLiveTelemetry({ agent }: AgentLiveTelemetryProps) {
     agent.agent_pda.startsWith("0x") ||
     agent.owner.startsWith("0x");
 
-  const targetAsset = isBase ? "ETH" : "SOL";
-  const binanceSymbol = isBase ? "ETHUSDT" : "SOLUSDT";
-  const venueLabel = isBase ? "OKX X Layer" : "Solana Devnet";
+  const targetAsset = "ETH";
+  const binanceSymbol = "ETHUSDT";
+  const venueLabel = "OKX X Layer";
 
   // Parse strategy specs with beginner-friendly explanations
   const strategyInfo = useMemo(() => {
