@@ -20,11 +20,21 @@ contract TapeOutCircuitGuardian is ITapeOutCircuitGuardian, Ownable {
     mapping(address => uint256) public lastTradeTime;
     mapping(address => uint32) public agentDrawdownBps;
 
+    /// @notice Contracts other than `positionRouter` permitted to evaluate the circuit — notably
+    ///         ViperVault, which traders call directly without going through the router.
+    mapping(address => bool) public isAuthorizedCaller;
+
+    event AuthorizedCallerSet(address indexed caller, bool allowed);
+
     error Unauthorized();
     error InvalidProcessor();
 
     modifier onlyRouterOrOwner() {
-        if (msg.sender != positionRouter && msg.sender != owner()) revert Unauthorized();
+        if (
+            msg.sender != positionRouter
+                && msg.sender != owner()
+                && !isAuthorizedCaller[msg.sender]
+        ) revert Unauthorized();
         _;
     }
 
@@ -49,6 +59,16 @@ contract TapeOutCircuitGuardian is ITapeOutCircuitGuardian, Ownable {
 
     function setPositionRouter(address _positionRouter) external onlyOwner {
         positionRouter = _positionRouter;
+    }
+
+    /**
+     * @notice Authorizes (or revokes) a contract to evaluate the circuit alongside `positionRouter`.
+     *         ViperVault is authorized here so trades sent straight to the vault are gated too,
+     *         rather than only agent intents arriving via the router.
+     */
+    function setAuthorizedCaller(address caller, bool allowed) external onlyOwner {
+        isAuthorizedCaller[caller] = allowed;
+        emit AuthorizedCallerSet(caller, allowed);
     }
 
     function setAgentDrawdown(address agent, uint32 drawdownBps) external onlyRouterOrOwner {

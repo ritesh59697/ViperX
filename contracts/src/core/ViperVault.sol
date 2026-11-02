@@ -7,6 +7,8 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IViperVault } from "../interfaces/IViperVault.sol";
+import { IPositionRouter } from "../interfaces/IPositionRouter.sol";
+import { ITapeOutCircuitGuardian } from "../interfaces/ITapeOutCircuitGuardian.sol";
 import { PythPriceAdapter } from "./PythPriceAdapter.sol";
 
 /**
@@ -35,6 +37,16 @@ contract ViperVault is IViperVault, ERC20, ReentrancyGuard, Ownable {
     mapping(bytes32 => MarketConfig) public markets;
     mapping(bytes32 => Position) public positions;
     mapping(address => bool) public isPositionRouter;
+
+    /// @notice TapeOut circuit gate applied to trades sent directly to this vault. When unset,
+    ///         the vault behaves exactly as before, so this is additive rather than a behavior
+    ///         change on deploy. Trades arriving via PositionRouter are gated there instead, and
+    ///         are skipped here so one trade is never evaluated against the circuit twice.
+    ITapeOutCircuitGuardian public circuitGuardian;
+
+    event CircuitGuardianSet(address indexed guardian);
+
+    error CircuitRiskRejected(uint32 diagnosticBits);
 
     error MarketNotActive();
     error MaxLeverageExceeded(uint256 requestedLeverageBps, uint256 maxLeverageBps);
@@ -157,6 +169,9 @@ contract ViperVault is IViperVault, ERC20, ReentrancyGuard, Ownable {
         poolCollateralUsd += openFeeUsd; // fee stays with pool LPs
 
         uint256 markPrice = priceAdapter.getNormalizedPrice(market.pythPriceFeedId);
+
+        _evaluateCircuit(marketId, side, sizeUsd, collateralUsd, markPrice);
+
         positionKey = getPositionKey(msg.sender, marketId, side);
 
         Position storage pos = positions[positionKey];
@@ -179,6 +194,46 @@ contract ViperVault is IViperVault, ERC20, ReentrancyGuard, Ownable {
         }
 
         emit PositionOpened(positionKey, msg.sender, marketId, side, sizeUsd, netCollateral, markPrice);
+    }
+
+    /**
+     * @notice Gates a direct-to-vault trade through the TapeOut circuit before any position state
+     *         is written, reverting with the circuit's diagnostic bits if the logic gates reject it.
+     *
+     *         Skipped entirely when no guardian is set, and when the caller is a PositionRouter —
+     *         the router evaluates the circuit itself, so gating again here would double-count the
+     *         anti-wash cooldown latch against a single trade.
+     *
+     *         A direct caller supplies no limit price, so the slippage signal is reported as zero
+     *         (`maxSlippagePrice == markPrice`): the trader accepted the mark price by definition,
+     *         and synthesizing a nonzero slippage would fabricate a breach that did not occur.
+     *         `deadline`/`nonce` are not part of the signal bus and are left at zero.
+     */
+    function _evaluateCircuit(
+        bytes32 marketId,
+        PositionSide side,
+        uint256 sizeUsd,
+        uint256 collateralUsd,
+        uint256 markPrice
+    ) private {
+        if (address(circuitGuardian) == address(0)) return;
+        if (isPositionRouter[msg.sender]) return;
+
+        IPositionRouter.AgentIntent memory intent = IPositionRouter.AgentIntent({
+            agent: msg.sender,
+            marketId: marketId,
+            side: side,
+            sizeUsd: sizeUsd,
+            collateralUsd: collateralUsd,
+            maxSlippagePrice: markPrice,
+            deadline: 0,
+            nonce: 0
+        });
+
+        (bool passed, uint32 diagnosticBits,) = circuitGuardian.validateIntent(intent, markPrice);
+        if (!passed) revert CircuitRiskRejected(diagnosticBits);
+
+        circuitGuardian.recordExecution(msg.sender);
     }
 
     /**
@@ -377,5 +432,14 @@ contract ViperVault is IViperVault, ERC20, ReentrancyGuard, Ownable {
 
     function setPositionRouter(address _router, bool _active) external onlyOwner {
         isPositionRouter[_router] = _active;
+    }
+
+    /**
+     * @notice Sets the TapeOut circuit gate for direct-to-vault trades. Pass address(0) to disable,
+     *         which restores the vault's pre-guardian behavior.
+     */
+    function setCircuitGuardian(address _guardian) external onlyOwner {
+        circuitGuardian = ITapeOutCircuitGuardian(_guardian);
+        emit CircuitGuardianSet(_guardian);
     }
 }

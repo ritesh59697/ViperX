@@ -14,12 +14,7 @@ drift-delegate-keypair.json
 **/*keypair*.json
 id.json
 *.pem
-**/scripts/
-!/scripts/
-/scripts/*
-!/scripts/build-deweb.ts
-!/scripts/seed-xlayer-agents.js
-!/scripts/verify-agent-cli.ts
+scripts/
 
 # ---------- Rust / Anchor build output ----------
 # target/ is ~1.5GB here. It also contains target/deploy/*-keypair.json,
