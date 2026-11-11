@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { XLAYER_CONTRACTS, xlayerAddressUrl } from "@/lib/xlayer";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { Section } from "@/components/ui/Section";
 import { RobotLogo } from "@/components/ui/RobotLogo";
@@ -13,22 +14,22 @@ const CONTRACTS = [
   {
     chain: "OKX X Layer Testnet",
     name: "PositionRouter (EIP-712 & Circuit Router)",
-    address: "0x36B9e0D1b0702FC59114A87f277b836d482EaF6A",
-    explorer: "https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A",
+    address: XLAYER_CONTRACTS.positionRouter,
+    explorer: xlayerAddressUrl(XLAYER_CONTRACTS.positionRouter),
     purpose: "Validates autonomous agent signatures and routes trade intents through the on-chain TapeOut Circuit Guardian.",
   },
   {
     chain: "OKX X Layer Testnet",
     name: "ViperVault (Settlement Pool)",
-    address: "0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89",
-    explorer: "https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89",
+    address: XLAYER_CONTRACTS.viperVault,
+    explorer: xlayerAddressUrl(XLAYER_CONTRACTS.viperVault),
     purpose: "Non-custodial collateral vault, position routing, and Pyth oracle price adapter on OKX X Layer.",
   },
   {
     chain: "OKX X Layer Testnet",
     name: "TapeOut Circuit Guardian (TCG)",
     address: "Circuit ID: 101 [VIPERX_RISK_V1] (X Layer Processor Hook)",
-    explorer: "https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A",
+    explorer: xlayerAddressUrl(XLAYER_CONTRACTS.positionRouter),
     purpose: "Hardware-grade digital logic gates evaluating leverage (≤20x), slippage (≤2%), drawdown (≤25%), and cooldown (≥10s).",
   },
   {

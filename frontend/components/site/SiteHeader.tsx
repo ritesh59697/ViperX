@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { XLAYER_CONTRACTS, xlayerAddressUrl, shortAddress } from "@/lib/xlayer";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import dynamicImport from "next/dynamic";
@@ -370,23 +371,23 @@ export function SiteHeader() {
               <div className="flex items-center justify-between font-mono text-[10px] text-foreground-faint">
                 <span>X LAYER ROUTER</span>
                 <a
-                  href="https://www.oklink.com/xlayer-test/address/0xcfEcD1274a74435E1D97c2D90F175296589751E0"
+                  href={xlayerAddressUrl(XLAYER_CONTRACTS.positionRouter)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-foreground break-all"
                 >
-                  0xcfE...51E0
+                  {shortAddress(XLAYER_CONTRACTS.positionRouter)}
                 </a>
               </div>
               <div className="flex items-center justify-between font-mono text-[10px] text-foreground-faint">
                 <span>X LAYER VAULT</span>
                 <a
-                  href="https://www.oklink.com/xlayer-test/address/0x9Dcfe752AC97F167763FeD87f4100F33cD29dbb7"
+                  href={xlayerAddressUrl(XLAYER_CONTRACTS.viperVault)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-foreground break-all"
                 >
-                  0x9Dc...dbb7
+                  {shortAddress(XLAYER_CONTRACTS.viperVault)}
                 </a>
               </div>
               <div className="flex items-center justify-between font-mono text-[10px] text-foreground-faint">

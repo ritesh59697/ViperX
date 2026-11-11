@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...but the template must be tracked: lib/xlayer.ts throws on a missing address rather
+# than falling back to a stale hardcoded one, so a fresh clone needs something to copy.
+!.env.example
 
 # vercel
 .vercel

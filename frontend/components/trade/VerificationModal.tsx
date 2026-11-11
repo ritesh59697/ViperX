@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { XLAYER_CONTRACTS, xlayerAddressUrl, shortAddress } from "@/lib/xlayer";
 import { RuneIcon } from "@/components/ui/RuneIcon";
 import { cn } from "@/lib/utils";
 
@@ -130,12 +131,12 @@ export function VerificationModal({ isOpen, onClose }: VerificationModalProps) {
             <div className="p-2.5 flex items-center justify-between">
               <span className="text-foreground font-semibold">ViperVault (Settlement Pool)</span>
               <a
-                href="https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89"
+                href={xlayerAddressUrl(XLAYER_CONTRACTS.viperVault)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-accent underline hover:opacity-80 flex items-center gap-1 font-bold"
               >
-                <span>0x01e4...4A89</span>
+                <span>{shortAddress(XLAYER_CONTRACTS.viperVault)}</span>
                 <RuneIcon name="indicators-square-arrow-out-up-right" className="h-3 w-3" />
               </a>
             </div>
@@ -143,12 +144,38 @@ export function VerificationModal({ isOpen, onClose }: VerificationModalProps) {
             <div className="p-2.5 flex items-center justify-between">
               <span className="text-foreground font-semibold">PositionRouter (Execution Engine)</span>
               <a
-                href="https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A"
+                href={xlayerAddressUrl(XLAYER_CONTRACTS.positionRouter)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-accent underline hover:opacity-80 flex items-center gap-1 font-bold"
               >
-                <span>0x36B9...aF6A</span>
+                <span>{shortAddress(XLAYER_CONTRACTS.positionRouter)}</span>
+                <RuneIcon name="indicators-square-arrow-out-up-right" className="h-3 w-3" />
+              </a>
+            </div>
+
+            <div className="p-2.5 flex items-center justify-between">
+              <span className="text-foreground font-semibold">TapeOutCircuitGuardian (Risk Gate)</span>
+              <a
+                href={xlayerAddressUrl(XLAYER_CONTRACTS.circuitGuardian)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent underline hover:opacity-80 flex items-center gap-1 font-bold"
+              >
+                <span>{shortAddress(XLAYER_CONTRACTS.circuitGuardian)}</span>
+                <RuneIcon name="indicators-square-arrow-out-up-right" className="h-3 w-3" />
+              </a>
+            </div>
+
+            <div className="p-2.5 flex items-center justify-between">
+              <span className="text-foreground font-semibold">TapeOutCircuitProcessor (Circuit Container)</span>
+              <a
+                href={xlayerAddressUrl(XLAYER_CONTRACTS.tapeOutProcessor)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent underline hover:opacity-80 flex items-center gap-1 font-bold"
+              >
+                <span>{shortAddress(XLAYER_CONTRACTS.tapeOutProcessor)}</span>
                 <RuneIcon name="indicators-square-arrow-out-up-right" className="h-3 w-3" />
               </a>
             </div>
@@ -156,12 +183,12 @@ export function VerificationModal({ isOpen, onClose }: VerificationModalProps) {
             <div className="p-2.5 flex items-center justify-between">
               <span className="text-foreground font-semibold">PythPriceAdapter (High-Frequency Oracle)</span>
               <a
-                href="https://www.oklink.com/xlayer-test/address/0xb268300045a4dE15c1842c179CD4CFF81387c723"
+                href={xlayerAddressUrl(XLAYER_CONTRACTS.pythPriceAdapter)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-accent underline hover:opacity-80 flex items-center gap-1 font-bold"
               >
-                <span>0xb268...c723</span>
+                <span>{shortAddress(XLAYER_CONTRACTS.pythPriceAdapter)}</span>
                 <RuneIcon name="indicators-square-arrow-out-up-right" className="h-3 w-3" />
               </a>
             </div>

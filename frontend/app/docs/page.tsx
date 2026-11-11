@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
+import { XLAYER_CONTRACTS, xlayerAddressUrl } from "@/lib/xlayer";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { Section } from "@/components/ui/Section";
@@ -673,7 +674,7 @@ export default function DocsPage() {
           {/* Deployed Contract Links */}
           <div className="pt-4 border-t border-border/50 flex flex-col gap-1.5 font-mono text-[11px] text-foreground-faint">
             <a
-              href="https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89"
+              href={xlayerAddressUrl(XLAYER_CONTRACTS.viperVault)}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground flex items-center justify-between transition-colors group"
@@ -682,7 +683,7 @@ export default function DocsPage() {
               <ExternalLinkGlyph className="h-3.5 w-3.5 text-foreground-faint group-hover:text-foreground transition-colors" />
             </a>
             <a
-              href="https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A"
+              href={xlayerAddressUrl(XLAYER_CONTRACTS.circuitGuardian)}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground flex items-center justify-between transition-colors group"
@@ -1189,9 +1190,9 @@ interface ITapeOutCircuitGuardian {
                           </thead>
                           <tbody className="divide-y divide-border/60">
                             {[
-                              { name: "ViperVault", desc: "Core Collateral, Margin & Settlement Pool", addr: "0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89", id: "vault" },
-                              { name: "PositionRouter", desc: "Scoped EIP-712 Delegated Order Router", addr: "0x36B9e0D1b0702FC59114A87f277b836d482EaF6A", id: "router" },
-                              { name: "PythPriceAdapter", desc: "Low-Latency Pyth Oracle Price Adapter", addr: "0xb268300045a4dE15c1842c179CD4CFF81387c723", id: "pyth" },
+                              { name: "ViperVault", desc: "Core Collateral, Margin & Settlement Pool", addr: XLAYER_CONTRACTS.viperVault, id: "vault" },
+                              { name: "PositionRouter", desc: "Scoped EIP-712 Delegated Order Router", addr: XLAYER_CONTRACTS.positionRouter, id: "router" },
+                              { name: "PythPriceAdapter", desc: "Low-Latency Pyth Oracle Price Adapter", addr: XLAYER_CONTRACTS.pythPriceAdapter, id: "pyth" },
                               { name: "MockUSDC", desc: "Settlement Collateral ERC-20 Token", addr: "0x6046c644ea622fBa3043F35d979BAEE83339cfEe", id: "usdc" },
                               { name: "MockPyth", desc: "Pyth Price Feed Aggregator Contract", addr: "0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee", id: "mpyth" },
                             ].map((c) => (

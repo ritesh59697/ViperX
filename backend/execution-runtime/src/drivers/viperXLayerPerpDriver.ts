@@ -21,8 +21,22 @@ import { MarketSnapshot } from "../strategy";
 import { recordClosedTrade } from "../pnlWrite";
 
 const RPC_URL = process.env.XLAYER_TESTNET_RPC_URL || "https://testrpc.xlayer.tech";
-const VAULT_ADDRESS = (process.env.XLAYER_VIPER_VAULT_ADDRESS || "0x9Dcfe752AC97F167763FeD87f4100F33cD29dbb7") as Address;
-const USDC_ADDRESS = (process.env.XLAYER_USDC_ADDRESS || "0x6046c644ea622fBa3043F35d979BAEE83339cfEe") as Address;
+// No fallback defaults: the previous inlined vault address silently went stale when the
+// vault was redeployed behind the TapeOut circuit, and a driver pointed at a dead vault
+// fails far more confusingly than one that refuses to start.
+function requireAddress(name: string): Address {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`${name} is required — set it to the live X Layer deployment (see .env.example).`);
+  }
+  if (!/^0x[0-9a-fA-F]{40}$/.test(value)) {
+    throw new Error(`${name} is not a valid address: ${value}`);
+  }
+  return value as Address;
+}
+
+const VAULT_ADDRESS = requireAddress("XLAYER_VIPER_VAULT_ADDRESS");
+const USDC_ADDRESS = requireAddress("XLAYER_USDC_ADDRESS");
 
 const viperVaultAbi = parseAbi([
   "function openPosition(bytes32 marketId, uint8 side, uint256 sizeUsd, uint256 collateralUsd) external returns (bytes32)",

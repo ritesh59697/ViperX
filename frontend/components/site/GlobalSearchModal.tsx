@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
+import { XLAYER_CONTRACTS, xlayerAddressUrl } from "@/lib/xlayer";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
@@ -166,7 +167,7 @@ const STATIC_SEARCH_ITEMS: SearchItem[] = [
     category: "docs",
     title: "TapeOut Circuit Guardian: Circuit 101",
     subtitle: "Digital logic risk engine verifying agent leverage, drawdown and slippage on OKX X Layer",
-    href: "https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A",
+    href: xlayerAddressUrl(XLAYER_CONTRACTS.positionRouter),
     external: true,
     badge: "TapeOut",
     badgeType: "accent",
@@ -176,7 +177,7 @@ const STATIC_SEARCH_ITEMS: SearchItem[] = [
     category: "docs",
     title: "X Layer ViperVault: 0x01e..4A89",
     subtitle: "Inspect OKX X Layer smart contract verification on OKLink",
-    href: "https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89",
+    href: xlayerAddressUrl(XLAYER_CONTRACTS.viperVault),
     external: true,
     badge: "X Layer",
     badgeType: "default",

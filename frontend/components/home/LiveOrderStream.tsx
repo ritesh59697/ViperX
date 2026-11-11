@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { XLAYER_CONTRACTS, xlayerAddressUrl } from "@/lib/xlayer";
 import { motion, AnimatePresence } from "motion/react";
 import { fetchRecentTrades, type RecentTrade } from "@/lib/leaderboardApi";
 import { CheckGlyph } from "@/components/ui/StatusGlyphs";
@@ -69,7 +70,7 @@ export function LiveOrderStream({ trades: initialTrades }: { trades: RecentTrade
             const price = t.exitPrice ?? t.entryPrice;
             const explorerUrl = t.txSignature.startsWith("0x")
               ? `https://www.oklink.com/xlayer-test/tx/${t.txSignature}`
-              : `https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A`;
+              : xlayerAddressUrl(XLAYER_CONTRACTS.positionRouter);
 
             return (
               <motion.a

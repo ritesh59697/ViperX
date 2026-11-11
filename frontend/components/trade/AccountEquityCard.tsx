@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { XLAYER_CONTRACTS, xlayerAddressUrl } from "@/lib/xlayer";
 import { TradePosition, useTradeStore } from "@/lib/trade/tradeStore";
 import { formatUsd, formatSignedPercent } from "@/lib/trade/math";
 import { RuneIcon } from "@/components/ui/RuneIcon";
@@ -41,7 +42,7 @@ export function AccountEquityCard({
 
   const isProfit = totalUnrealizedPnl >= 0;
 
-  const explorerUrl = "https://www.oklink.com/xlayer-test/address/0x9Dcfe752AC97F167763FeD87f4100F33cD29dbb7";
+  const explorerUrl = xlayerAddressUrl(XLAYER_CONTRACTS.viperVault);
   const explorerName = "OKLink (X Layer)";
 
   return (

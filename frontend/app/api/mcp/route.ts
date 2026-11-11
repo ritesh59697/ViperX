@@ -2,22 +2,14 @@ import { NextResponse } from "next/server";
 import { getLeaderboardFromDb } from "@/lib/server/leaderboardService";
 import { SUPPORTED_MARKETS } from "@/lib/trade/tradeStore";
 import { calcLiquidationPrice, calcPositionSize } from "@/lib/trade/math";
+import { XLAYER_DEPLOYMENTS as XLAYER_DEPLOYMENT_BASE } from "@/lib/xlayer";
 
 export const dynamic = "force-dynamic";
 
-// OKX X Layer Deployed Contracts
+// OKX X Layer deployed contracts, resolved from the environment in lib/xlayer.ts.
 const XLAYER_DEPLOYMENTS = {
-  chainId: 1952,
-  network: "OKX X Layer Testnet",
-  explorer: "https://www.oklink.com/xlayer-test",
-  contracts: {
-    viperVault: "0x9Dcfe752AC97F167763FeD87f4100F33cD29dbb7",
-    positionRouter: "0xcfEcD1274a74435E1D97c2D90F175296589751E0",
-    pythPriceAdapter: "0xcce8dbdde8a997217CFf51c4A2076f3B9Eb44b70",
-    mockUSDC: "0x6046c644ea622fBa3043F35d979BAEE83339cfEe",
-    mockPythOracle: "0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee",
-  },
-  activeMarkets: ["ETH-PERP", "BTC-PERP", "SOL-PERP", "OKB-PERP"],
+  ...XLAYER_DEPLOYMENT_BASE,
+  activeMarkets: XLAYER_DEPLOYMENT_BASE.markets,
 };
 
 // Available MCP Tools

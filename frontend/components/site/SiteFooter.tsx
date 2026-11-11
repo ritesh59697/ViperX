@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { XLAYER_CONTRACTS, xlayerAddressUrl } from "@/lib/xlayer";
 import { ExternalLinkGlyph } from "@/components/ui/StatusGlyphs";
 
 const PROGRAM_ID = "321hJbttyyeZ8pzisiKB93a5XdopV2N6n2gtvwrdQVRm";
@@ -176,7 +177,7 @@ export function SiteFooter() {
               <ul className="mt-4 space-y-2.5 font-mono text-xs">
                 <li>
                   <a
-                    href="https://www.oklink.com/xlayer-test/address/0x9Dcfe752AC97F167763FeD87f4100F33cD29dbb7"
+                    href={xlayerAddressUrl(XLAYER_CONTRACTS.viperVault)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-foreground-muted transition-colors hover:text-foreground"
@@ -186,7 +187,7 @@ export function SiteFooter() {
                 </li>
                 <li>
                   <a
-                    href="https://www.oklink.com/xlayer-test/address/0xcfEcD1274a74435E1D97c2D90F175296589751E0"
+                    href={xlayerAddressUrl(XLAYER_CONTRACTS.positionRouter)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-foreground-muted transition-colors hover:text-foreground"
@@ -196,12 +197,12 @@ export function SiteFooter() {
                 </li>
                 <li>
                   <a
-                    href="https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A"
+                    href={xlayerAddressUrl(XLAYER_CONTRACTS.circuitGuardian)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-foreground-muted transition-colors hover:text-foreground"
                   >
-                    TapeOut Guardian (101)
+                    TapeOut circuit guardian
                   </a>
                 </li>
                 <li>
