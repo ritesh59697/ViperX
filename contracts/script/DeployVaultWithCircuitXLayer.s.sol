@@ -22,8 +22,12 @@ import { MockUSDC } from "../src/mocks/MockUSDC.sol";
  *         re-adds the markets and seeds liquidity so the new vault is usable on arrival; it does
  *         not attempt to migrate open positions, which cannot be moved between vaults.
  *
+ *         Signing (pick one):
+ *           --account <name> --sender <addr>   encrypted Foundry keystore (preferred)
+ *           PRIVATE_KEY                        raw key in env (CI / local fork)
+ *         The signer becomes owner of all deployed contracts.
+ *
  *         Required env:
- *           PRIVATE_KEY               deployer (becomes owner of all three contracts)
  *           XLAYER_USDC               collateral token (must be the MockUSDC the faucet UI uses)
  *           XLAYER_PRICE_ADAPTER      existing PythPriceAdapter — reused, not redeployed
  *         Optional env:
@@ -49,8 +53,14 @@ contract DeployVaultWithCircuitXLayer is Script {
     bytes32 public constant SPY_FEED = 0x2613da66c6155551c682aa15259926a458b2914db368297f62939d37537b02ff;
 
     function run() external {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address deployer = vm.addr(deployerPrivateKey);
+        // Two signing paths. Preferred: an encrypted Foundry keystore, passed as
+        // `--account <name> --sender <address>`, so no raw key is ever placed in the
+        // environment or shell history. Fallback: PRIVATE_KEY in env, which some CI and
+        // local-fork workflows still rely on.
+        uint256 deployerPrivateKey = vm.envOr("PRIVATE_KEY", uint256(0));
+        bool usingKeystore = deployerPrivateKey == 0;
+        address deployer = usingKeystore ? msg.sender : vm.addr(deployerPrivateKey);
+        require(deployer != address(0), "no signer: pass --account/--sender or set PRIVATE_KEY");
 
         address usdcAddress = vm.envAddress("XLAYER_USDC");
         address priceAdapterAddress = vm.envAddress("XLAYER_PRICE_ADAPTER");
@@ -71,7 +81,11 @@ contract DeployVaultWithCircuitXLayer is Script {
         // normalization in validateIntent. The market cap is derived from this below.
         uint32 maxLeverageRatio = uint32(vm.envOr("TAPEOUT_MAX_LEVERAGE_RATIO", uint256(2000)));
 
-        vm.startBroadcast(deployerPrivateKey);
+        if (usingKeystore) {
+            vm.startBroadcast();
+        } else {
+            vm.startBroadcast(deployerPrivateKey);
+        }
 
         // 1. Processor. If an externally-operated processor address is supplied, gate against it.
         //    Otherwise ViperX hosts its own — no shared processor address has been published for
