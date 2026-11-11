@@ -221,4 +221,62 @@ contract ViperVaultCircuitGateTest is Test {
         // Circuit never ran, so no execution timestamp was recorded for this caller.
         assertEq(guardian.lastTradeTime(agent), 0, "router path should not touch the guardian");
     }
+
+    // =========================================================================
+    // DEPLOYED-CONFIGURATION REACHABILITY
+    //
+    // The tests above deliberately invert the real ordering (5x vault cap, 3x circuit ceiling)
+    // so each comparator can be exercised in isolation. That proves the gate WORKS but says
+    // nothing about whether the SHIPPED configuration can ever reach it — ViperVault checks
+    // `market.maxLeverageBps` before calling _evaluateCircuit, so a market cap at or below the
+    // circuit ceiling makes the leverage comparator dead code on the live deployment.
+    //
+    // These two tests pin the deploy script's actual relationship instead of the test fixture's.
+    // =========================================================================
+
+    /// @dev Mirrors DeployVaultWithCircuitXLayer: ceiling x100, headroom in vault bps.
+    uint32 constant DEPLOY_MAX_LEVERAGE_RATIO = 2000; // 20.0x
+    uint256 constant DEPLOY_HEADROOM_BPS = 50000; // +5x
+
+    function _deployConfiguredMarket() private returns (bytes32 marketId, uint256 marketCapBps) {
+        marketCapBps = (uint256(DEPLOY_MAX_LEVERAGE_RATIO) * 100) + DEPLOY_HEADROOM_BPS;
+        marketId = keccak256("BTC-PERP-DEPLOYCFG");
+
+        pyth.setPrice(marketId, 3000_00000000, -8, 1_00000000);
+        vault.addMarket(marketId, marketId, 1_000_000 * 1e18, 1_000_000 * 1e18, 10 * 1e18, marketCapBps, 500);
+
+        // Re-register the circuit at the deployed ceiling rather than the fixture's 3x.
+        processor.registerCircuit({
+            circuitId: CIRCUIT_ID,
+            maxLeverageRatio: DEPLOY_MAX_LEVERAGE_RATIO,
+            maxSlippageBps: 200,
+            maxDrawdownBps: 2500,
+            minCooldownSeconds: 10
+        });
+    }
+
+    function test_DeployedConfig_MarketCapLeavesCircuitReachable() public {
+        (, uint256 marketCapBps) = _deployConfiguredMarket();
+
+        // Both sides expressed as plain leverage multiples, so the comparison is legible:
+        // the vault must permit strictly MORE leverage than the circuit allows, or the
+        // circuit's leverage comparator can never be the thing that rejects a trade.
+        uint256 vaultCapX = marketCapBps / 10000; // bps -> x
+        uint256 circuitCeilingX = uint256(DEPLOY_MAX_LEVERAGE_RATIO) / 100; // x100 -> x
+
+        assertEq(vaultCapX, 25, "deployed vault cap should be 25x");
+        assertEq(circuitCeilingX, 20, "deployed circuit ceiling should be 20x");
+        assertGt(vaultCapX, circuitCeilingX, "vault cap must exceed circuit ceiling or the gate is dead code");
+    }
+
+    function test_DeployedConfig_LeverageBreachAttributedToCircuit() public {
+        (bytes32 marketId,) = _deployConfiguredMarket();
+
+        // 22x: inside the vault's 25x cap, beyond the circuit's 20x ceiling. On the shipped
+        // configuration this must revert from the CIRCUIT with diagnostic bit 1 — not from the
+        // vault's own MaxLeverageExceeded, which would mean the circuit never ran.
+        vm.prank(agent);
+        vm.expectRevert(abi.encodeWithSelector(ViperVault.CircuitRiskRejected.selector, DIAG_LEVERAGE));
+        vault.openPosition(marketId, IViperVault.PositionSide.LONG, 22_000 * 1e18, 1_000 * 1e18);
+    }
 }
