@@ -4,7 +4,7 @@ pragma solidity 0.8.24;
 import { Script, console2 } from "forge-std/Script.sol";
 import { PositionRouter } from "../src/core/PositionRouter.sol";
 import { TapeOutCircuitGuardian } from "../src/core/TapeOutCircuitGuardian.sol";
-import { MockTapeOutProcessor } from "../src/mocks/MockTapeOutProcessor.sol";
+import { TapeOutCircuitProcessor } from "../src/core/TapeOutCircuitProcessor.sol";
 
 /**
  * @title DeployTapeOutGuardianXLayer
@@ -29,9 +29,9 @@ contract DeployTapeOutGuardianXLayer is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // 1. Resolve or Deploy TapeOut Processor
-        MockTapeOutProcessor processor;
+        TapeOutCircuitProcessor processor;
         if (processorAddress == address(0)) {
-            processor = new MockTapeOutProcessor();
+            processor = new TapeOutCircuitProcessor();
             processorAddress = address(processor);
             console2.log("Deployed TapeOut Processor at:", processorAddress);
 

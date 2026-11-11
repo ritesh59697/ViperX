@@ -6,7 +6,7 @@ import { ViperVault } from "../src/core/ViperVault.sol";
 import { PositionRouter } from "../src/core/PositionRouter.sol";
 import { PythPriceAdapter } from "../src/core/PythPriceAdapter.sol";
 import { TapeOutCircuitGuardian } from "../src/core/TapeOutCircuitGuardian.sol";
-import { MockTapeOutProcessor } from "../src/mocks/MockTapeOutProcessor.sol";
+import { TapeOutCircuitProcessor } from "../src/core/TapeOutCircuitProcessor.sol";
 import { IViperVault } from "../src/interfaces/IViperVault.sol";
 import { IPositionRouter } from "../src/interfaces/IPositionRouter.sol";
 import { MockUSDC, MockPyth } from "./ViperVault.t.sol";
@@ -18,7 +18,7 @@ contract TapeOutCircuitGuardianTest is Test {
     ViperVault public vault;
     PositionRouter public router;
 
-    MockTapeOutProcessor public processor;
+    TapeOutCircuitProcessor public processor;
     TapeOutCircuitGuardian public guardian;
 
     uint256 public constant CIRCUIT_VIPER_RISK = 101;
@@ -40,7 +40,7 @@ contract TapeOutCircuitGuardianTest is Test {
         router = new PositionRouter(address(vault), address(usdc), address(adapter));
 
         // 1. Deploy TapeOut Hardware Processor & Register Circuit
-        processor = new MockTapeOutProcessor();
+        processor = new TapeOutCircuitProcessor();
         processor.registerCircuit({
             circuitId: CIRCUIT_VIPER_RISK,
             maxLeverageRatio: 2000,     // 20.0x max leverage

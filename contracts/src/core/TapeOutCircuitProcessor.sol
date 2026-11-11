@@ -4,16 +4,26 @@ pragma solidity 0.8.24;
 import { ITapeOutCircuitProcessor } from "../interfaces/ITapeOutCircuitProcessor.sol";
 
 /**
- * @title MockTapeOutProcessor
- * @notice Simulates a TapeOut on-chain hardware circuit container on X Layer.
- *         Implements combinational digital logic gates:
+ * @title TapeOutCircuitProcessor
+ * @notice A self-hosted implementation of `ITapeOutCircuitProcessor`: an on-chain circuit
+ *         container holding registered circuit parameters and evaluating packed trade
+ *         signals against them deterministically, entirely on X Layer.
+ *
+ *         This is ViperX's own processor, not an OKX-operated one. At the time of writing no
+ *         shared TapeOut processor address had been published for X Layer testnet (chain 1952),
+ *         so the protocol hosts the circuit itself rather than claiming an integration that
+ *         does not exist. `TapeOutCircuitGuardian.setProcessor(address,uint256)` repoints the
+ *         gate at an official processor once one is available, without redeploying the vault
+ *         or the router.
+ *
+ *         Evaluation is pure combinational logic, no trust in the caller:
  *         - COMP_0: Leverage Ratio <= maxLeverageRatio
  *         - COMP_1: Slippage Tolerance <= maxSlippageBps
  *         - COMP_2: Drawdown Tolerance <= maxDrawdownBps
  *         - COMP_3: Cooldown Latch >= minCooldownSeconds
  *         - AND_MASTER: All comparator outputs must be 1 (HIGH)
  */
-contract MockTapeOutProcessor is ITapeOutCircuitProcessor {
+contract TapeOutCircuitProcessor is ITapeOutCircuitProcessor {
     uint32 public constant DIAG_LEVERAGE_BREACH = 1 << 0;  // 0x01
     uint32 public constant DIAG_SLIPPAGE_BREACH = 1 << 1;  // 0x02
     uint32 public constant DIAG_DRAWDOWN_BREACH = 1 << 2;  // 0x04

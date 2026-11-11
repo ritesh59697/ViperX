@@ -5,7 +5,7 @@ import { Script, console2 } from "forge-std/Script.sol";
 import { ViperVault } from "../src/core/ViperVault.sol";
 import { PositionRouter } from "../src/core/PositionRouter.sol";
 import { TapeOutCircuitGuardian } from "../src/core/TapeOutCircuitGuardian.sol";
-import { MockTapeOutProcessor } from "../src/mocks/MockTapeOutProcessor.sol";
+import { TapeOutCircuitProcessor } from "../src/core/TapeOutCircuitProcessor.sol";
 import { MockUSDC } from "../src/mocks/MockUSDC.sol";
 
 /**
@@ -27,8 +27,9 @@ import { MockUSDC } from "../src/mocks/MockUSDC.sol";
  *           XLAYER_USDC               collateral token (must be the MockUSDC the faucet UI uses)
  *           XLAYER_PRICE_ADAPTER      existing PythPriceAdapter — reused, not redeployed
  *         Optional env:
- *           TAPEOUT_PROCESSOR_ADDRESS real TapeOut processor. If unset, a mock is deployed and the
- *                                     script warns; do not submit a mock as a TapeOut integration.
+ *           TAPEOUT_PROCESSOR_ADDRESS an externally-operated TapeOut processor to gate against.
+ *                                     If unset, ViperX's own TapeOutCircuitProcessor is deployed
+ *                                     and the circuit registered on it.
  *           TAPEOUT_CIRCUIT_ID        circuit to evaluate against (default 101)
  *           SEED_LIQUIDITY_USDC       LP liquidity to seed, in whole USDC (default 0 = none)
  */
@@ -59,23 +60,24 @@ contract DeployVaultWithCircuitXLayer is Script {
         console2.log("PriceAdapter: ", priceAdapterAddress);
         console2.log("Circuit ID:   ", circuitId);
 
-        bool usingMockProcessor = processorAddress == address(0);
+        bool selfHostingProcessor = processorAddress == address(0);
 
         vm.startBroadcast(deployerPrivateKey);
 
-        // 1. Processor. A real TapeOut processor is strongly preferred — the hackathon FAQ allows
-        //    building on existing processors, and the submitted address should be a real one.
-        if (usingMockProcessor) {
-            MockTapeOutProcessor mock = new MockTapeOutProcessor();
-            processorAddress = address(mock);
-            mock.registerCircuit({
+        // 1. Processor. If an externally-operated processor address is supplied, gate against it.
+        //    Otherwise ViperX hosts its own — no shared processor address has been published for
+        //    chain 1952, and the guardian can be repointed later via setProcessor().
+        if (selfHostingProcessor) {
+            TapeOutCircuitProcessor processor = new TapeOutCircuitProcessor();
+            processorAddress = address(processor);
+            processor.registerCircuit({
                 circuitId: circuitId,
                 maxLeverageRatio: 2000, // 20.0x ceiling
                 maxSlippageBps: 200, // 2.00% ceiling
                 maxDrawdownBps: 2500, // 25.00% killswitch
                 minCooldownSeconds: 10 // 10s anti-wash latch
             });
-            console2.log("Processor:    ", processorAddress, "(MOCK - self-deployed)");
+            console2.log("Processor:    ", processorAddress, "(ViperX self-hosted)");
         } else {
             console2.log("Processor:    ", processorAddress, "(external)");
         }
@@ -144,11 +146,11 @@ contract DeployVaultWithCircuitXLayer is Script {
         require(guardian.isAuthorizedCaller(address(vault)), "vault not authorized on guardian");
         require(vault.isPositionRouter(address(router)), "router not authorized on vault");
 
-        if (usingMockProcessor) {
+        if (selfHostingProcessor) {
             console2.log("");
-            console2.log("WARNING: gated by a SELF-DEPLOYED MOCK processor, not a real TapeOut");
-            console2.log("circuit. Re-run with TAPEOUT_PROCESSOR_ADDRESS set before submitting,");
-            console2.log("or swap later via guardian.setProcessor(addr, circuitId).");
+            console2.log("NOTE: gated by ViperX's own TapeOutCircuitProcessor, not an OKX-operated");
+            console2.log("one. Describe it as such. To repoint at an official processor later:");
+            console2.log("guardian.setProcessor(addr, circuitId) - no vault/router redeploy.");
         }
 
         console2.log("");

@@ -6,7 +6,7 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { ViperVault } from "../src/core/ViperVault.sol";
 import { PythPriceAdapter } from "../src/core/PythPriceAdapter.sol";
 import { TapeOutCircuitGuardian } from "../src/core/TapeOutCircuitGuardian.sol";
-import { MockTapeOutProcessor } from "../src/mocks/MockTapeOutProcessor.sol";
+import { TapeOutCircuitProcessor } from "../src/core/TapeOutCircuitProcessor.sol";
 import { IPyth, PythPrice } from "../src/interfaces/IPyth.sol";
 import { IViperVault } from "../src/interfaces/IViperVault.sol";
 
@@ -53,7 +53,7 @@ contract ViperVaultCircuitGateTest is Test {
     GateMockPyth public pyth;
     PythPriceAdapter public adapter;
     ViperVault public vault;
-    MockTapeOutProcessor public processor;
+    TapeOutCircuitProcessor public processor;
     TapeOutCircuitGuardian public guardian;
 
     address public lp = address(0x100);
@@ -87,7 +87,7 @@ contract ViperVaultCircuitGateTest is Test {
             500
         );
 
-        processor = new MockTapeOutProcessor();
+        processor = new TapeOutCircuitProcessor();
         // Circuit limits deliberately set so each gate can be tripped from inside the vault's own
         // 5x leverage cap: a 20x circuit ceiling is unreachable here and would never fire.
         processor.registerCircuit({
