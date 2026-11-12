@@ -1,8 +1,10 @@
 import { create } from "zustand";
 import { PositionSide, calcUnrealizedPnl, calcPnlPercentage } from "./math";
+import { XLAYER_MARKET_SYMBOLS, type XLayerMarketSymbol } from "./marketSymbols";
 
 export interface PerpMarket {
-  symbol: string;
+  /** Constrained to the markets actually registered on the vault. */
+  symbol: XLayerMarketSymbol;
   name: string;
   category?: "crypto" | "equity";
   binanceSymbol: string;
@@ -59,7 +61,11 @@ export const SUPPORTED_MARKETS: PerpMarket[] = [
     category: "crypto",
     binanceSymbol: "OKBUSDT",
     tvSymbol: "OKX:OKBUSDT",
-    pythFeedId: "0x7179069d2d0b5220c74cfcf5705a2e5e8e8156cd0c558c407c6f0e4d0fb8396e",
+    // keccak256("OKB-USD-FEED") — the placeholder this market is actually registered
+    // with on the vault, set by UpdateMockPythPrices.s.sol. The other seven markets use
+    // real Pyth feed ids; OKB has no Pyth feed on the mock oracle, so publishing the
+    // real mainnet id here advertised a feed that reverts with "price not set".
+    pythFeedId: "0x81a0e46bf436362b5aaf7564a18224a79fec96dc5f93dfafa8749e6dedd2c619",
     basePrice: 121.7,
     minCollateral: 5,
     maxLeverage: 10,
@@ -119,6 +125,22 @@ export const SUPPORTED_MARKETS: PerpMarket[] = [
     precision: 2,
   },
 ];
+
+/**
+ * `symbol` being typed as `XLayerMarketSymbol` stops a typo or an unregistered market
+ * getting in, but it cannot catch the opposite error: a market registered on the vault
+ * and listed in `XLAYER_MARKET_SYMBOLS` that nobody gave a descriptor to here. That
+ * market would be advertised by the MCP/A2A endpoints and then be untradable in the UI.
+ */
+const missingDescriptors = XLAYER_MARKET_SYMBOLS.filter(
+  (symbol) => !SUPPORTED_MARKETS.some((market) => market.symbol === symbol),
+);
+if (missingDescriptors.length > 0) {
+  throw new Error(
+    `SUPPORTED_MARKETS is missing descriptors for: ${missingDescriptors.join(", ")}. ` +
+      `Every symbol in XLAYER_MARKET_SYMBOLS needs one, or the market is discoverable but untradable.`,
+  );
+}
 
 export interface TradePosition {
   id: string;

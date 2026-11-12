@@ -3,6 +3,7 @@ import { getLeaderboardFromDb } from "@/lib/server/leaderboardService";
 import { SUPPORTED_MARKETS } from "@/lib/trade/tradeStore";
 import { calcLiquidationPrice, calcPositionSize } from "@/lib/trade/math";
 import { XLAYER_DEPLOYMENTS as XLAYER_DEPLOYMENT_BASE } from "@/lib/xlayer";
+import { XLAYER_MARKET_SYMBOLS } from "@/lib/trade/marketSymbols";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,7 @@ const MCP_TOOLS = [
       properties: {
         market: {
           type: "string",
-          enum: ["ETH-PERP", "BTC-PERP", "SOL-PERP", "OKB-PERP"],
+          enum: [...XLAYER_MARKET_SYMBOLS],
           description: "Target perpetual market symbol",
         },
       },
@@ -63,7 +64,7 @@ const MCP_TOOLS = [
       properties: {
         market: {
           type: "string",
-          enum: ["ETH-PERP", "BTC-PERP", "SOL-PERP", "OKB-PERP"],
+          enum: [...XLAYER_MARKET_SYMBOLS],
           description: "Market symbol",
         },
         side: {
@@ -95,7 +96,7 @@ const MCP_TOOLS = [
         },
         market: {
           type: "string",
-          enum: ["ETH-PERP", "BTC-PERP", "SOL-PERP", "OKB-PERP"],
+          enum: [...XLAYER_MARKET_SYMBOLS],
           description: "Market symbol",
         },
         side: {
@@ -162,9 +163,11 @@ async function executeTool(name: string, args: Record<string, unknown>) {
             text: JSON.stringify(
               {
                 ...XLAYER_DEPLOYMENTS,
-                markets: SUPPORTED_MARKETS.filter((m) =>
-                  ["ETH-PERP", "BTC-PERP", "SOL-PERP", "OKB-PERP"].includes(m.symbol)
-                ),
+                // Every market registered on the vault, crypto and RWA alike. Do not
+                // reintroduce a hardcoded symbol filter here: one used to pin this to
+                // the four crypto perps, so the four RWA perps were live on chain but
+                // invisible to every external agent that asked.
+                markets: SUPPORTED_MARKETS,
               },
               null,
               2

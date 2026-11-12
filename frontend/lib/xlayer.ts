@@ -9,6 +9,8 @@
  * Set these in `.env.local` (see `.env.example`).
  */
 
+import { XLAYER_MARKET_SYMBOLS } from "./trade/marketSymbols";
+
 type Hex = `0x${string}`;
 
 function readAddress(name: string, value: string | undefined): Hex {
@@ -72,5 +74,9 @@ export const XLAYER_DEPLOYMENTS = {
   contracts: XLAYER_CONTRACTS,
   /** The TapeOut circuit every trade is evaluated against before it reaches vault liquidity. */
   circuitId: Number(process.env.NEXT_PUBLIC_XLAYER_CIRCUIT_ID ?? 101),
-  markets: ["ETH-PERP", "BTC-PERP", "SOL-PERP", "OKB-PERP"],
+  /**
+   * Every market live on the vault, not just the crypto ones — external agents
+   * discover tradable markets through here.
+   */
+  markets: XLAYER_MARKET_SYMBOLS,
 } as const;
