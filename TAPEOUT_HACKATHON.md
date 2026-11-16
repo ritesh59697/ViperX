@@ -195,5 +195,5 @@ The X Layer and TapeOut teams jointly score five criteria (no published weights)
 9. **Demo Video (≤ 3 minutes):**
    1. The problem: unverified AI trading agents and uncontrolled risk.
    2. The four netlists: how a comparator is built from NAND gates, and where the limits live.
-   3. Trades gated by the real circuits: a compliant trade passes, a 22x trade is rejected with diagnostic bit 1 (on mainnet once deployed; the fork test shows the same flow until then).
+   3. Trades gated by the circuits on `/trade`: a 5x trade passes; at **25x** (the vault allows it, and the 20x leverage circuit does not) the order is refused as *"blocked by the on-chain risk circuits: leverage check failed"*, from `CircuitRiskRejected(1)`. The **Circuits** button shows which processor and circuits are live.
    4. The DeWEB portal and circuit simulator.

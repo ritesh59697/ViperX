@@ -11,7 +11,7 @@ import {
 } from "wagmi";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { Transaction, SystemProgram } from "@solana/web3.js";
-import { parseUnits, formatUnits, keccak256, toHex, parseAbi } from "viem";
+import { parseUnits, formatUnits, keccak256, toHex, parseAbi, BaseError, ContractFunctionRevertedError } from "viem";
 
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useTheme } from "@/components/ui/ThemeProvider";
@@ -63,6 +63,31 @@ const ERC20_ABI = parseAbi([
   "function approve(address spender, uint256 amount) external returns (bool)",
   "function faucet() external",
 ]);
+
+/** Diagnostic bits from a CircuitRiskRejected revert, or null if the error is something else. */
+function circuitRejectionBits(err: unknown): number | null {
+  if (err instanceof BaseError) {
+    const revert = err.walk((e) => e instanceof ContractFunctionRevertedError);
+    if (revert instanceof ContractFunctionRevertedError && revert.data?.errorName === "CircuitRiskRejected") {
+      return Number(revert.data.args?.[0]);
+    }
+  }
+  const m = getErrorMessage(err).match(/CircuitRiskRejected\(\s*(\d+)\s*\)/);
+  return m ? Number(m[1]) : null;
+}
+
+/** Bit i set = check i failed, in the guardian's order (ITapeOutCircuitGuardian.Check). */
+const CIRCUIT_CHECKS: { bit: number; label: string }[] = [
+  { bit: 1, label: "leverage" },
+  { bit: 2, label: "slippage" },
+  { bit: 4, label: "drawdown" },
+  { bit: 8, label: "cooldown" },
+];
+
+function describeCircuitBits(bits: number): string {
+  const failed = CIRCUIT_CHECKS.filter((c) => bits & c.bit).map((c) => c.label);
+  return failed.length ? failed.join(", ") : `diagnostic bits ${bits}`;
+}
 
 function getErrorMessage(err: unknown, fallback = "Transaction failed"): string {
   if (err instanceof Error) return err.message;
@@ -439,7 +464,10 @@ export default function TradePage() {
             } catch (simErr: unknown) {
               const rawMsg = getErrorMessage(simErr);
               let userFriendlyMsg = rawMsg;
-              if (rawMsg.includes("MaxLeverageExceeded") || rawMsg.includes("0x4b22439f")) {
+              const circuitBits = circuitRejectionBits(simErr);
+              if (circuitBits !== null) {
+                userFriendlyMsg = `blocked by the on-chain risk circuits: ${describeCircuitBits(circuitBits)} check failed. No funds moved.`;
+              } else if (rawMsg.includes("MaxLeverageExceeded") || rawMsg.includes("0x4b22439f")) {
                 userFriendlyMsg = "Selected leverage exceeds the maximum limit for this market.";
               } else if (rawMsg.includes("InsufficientCollateral") || rawMsg.includes("0x82b42900")) {
                 userFriendlyMsg = "Insufficient collateral or minimum position size requirement ($10) not met.";
@@ -773,6 +801,16 @@ export default function TradePage() {
             <XLayerLogo className="h-3.5 w-3.5" />
             <span>OKX X Layer</span>
           </div>
+
+          {/* Contracts and risk circuits — no wallet needed */}
+          <button
+            type="button"
+            onClick={() => setVerificationModalOpen(true)}
+            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#d2d6df] dark:border-[#1e1e1e] bg-white dark:bg-[#121212] px-3 text-xs font-semibold text-foreground transition-all duration-200 hover:border-accent/50 hover:bg-accent/5 cursor-pointer shadow-xs"
+            title="The contracts and TapeOut risk circuits every trade goes through"
+          >
+            <span>Circuits</span>
+          </button>
 
           {/* X Layer Faucet Quick Claim Button */}
           {selectedChain === "xlayer" && hasEvmWallet && (

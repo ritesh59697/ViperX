@@ -26,6 +26,11 @@ export const VIPER_VAULT_ABI = parseAbi([
   "function balanceOf(address account) external view returns (uint256)",
   "function openPosition(bytes32 marketId, uint8 side, uint256 sizeUsd, uint256 collateralUsd) external returns (bytes32)",
   "function closePosition(bytes32 positionKey) external returns (int256 realizedPnlUsd, uint256 payoutUsd)",
+  "error CircuitRiskRejected(uint32 diagnosticBits)",
+  "error MaxLeverageExceeded(uint256 requestedLeverageBps, uint256 maxLeverageBps)",
+  "error InsufficientCollateral()",
+  "error MarketNotActive()",
+  "error MaxOpenInterestExceeded()",
 ]);
 
 interface MarketSideDescriptor {

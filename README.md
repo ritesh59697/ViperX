@@ -18,6 +18,21 @@
 
 ---
 
+## Judges: start here
+
+| Path | Time | Wallet | What you see |
+| :--- | :--- | :--- | :--- |
+| **A. Look at the gate** | 2 min | none | Open [viperx.site/trade](https://www.viperx.site/trade) and click **Circuits** in the top bar. The popup lists the vault, router, guardian and circuit processor with explorer links, and which circuits gate each trade. |
+| **B. Trip a circuit** | 5 min | OKX Wallet on X Layer Testnet, with testnet OKB for gas | On [/trade](https://www.viperx.site/trade): **Connect Wallet to Trade** → **Faucet** (+10K demo USDC) → leverage **5x** → **Buy / Long ETH**. The trade settles. Then pick **25x** → **Buy / Long ETH**. It is refused with *"Order rejected: blocked by the on-chain risk circuits: leverage check failed"* and no funds move. |
+| **C. Check the circuits yourself** | 5 min | none | Read the four netlists in [`contracts/tapeout/circuits/`](./contracts/tapeout/circuits/). Then, in `contracts/`, run `forge test` (offline) and `set -a; source .env.example; set +a && forge test --match-path "test/fork/*" -vv`. The fork tests tape the circuits out through the real TapeOut factory on an X Layer mainnet fork, and trade through them. |
+
+**Where each gate runs**
+
+- **Mainnet:** the four TapeOut circuits run there, because the TapeOut factory exists only on X Layer mainnet. Their processor address and circuit IDs are listed in [TAPEOUT_HACKATHON.md §7](./TAPEOUT_HACKATHON.md#7-how-to-submit) once taped out.
+- **Testnet:** the live testnet app (paths A and B) is gated by the earlier single-circuit testnet gate. The 25x rejection works the same way there.
+
+---
+
 ## Live Deployment
 
 - **Web Interface**: [https://www.viperx.site/](https://www.viperx.site/)

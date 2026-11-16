@@ -286,8 +286,10 @@ export function OrderFormPanel({
           <span className="font-bold text-foreground">{leverage}x</span>
         </div>
 
-        <div className="grid grid-cols-5 gap-1 font-mono">
-          {[1, 2, 3, 5, 10].map((lvl) => (
+        {/* 20x is the leverage circuit's ceiling; 25x passes the vault's own cap and is rejected
+            by the TapeOut circuit, so the gate can be seen firing from the UI. */}
+        <div className="grid grid-cols-6 gap-1 font-mono">
+          {[1, 2, 5, 10, 20, 25].map((lvl) => (
             <button
               key={lvl}
               type="button"
