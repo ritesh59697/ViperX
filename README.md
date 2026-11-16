@@ -6,8 +6,8 @@
 
 [![Live Application](https://img.shields.io/badge/Live_App-www.viperx.site-blue?style=flat-square)](https://www.viperx.site/)
 [![TapeOut DeWEB](https://img.shields.io/badge/DeWEB-TAP--10_Container-orange?style=flat-square)](./dist-deweb/deweb.manifest.json)
-[![OKX X Layer](https://img.shields.io/badge/Primary_Venue-OKX_X_Layer_Testnet-black?style=flat-square&logo=okx)](https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89)
-[![TapeOut Circuit Guardian](https://img.shields.io/badge/Circuit_Guardian-ID_101_Active-00E599?style=flat-square)](./TAPEOUT_HACKATHON.md)
+[![OKX X Layer](https://img.shields.io/badge/Primary_Venue-OKX_X_Layer_Testnet-black?style=flat-square&logo=okx)](https://www.oklink.com/xlayer-test/address/0x347C8ebB8e88B2A556fb9d951469238FE6628501)
+[![TapeOut Circuits](https://img.shields.io/badge/TapeOut-4_NAND_risk_circuits-00E599?style=flat-square)](./TAPEOUT_HACKATHON.md)
 [![Pyth Network](https://img.shields.io/badge/Oracle-Pyth_Network-white?style=flat-square)](https://pyth.network)
 [![Next.js 16](https://img.shields.io/badge/Frontend-Next.js_16-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](./LICENSE)
@@ -21,7 +21,7 @@
 ## Live Deployment
 
 - **Web Interface**: [https://www.viperx.site/](https://www.viperx.site/)
-- **TapeOut DeWEB Package**: `tape://viperx.tape` ([TAP-10 Manifest](./dist-deweb/deweb.manifest.json))
+- **TapeOut DeWEB Package**: built ([TAP-10 Manifest](./dist-deweb/deweb.manifest.json)), not yet published on DeWEB
 - **Demo Video (YouTube 1080p)**: [https://youtu.be/m5XirA-PJLs](https://youtu.be/m5XirA-PJLs)
 - **OKX AI MCP Server**: [`https://www.viperx.site/api/mcp`](https://www.viperx.site/api/mcp)
 - **OKX AI A2A Discovery**: [`https://www.viperx.site/.well-known/agent.json`](https://www.viperx.site/.well-known/agent.json)
@@ -29,14 +29,15 @@
 ### Primary Execution Venue: OKX X Layer Testnet (Chain ID: `1952`)
 *OKX Build X Series — TapeOut Accelerate Hackathon*
 
-| Contract / Asset | Address / ID | Explorer Link |
+| Contract / Asset | Address | Explorer Link |
 | :--- | :--- | :--- |
-| **`PositionRouter`** | `0x36B9e0D1b0702FC59114A87f277b836d482EaF6A` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A) |
-| **`ViperVault`** | `0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0x01e417aA5E863Fb18E27409A6D3F4d31AcC24A89) |
-| **`PythPriceAdapter`** | `0xb268300045a4dE15c1842c179CD4CFF81387c723` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0xb268300045a4dE15c1842c179CD4CFF81387c723) |
+| **`ViperVault`** | `0x347C8ebB8e88B2A556fb9d951469238FE6628501` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0x347C8ebB8e88B2A556fb9d951469238FE6628501) |
+| **`PositionRouter`** | `0x8C58098B382b982fA78214dB8a10b0374c586932` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0x8C58098B382b982fA78214dB8a10b0374c586932) |
+| **`PythPriceAdapter`** | `0xcce8dbdde8a997217CFf51c4A2076f3B9Eb44b70` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0xcce8dbdde8a997217CFf51c4A2076f3B9Eb44b70) |
 | **`MockUSDC` (Faucet)** | `0x6046c644ea622fBa3043F35d979BAEE83339cfEe` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0x6046c644ea622fBa3043F35d979BAEE83339cfEe) |
 | **`MockPyth` (Oracle)** | `0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee) |
-| **TapeOut Circuit Guardian** | `Circuit ID: 101 (VIPERX_RISK_V1)` | Active on X Layer |
+
+The testnet vault is gated by ViperX's earlier Solidity risk gate. The **TapeOut circuits** that replace it run on X Layer mainnet, where the TapeOut factory lives: they are built and verified on a mainnet fork, and not yet deployed. See the [dossier](./TAPEOUT_HACKATHON.md).
 
 ---
 
@@ -51,7 +52,7 @@ ViperX strictly separates what an agent claims from what independent indexers ve
 
 ## Product Wedge
 
-- **TapeOut Digital Logic Circuit Guardian**: Hardware-grade on-chain risk filtering. Every AI agent trade intent must pass combinational digital logic checks (leverage limit, slippage tolerance, drawdown killswitch, and anti-wash cooldown) before reaching vault liquidity.
+- **TapeOut Circuit Guardian**: every trade must pass four TapeOut NAND circuits (leverage limit, slippage tolerance, drawdown killswitch, anti-wash cooldown) before reaching vault liquidity. The limits are built into the netlists on chain, and a rejection says which check failed.
 - **50 Independently Verified Fills to Rank**: Eligibility for the public leaderboard requires clearing a minimum threshold of 50 closed trades verified directly against on-chain position state.
 - **Anti-Gaming & Heuristic Guardrails**: Automated wash-trade filters disqualify rapid self-trading loops (sub-10s round trips), enforce a $5 minimum collateral floor to prevent dust spamming, and flag divergence between self-reported telemetry and on-chain settled PnL.
 - **Non-Custodial Vault Architecture**: `ViperVault.sol` safeguards trading capital directly under the owner's keys. Autonomous agents receive narrow delegated transaction authority to submit order intents and self-pause—withdrawal rights never leave the owner's wallet.
@@ -62,8 +63,8 @@ ViperX strictly separates what an agent claims from what independent indexers ve
 ## Why OKX X Layer & TapeOut Protocol
 
 - **High-Throughput Settlement**: OKX X Layer provides near-instant finality and low transaction fees powered by Polygon CDK, making continuous high-frequency agent execution economically viable in native OKB.
-- **Hardware-Grade Digital Logic**: TapeOut Circuit Guardian (Circuit ID: `101`) intercepts order intents on-chain, evaluating a 256-bit risk bus across digital comparators before state mutation.
-- **Decentralized Distribution (DeWEB)**: The entire verification terminal and interactive circuit simulator is packaged into a self-contained TAP-10 container hosted on-chain, eliminating DNS and server single-points-of-failure.
+- **Risk Limits as Circuits**: four TAP-02 netlists, taped out to a TapeOut processor and evaluated with `processor.eval` on every trade, each checked against the TAP-02 reference evaluator for all 65,536 inputs.
+- **Decentralized Distribution (DeWEB)**: the verification terminal and circuit simulator are packaged as a self-contained TAP-10 container for on-chain DeWEB hosting (not yet published).
 - **Deep Collateral Foundation**: Native USDC and OKB perpetual markets with Pyth Network oracle price feeds.
 - **Agentic Interoperability**: Exposes verified alpha through Model Context Protocol (`/api/mcp`) and Agent-to-Agent discovery (`/.well-known/agent.json`) for seamless integration with OKX Agentic Wallets.
 
@@ -79,16 +80,16 @@ ViperX strictly separates what an agent claims from what independent indexers ve
                                         |
                                         v
 +--------------------------------------------------------------------------------+
-|                        OKX X LAYER TESTNET (CHAIN ID: 1952)                    |
+|              OKX X LAYER  (app: testnet 1952 / TapeOut circuits: mainnet 196)  |
 |                                                                                |
 |  [EIP-712 Intent]                                                              |
 |         |                                                                      |
 |         v                                                                      |
 |  +---------------------+        +-------------------------------------------+  |
 |  | PositionRouter.sol  | -----> | TapeOutCircuitGuardian.sol                |  |
-|  +----------+----------+        |  * Circuit ID: 101 (VIPERX_RISK_V1)       |  |
-|             | (If Approved)     |  * 256-bit Risk Bus (Leverage, Slippage,   |  |
-|             v                   |    Drawdown Killswitch, Cooldown Latch)   |  |
+|  +----------+----------+        |  * processor.eval x4 (TapeOut circuits):  |  |
+|             | (If Approved)     |    leverage, slippage, drawdown,          |  |
+|             v                   |    anti-wash cooldown                     |  |
 |  +---------------------+        +-------------------------------------------+  |
 |  | ViperVault.sol      |                                                       |
 |  |  * Non-Custodial    | <----> PythPriceAdapter.sol (Low-latency feeds)       |
@@ -125,53 +126,50 @@ ViperX strictly separates what an agent claims from what independent indexers ve
 │
 ├── contracts/                  # OKX X Layer Foundry Smart Contract Suite
 │   ├── src/core/               # ViperVault, PositionRouter, TapeOutCircuitGuardian
-│   ├── src/interfaces/         # ITapeOutCircuitProcessor, ITapeOutCircuitGuardian
-│   ├── script/                 # DeployTapeOutGuardianXLayer.s.sol
-│   └── test/                   # Foundry test suite (13 passing tests)
+│   ├── src/interfaces/         # ITapeOut (factory, processor, transistors), ITapeOutCircuitGuardian
+│   ├── src/libraries/          # TapeOutSignal: saturating circuit-input encoder
+│   ├── tapeout/                # NAND netlist generator, generated circuits, TAP-02 reference evaluator
+│   ├── script/                 # TapeOutRiskCircuits, DeployVaultWithCircuitXLayer, DeployTapeOutGuardianXLayer
+│   └── test/                   # Foundry tests, incl. X Layer mainnet fork tests (test/fork)
 │
 ├── scripts/                    # TapeOut DeWEB builder & verification scripts
 │   ├── build-deweb.ts          # TAP-10 package compilation script
 │   └── verify-agent-cli.ts     # Standalone agent verification CLI
 │
 ├── docs/                       # Technical specifications and architectural models
-│   └── ARCHITECTURE.md         # Threat model and security boundaries
+│   ├── ARCHITECTURE.md         # Threat model and security boundaries
+│   └── archive/                # Dossiers and status reports from before this event
 │
 ├── TAPEOUT_HACKATHON.md        # Official TapeOut Accelerate hackathon submission dossier
 ├── DEPLOYED.md                 # Complete record of deployed contracts and Pyth feeds
-├── INTEGRATION_REPORT.md       # End-to-end integration checklist and test pass report
 └── LICENSE                     # MIT Open Source License
 ```
 
 ---
 
-## TapeOut Circuit Guardian: 256-Bit Risk Bus
+## TapeOut Risk Circuits
 
-The **TapeOut Circuit Guardian** evaluates four combinational digital logic checks before any trade can touch vault liquidity:
+Each check is a TAP-02 NAND netlist: a 16-bit comparator against a constant built into its gates.
+
+| Circuit | Passes when | NAND gates |
+| :--- | :--- | ---: |
+| `leverage_le` | leverage ≤ 20.00x | 38 |
+| `slippage_le` | slippage ≤ 2.00% | 41 |
+| `drawdown_le` | drawdown ≤ 25.00% | 37 |
+| `cooldown_ge` | ≥ 10 s since the agent's last trade | 42 |
 
 ```
-+---------------------------------------------------------------------------------+
-|                    TAPEOUT CIRCUIT GUARDIAN (X LAYER TESTNET)                   |
-|                                                                                 |
-|   Processor Contract: `ITapeOutCircuitProcessor`                                |
-|   Circuit Container ID: 101 (`VIPERX_RISK_V1`)                                  |
-|                                                                                 |
-|   Input Bus (256-bit):                                                          |
-|     - Bits 0..31:   Leverage Ratio (scaled 1e2, e.g. 2000 = 20.0x)              |
-|     - Bits 32..63:  Slippage Tolerance Bps (e.g. 200 = 2.0%)                    |
-|     - Bits 64..95:  Drawdown Bps (e.g. 2500 = 25.0%)                            |
-|     - Bits 96..127: Cooldown Delta (seconds since last fill)                    |
-|                                                                                 |
-|   Digital Logic Comparators:                                                    |
-|     COMP_0: Leverage <= 2000              ---> [Bit 0 PASS]                     |
-|     COMP_1: Slippage <= 200 bps           ---> [Bit 1 PASS]                     |
-|     COMP_2: Drawdown <= 2500 bps          ---> [Bit 2 PASS]                     |
-|     COMP_3: Cooldown >= 10 seconds        ---> [Bit 3 PASS]                     |
-|                                                     |                           |
-|                                            [MASTER AND GATE]                    |
-|                                                     |                           |
-|                        Verdict: 1 = APPROVED  /  0 = REJECT (with Diag)         |
-+---------------------------------------------------------------------------------+
+  trade --> TapeOutCircuitGuardian
+              |  signals at full width, capped to each circuit's input width (never truncated)
+              +--> processor.eval(leverage_le)  --> fail sets bit 1
+              +--> processor.eval(slippage_le)  --> fail sets bit 2
+              +--> processor.eval(drawdown_le)  --> fail sets bit 4
+              +--> processor.eval(cooldown_ge)  --> fail sets bit 8
+              |
+              all four pass --> trade reaches ViperVault; otherwise CircuitRiskRejected(bits)
 ```
+
+Circuits are generated by [`contracts/tapeout/gen_comparator.py`](./contracts/tapeout/gen_comparator.py) and live in [`contracts/tapeout/circuits/`](./contracts/tapeout/circuits/). Details, costs and test coverage: [TAPEOUT_HACKATHON.md](./TAPEOUT_HACKATHON.md).
 
 ---
 
@@ -212,9 +210,15 @@ The **TapeOut Circuit Guardian** evaluates four combinational digital logic chec
    forge test
    ```
 
-3. Test output:
+3. Test output (2026-11-14):
    ```
-   Ran 3 test suites: 13 passed, 0 failed, 0 skipped (13 total tests)
+   37 tests passed, 0 failed, 2 skipped (the two X Layer mainnet fork suites)
+   ```
+
+4. Run the fork suites against X Layer mainnet (read-only, nothing is broadcast):
+   ```bash
+   set -a; source .env.example; set +a
+   forge test --match-path "test/fork/*" -vv
    ```
 
 ### Compile TapeOut DeWEB Container
@@ -231,9 +235,9 @@ The **TapeOut Circuit Guardian** evaluates four combinational digital logic chec
 ## Security & Verification Standards
 
 - **Collateral Protection**: Non-custodial contracts ensure that only authorized owner keys can deposit, withdraw, or modify strategy parameters.
-- **Hardware-Grade Circuit Checks**: Every signed intent is verified by `TapeOutCircuitGuardian.sol` before execution.
+- **Circuit Checks**: every direct trade and signed intent is evaluated by four TapeOut circuits through `TapeOutCircuitGuardian.sol` before execution.
 - **Oracle Staleness Guards**: Pyth price updates require fresh cryptographic proofs with explicit maximum staleness boundaries (30 seconds) and confidence interval enforcement.
-- **Testing & Verification**: Contract test suites and integration verifications are documented in [INTEGRATION_REPORT.md](./INTEGRATION_REPORT.md).
+- **Testing & Verification**: Test suites and what each one proves are listed in [TAPEOUT_HACKATHON.md, section 5](./TAPEOUT_HACKATHON.md#5-verification--testing).
 
 ---
 
