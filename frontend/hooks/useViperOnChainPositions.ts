@@ -5,7 +5,7 @@ import { useAccount, useReadContract, useReadContracts, useWriteContract } from 
 import { keccak256, parseAbi, Address, toHex } from "viem";
 import { useTradeStore, TradePosition, SUPPORTED_MARKETS, PerpMarket } from "@/lib/trade/tradeStore";
 import { calcUnrealizedPnl, calcPnlPercentage, calcLiquidationPrice, fromRawUnits } from "@/lib/trade/math";
-import { XLAYER_CONTRACTS } from "@/lib/xlayer";
+import { XLAYER_CHAIN_ID, XLAYER_CONTRACTS } from "@/lib/xlayer";
 
 // Resolved from the environment via lib/xlayer.ts — the previous inlined fallback here is
 // exactly what kept pointing at the pre-circuit vault after it was redeployed.
@@ -13,7 +13,7 @@ export const XLAYER_VIPER_VAULT_ADDRESS = XLAYER_CONTRACTS.viperVault as Address
 export const BASE_VIPER_VAULT_ADDRESS = (process.env.NEXT_PUBLIC_BASE_VIPER_VAULT || "0x68c59b55359Dc36D9E842e7314Da1150a964f4C7") as Address;
 
 export function getViperVaultAddress(chainId?: number): Address {
-  if (chainId === 1952) return XLAYER_VIPER_VAULT_ADDRESS;
+  if (chainId === XLAYER_CHAIN_ID) return XLAYER_VIPER_VAULT_ADDRESS;
   return BASE_VIPER_VAULT_ADDRESS;
 }
 
@@ -46,7 +46,7 @@ export function useViperOnChainPositions() {
   const { writeContractAsync } = useWriteContract();
 
   const currentVaultAddress = getViperVaultAddress(chain?.id);
-  const isXLayer = chain?.id === 1952;
+  const isXLayer = chain?.id === XLAYER_CHAIN_ID;
 
   // 1. Fetch Pool Collateral
   const { data: poolCollateralRaw, refetch: refetchPoolCollateral } = useReadContract({

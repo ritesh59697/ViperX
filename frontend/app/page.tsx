@@ -13,6 +13,7 @@ import { VerificationProof } from "@/components/home/VerificationProof";
 import { BlueprintCard } from "@/components/ui/BlueprintCard";
 import { FaqSection } from "@/components/home/FaqSection";
 import { ArrowRightGlyph } from "@/components/ui/StatusGlyphs";
+import { XLAYER_CHAIN_ID, XLAYER_NETWORK, XLAYER_RISK_GATE } from "@/lib/xlayer";
 import {
   NonCustodialIllustration,
   QuantitativeAIIllustration,
@@ -40,7 +41,7 @@ const STEPS: ShowcaseStep[] = [
     mock: [
       { label: "Registry", value: "0x01e4…4A89" },
       { label: "Status", value: "Active" },
-      { label: "Network", value: "OKX X Layer Testnet" },
+      { label: "Network", value: XLAYER_NETWORK.name },
     ],
   },
   {
@@ -86,7 +87,9 @@ function buildStats(s: PlatformStats | null) {
     return [
       { n: 100, prefix: "", suffix: "%", label: "Non-custodial" },
       { n: 3, prefix: "", suffix: "", label: "Quant strategies" },
-      { n: 101, prefix: "#", suffix: "", label: "TapeOut Guardian" },
+      XLAYER_RISK_GATE.kind === "tapeout"
+        ? { n: 4, prefix: "", suffix: "", label: "TapeOut risk circuits" }
+        : { n: XLAYER_RISK_GATE.circuitId, prefix: "#", suffix: "", label: "Circuit Guardian" },
       { n: 0, prefix: "", suffix: "", label: "Custody transfers" },
     ];
   }
@@ -324,7 +327,7 @@ export default async function Home() {
       <Section id="stream" width="wide" className="py-20 sm:py-24">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <span className="bp-eyebrow">Live on OKX X Layer (Chain 1952)</span>
+            <span className="bp-eyebrow">Live on {XLAYER_NETWORK.name} (Chain {XLAYER_CHAIN_ID})</span>
             <h2 className="bp-h2 mt-6 text-foreground">
               Every trade, <span className="bp-dim">on the record</span>
             </h2>

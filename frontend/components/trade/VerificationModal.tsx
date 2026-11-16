@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { XLAYER_CONTRACTS, xlayerAddressUrl, shortAddress } from "@/lib/xlayer";
+import { XLAYER_CHAIN_ID, XLAYER_CONTRACTS, XLAYER_NETWORK, XLAYER_RISK_GATE, riskGateLabel, xlayerAddressUrl, shortAddress } from "@/lib/xlayer";
 import { RuneIcon } from "@/components/ui/RuneIcon";
 import { cn } from "@/lib/utils";
 
@@ -121,10 +121,10 @@ export function VerificationModal({ isOpen, onClose }: VerificationModalProps) {
           </p>
         </div>
 
-        {/* ─── 4. Live Verified Contracts on OKX X Layer Testnet ─── */}
+        {/* ─── 4. Live contracts on the configured X Layer network ─── */}
         <div className="flex flex-col gap-1.5 font-mono text-[11px]">
           <span className="text-xs font-bold uppercase tracking-wider text-foreground-muted font-mono">
-            Verified Smart Contracts (OKX X Layer Testnet · Chain ID: 1952)
+            Verified Smart Contracts ({XLAYER_NETWORK.name} · Chain ID: {XLAYER_CHAIN_ID})
           </span>
 
           <div className="rounded-xl border border-border/70 divide-y divide-border/40 bg-surface/20">
@@ -168,7 +168,9 @@ export function VerificationModal({ isOpen, onClose }: VerificationModalProps) {
             </div>
 
             <div className="p-2.5 flex items-center justify-between">
-              <span className="text-foreground font-semibold">TapeOutCircuitProcessor (Circuit Container)</span>
+              <span className="text-foreground font-semibold">
+                {XLAYER_RISK_GATE.kind === "tapeout" ? "TapeOut Processor (4 risk circuits)" : "Testnet circuit processor (not TapeOut)"}
+              </span>
               <a
                 href={xlayerAddressUrl(XLAYER_CONTRACTS.tapeOutProcessor)}
                 target="_blank"
@@ -178,6 +180,11 @@ export function VerificationModal({ isOpen, onClose }: VerificationModalProps) {
                 <span>{shortAddress(XLAYER_CONTRACTS.tapeOutProcessor)}</span>
                 <RuneIcon name="indicators-square-arrow-out-up-right" className="h-3 w-3" />
               </a>
+            </div>
+
+            <div className="p-2.5 flex items-center justify-between gap-3">
+              <span className="text-foreground font-semibold">Circuits</span>
+              <span className="text-foreground-muted text-right">{riskGateLabel()}</span>
             </div>
 
             <div className="p-2.5 flex items-center justify-between">

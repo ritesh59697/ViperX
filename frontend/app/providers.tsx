@@ -18,35 +18,22 @@ import {
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import { WagmiProvider, http } from "wagmi";
-import { xLayerTestnet as viemXLayerTestnet } from "viem/chains";
+import { defineChain } from "viem";
+import { XLAYER_NETWORK } from "@/lib/xlayer";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 import "@solana/wallet-adapter-react-ui/styles.css";
 import "@rainbow-me/rainbowkit/styles.css";
 
-// Customized OKX X Layer Testnet Chain (Chain ID 1952)
-export const xLayerTestnet = {
-  ...viemXLayerTestnet,
-  id: 1952,
-  name: "X Layer Testnet",
-  nativeCurrency: {
-    decimals: 18,
-    name: "OKB",
-    symbol: "OKB",
-  },
-  rpcUrls: {
-    default: {
-      http: ["https://testrpc.xlayer.tech", "https://xlayertestrpc.okx.com"],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: "OKLink",
-      url: "https://www.oklink.com/xlayer-test",
-    },
-  },
-  testnet: true,
-} as const;
+// The X Layer network named in env (testnet 1952 or mainnet 196) — see lib/xlayer.ts.
+export const xLayerChain = defineChain({
+  id: XLAYER_NETWORK.chainId,
+  name: XLAYER_NETWORK.name,
+  nativeCurrency: { decimals: 18, name: "OKB", symbol: "OKB" },
+  rpcUrls: { default: { http: [XLAYER_NETWORK.rpcUrl] } },
+  blockExplorers: { default: { name: "OKLink", url: XLAYER_NETWORK.explorer } },
+  testnet: XLAYER_NETWORK.testnet,
+});
 
 if (typeof window !== "undefined") {
   const originalError = console.error;
@@ -79,7 +66,7 @@ const queryClient = new QueryClient();
 const config = getDefaultConfig({
   appName: "ViperX",
   projectId: "990176cdfaec50875c754d9b62fefd7a",
-  chains: [xLayerTestnet],
+  chains: [xLayerChain],
   wallets: [
     {
       groupName: "Featured (OKX Dev Day)",
@@ -87,7 +74,7 @@ const config = getDefaultConfig({
     },
   ],
   transports: {
-    [xLayerTestnet.id]: http("https://testrpc.xlayer.tech"),
+    [xLayerChain.id]: http(XLAYER_NETWORK.rpcUrl),
   },
   ssr: true,
 });

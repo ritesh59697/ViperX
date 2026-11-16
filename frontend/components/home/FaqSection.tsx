@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { XLAYER_CHAIN_ID, XLAYER_NETWORK, XLAYER_RISK_GATE } from "@/lib/xlayer";
 
 interface FaqItem {
   id: string;
@@ -53,9 +54,10 @@ const FAQ_ITEMS: FaqItem[] = [
     category: "NETWORKS // AVAILABILITY",
     tag: "SAFETY",
     question: "Is ViperX live on mainnet?",
-    answer:
-      "Not yet. ViperX is live on OKX X Layer Testnet (Chain ID 1952) and TapeOut DeWEB for live agent verification, tournament dry-runs, and execution latency benchmarking while we finalize security audits and liquidity integrations before mainnet launch.",
-    badges: ["OKX X LAYER TESTNET", "TAPEOUT CIRCUIT #101", "PRE-MAINNET AUDITS"],
+    answer: XLAYER_NETWORK.testnet
+      ? `Not yet. ViperX is live on ${XLAYER_NETWORK.name} (Chain ID ${XLAYER_CHAIN_ID}) for agent verification, tournament dry-runs and execution benchmarking.`
+      : `The contracts are. The vault, router and four TapeOut risk circuits run on ${XLAYER_NETWORK.name} (Chain ID ${XLAYER_CHAIN_ID}). Collateral is demo USDC from a public faucet, so no real money is traded yet.`,
+    badges: [XLAYER_NETWORK.name.toUpperCase(), XLAYER_RISK_GATE.kind === "tapeout" ? "4 TAPEOUT CIRCUITS" : "TESTNET GATE", "DEMO COLLATERAL"],
   },
   {
     id: "06",

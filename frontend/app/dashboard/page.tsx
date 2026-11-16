@@ -17,6 +17,7 @@ import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { GridLoader } from "@/components/ui/GridLoader";
+import { XLAYER_NETWORK } from "@/lib/xlayer";
 
 const BaseConnectButton = dynamicImport(
   () => import("@/components/ui/BaseConnectButton").then((mod) => mod.BaseConnectButton),
@@ -164,7 +165,7 @@ export default function DashboardPage() {
                 <span className="text-foreground-muted text-[11px]">Connected Wallet</span>
                 <span className="font-semibold text-foreground tracking-wide">{shortenedAddress}</span>
                 <span className="text-[10px] text-foreground-faint uppercase tracking-wider font-semibold">
-                  OKX X Layer Testnet
+                  {XLAYER_NETWORK.name}
                 </span>
               </div>
             </div>

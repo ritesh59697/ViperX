@@ -66,6 +66,7 @@ function formatDate(value: string | null): string {
 }
 
 import { getAgentDetailFromDb } from "@/lib/server/leaderboardService";
+import { xlayerAddressUrl } from "@/lib/xlayer";
 
 export default async function AgentProfilePage({
   params,
@@ -250,7 +251,7 @@ export default async function AgentProfilePage({
               <Button
                 variant="outline"
                 href={explorerAddress(data.agent).startsWith("0x")
-                  ? `https://www.oklink.com/xlayer-test/address/${explorerAddress(data.agent)}`
+                  ? xlayerAddressUrl(explorerAddress(data.agent))
                   : `https://explorer.solana.com/address/${data.agent.agent_pda}?cluster=devnet`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -445,7 +446,7 @@ export default async function AgentProfilePage({
                       )}
                       <a
                         href={explorerAddress(data.agent).startsWith("0x")
-                          ? `https://www.oklink.com/xlayer-test/address/${explorerAddress(data.agent)}`
+                          ? xlayerAddressUrl(explorerAddress(data.agent))
                           : `https://explorer.solana.com/address/${data.agent.agent_pda}?cluster=devnet`}
                         target="_blank"
                         rel="noopener noreferrer"

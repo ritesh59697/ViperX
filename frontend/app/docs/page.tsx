@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { XLAYER_CONTRACTS, xlayerAddressUrl } from "@/lib/xlayer";
+import { XLAYER_CONTRACTS, xlayerAddressUrl, XLAYER_CHAIN_ID, XLAYER_NETWORK, riskGateBadge, riskGateLabel } from "@/lib/xlayer";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { Section } from "@/components/ui/Section";
@@ -148,11 +148,11 @@ const SEARCHABLE_DOCS: SearchableDoc[] = [
   // ── Smart Contracts ──
   {
     id: "tapeout-guardian",
-    title: "TapeOut Circuit Guardian (Circuit 101)",
+    title: "TapeOut Circuit Guardian (risk circuits)",
     group: "Documentation",
     category: "Smart Contracts",
     description: "Hardware-grade digital logic gates evaluating leverage (≤20x), slippage (≤2%), drawdown (≤25%), and cooldown (≥10s) on OKX X Layer.",
-    keywords: ["tapeout", "circuit guardian", "circuit 101", "hardware gates", "digital logic", "microprocessor", "bus", "x layer"],
+    keywords: ["tapeout", "circuit guardian", "risk circuits", "hardware gates", "digital logic", "microprocessor", "bus", "x layer"],
   },
   {
     id: "tapeout-guardian",
@@ -177,7 +177,7 @@ const SEARCHABLE_DOCS: SearchableDoc[] = [
     title: "OKX X Layer Perpetuals Engine",
     group: "Documentation",
     category: "Smart Contracts",
-    description: "Decentralized perpetuals protocol on OKX X Layer Testnet (Chain ID: 1952) with Pyth price feeds and non-custodial agent delegation.",
+    description: `Decentralized perpetuals protocol on ${XLAYER_NETWORK.name} (Chain ID: ${XLAYER_CHAIN_ID}) with Pyth price feeds and non-custodial agent delegation.`,
     keywords: ["x layer", "okx", "xlayer", "perpetuals", "vipervault", "positionrouter", "pyth", "oracle", "leverage", "rwa", "margin", "solidity"],
   },
   {
@@ -186,8 +186,8 @@ const SEARCHABLE_DOCS: SearchableDoc[] = [
     title: "X Layer Deployed Contracts",
     group: "Documentation",
     category: "Smart Contracts",
-    description: "Addresses for ViperVault, PositionRouter, PythPriceAdapter, MockUSDC, and MockPyth on OKX X Layer Testnet (Chain ID 1952).",
-    keywords: ["contracts", "addresses", "vipervault", "positionrouter", "pythpriceadapter", "mockusdc", "chain id 1952", "testnet", "oklink"],
+    description: `Addresses for ViperVault, PositionRouter, PythPriceAdapter, MockUSDC, and MockPyth on ${XLAYER_NETWORK.name} (Chain ID ${XLAYER_CHAIN_ID}).`,
+    keywords: ["contracts", "addresses", "vipervault", "positionrouter", "pythpriceadapter", "mockusdc", `chain id ${XLAYER_CHAIN_ID}`, XLAYER_NETWORK.testnet ? "testnet" : "mainnet", "oklink"],
   },
   {
     id: "xlayer-contracts",
@@ -536,7 +536,7 @@ export default function DocsPage() {
                       </p>
                       <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
                         <span className="text-[10px] font-mono text-foreground-faint">Suggestions:</span>
-                        {["X Layer", "TapeOut", "Circuit 101", "DeWEB", "PnL", "Anti-Gaming"].map((term) => (
+                        {["X Layer", "TapeOut", "Risk Circuits", "DeWEB", "PnL", "Anti-Gaming"].map((term) => (
                           <button
                             key={term}
                             type="button"
@@ -757,7 +757,7 @@ export default function DocsPage() {
                     <div>
                       <span className="font-bold text-blue-400 block mb-0.5">Trustless Verification</span>
                       <span className="text-foreground-muted font-sans text-xs">
-                        All agent metrics (PnL, MDD, Sharpe) are verified on-chain against OKX X Layer Testnet block heights with zero client-side self-reporting.
+                        All agent metrics (PnL, MDD, Sharpe) are verified on-chain against {XLAYER_NETWORK.name} block heights with zero client-side self-reporting.
                       </span>
                     </div>
                   </div>
@@ -820,13 +820,13 @@ export default function DocsPage() {
                       Prerequisites
                     </h2>
                     <p className="t-body mt-3 text-foreground-muted leading-relaxed font-sans">
-                      Before initializing, ensure your browser wallet is funded with testnet gas and collateral:
+                      Before initializing, ensure your browser wallet has OKB for gas and demo collateral:
                     </p>
                     <div className="grid gap-3 sm:grid-cols-2 mt-4 font-mono text-xs">
                       <div className="p-4 rounded-xl border border-border bg-surface/30">
-                        <span className="font-bold text-foreground block mb-1 text-sm">OKX X Layer Testnet</span>
+                        <span className="font-bold text-foreground block mb-1 text-sm">{XLAYER_NETWORK.name}</span>
                         <span className="text-foreground-muted text-xs leading-relaxed">
-                          Funded with testnet OKB for gas, plus testnet USDC to seed the initial trade vault.
+                          Funded with OKB for gas, plus demo USDC from the faucet to seed the initial trade vault.
                         </span>
                       </div>
                       <div className="p-4 rounded-xl border border-border bg-surface/30">
@@ -973,9 +973,9 @@ export default function DocsPage() {
                           <div className="flex items-center justify-between gap-1 border-b border-border/60 pb-2">
                             <div className="flex items-center gap-1.5">
                               <span className="h-2 w-2 rounded-full bg-blue-500" />
-                              <span className="text-xs font-bold text-foreground">OKX X Layer Testnet</span>
+                              <span className="text-xs font-bold text-foreground">{XLAYER_NETWORK.name}</span>
                             </div>
-                            <span className="text-[9px] font-mono text-foreground-faint">1952</span>
+                            <span className="text-[9px] font-mono text-foreground-faint">{XLAYER_CHAIN_ID}</span>
                           </div>
                           <ul className="mt-2.5 space-y-1 text-[11px] text-foreground-muted font-mono">
                             <li className="flex items-center gap-1">
@@ -1000,7 +1000,7 @@ export default function DocsPage() {
                               <span className="h-2 w-2 rounded-full bg-accent" />
                               <span className="text-xs font-bold text-foreground">TapeOut Guardian</span>
                             </div>
-                            <span className="text-[9px] font-mono text-accent font-semibold">TAPE-101</span>
+                            <span className="text-[9px] font-mono text-accent font-semibold">{riskGateBadge()}</span>
                           </div>
                           <ul className="mt-2.5 space-y-1 text-[11px] text-foreground-muted font-mono">
                             <li className="flex items-center gap-1">
@@ -1075,8 +1075,8 @@ export default function DocsPage() {
                     </h1>
                     <p className="t-body mt-4 text-foreground-muted leading-relaxed font-sans">
                       Autonomous AI agents often suffer from prompt injection, runaway position loops, or toxic slippage tolerances. 
-                      ViperX integrates the <strong>TapeOut Circuit Guardian</strong> on OKX X Layer (Circuit ID: 101 <code className="font-mono text-accent">VIPERX_RISK_V1</code>), 
-                      translating volatile trade metrics into a 256-bit digital hardware bus before orders can touch liquidity pools.
+                      ViperX integrates the <strong>TapeOut Circuit Guardian</strong> on {XLAYER_NETWORK.name} ({riskGateLabel()}): 
+                      every trade&apos;s leverage, slippage, drawdown and cooldown are checked by NAND-gate circuits before the order can touch liquidity.
                     </p>
                   </div>
 
@@ -1159,7 +1159,7 @@ interface ITapeOutCircuitGuardian {
                     <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-border bg-surface text-xs font-mono text-accent mb-3">
                       <span>Primary Venue</span>
                       <span>•</span>
-                      <span>OKX X Layer Testnet (Chain ID: 1952)</span>
+                      <span>{XLAYER_NETWORK.name} (Chain ID: {XLAYER_CHAIN_ID})</span>
                     </div>
                     <h1 className="text-3xl sm:text-4xl font-bold text-foreground font-mono tracking-tight">
                       OKX X Layer Perpetuals Engine
@@ -1176,7 +1176,7 @@ interface ITapeOutCircuitGuardian {
                   {/* Deployed Contracts Table */}
                   <section id="xlayer-deployed-contracts">
                     <h2 className="text-lg sm:text-xl font-bold text-foreground font-mono border-b border-border/60 pb-2.5">
-                      Deployed Contract Addresses (X Layer Testnet)
+                      Deployed Contract Addresses ({XLAYER_NETWORK.name})
                     </h2>
                     <div className="mt-4 overflow-hidden rounded-xl border border-border bg-surface/30">
                       <div className="overflow-x-auto">
@@ -1184,7 +1184,7 @@ interface ITapeOutCircuitGuardian {
                           <thead>
                             <tr className="border-b border-border/80 bg-surface/80 text-foreground-muted">
                               <th className="px-4 py-3 font-semibold">Contract</th>
-                              <th className="px-4 py-3 font-semibold">Deployed Address (Chain ID: 1952)</th>
+                              <th className="px-4 py-3 font-semibold">Deployed Address (Chain ID: {XLAYER_CHAIN_ID})</th>
                               <th className="px-4 py-3 font-semibold text-right">Actions</th>
                             </tr>
                           </thead>
@@ -1203,7 +1203,7 @@ interface ITapeOutCircuitGuardian {
                                 </td>
                                 <td className="px-4 py-3 text-foreground font-mono">
                                   <a
-                                    href={`https://www.oklink.com/xlayer-test/address/${c.addr}`}
+                                    href={xlayerAddressUrl(c.addr)}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="hover:text-accent hover:underline flex items-center gap-1"
@@ -1267,7 +1267,7 @@ interface ITapeOutCircuitGuardian {
                       Live Perpetual Markets Matrix
                     </h2>
                     <p className="t-body mt-2 text-foreground-muted text-xs font-sans">
-                      All 8 perpetual markets are initialized, funded with $500,000 USDC liquidity, and operational on OKX X Layer Testnet:
+                      All 8 perpetual markets are initialized, funded with $500,000 USDC liquidity, and operational on {XLAYER_NETWORK.name}:
                     </p>
                     <div className="mt-3 overflow-hidden rounded-xl border border-border bg-surface/30">
                       <div className="overflow-x-auto">

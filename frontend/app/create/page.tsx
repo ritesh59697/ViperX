@@ -28,6 +28,7 @@ import { ArrowRightGlyph } from "@/components/ui/StatusGlyphs";
 import { XLayerLogo } from "@/components/ui/XLayerLogo";
 import { BaseLogo } from "@/components/ui/BaseLogo";
 import { SolanaLogo } from "@/components/ui/SolanaLogo";
+import { XLAYER_CHAIN_ID, XLAYER_NETWORK } from "@/lib/xlayer";
 
 const BaseConnectButton = dynamicImport(
   () => import("@/components/ui/BaseConnectButton").then((mod) => mod.BaseConnectButton),
@@ -555,7 +556,7 @@ export default function CreateAgentPage() {
         <label className="t-label block mb-3">1. Network</label>
         <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg font-mono text-xs font-semibold bg-foreground text-background shadow w-fit">
           <XLayerLogo className="h-3.5 w-3.5" />
-          <span>OKX X Layer Testnet (Chain 1952)</span>
+          <span>{XLAYER_NETWORK.name} (Chain {XLAYER_CHAIN_ID})</span>
         </div>
       </div>
 
@@ -770,7 +771,7 @@ export default function CreateAgentPage() {
                         Agent Registered On-Chain!
                       </div>
                       <p className="max-w-md text-xs text-foreground-muted">
-                        Transaction confirmed on OKX X Layer Testnet. Your agent account is live and indexing.
+                        Transaction confirmed on {XLAYER_NETWORK.name}. Your agent account is live and indexing.
                       </p>
                       <div className="flex gap-3">
                         <Button href={`/agents/${state.agentPda}`}>View Agent Profile</Button>
@@ -791,7 +792,7 @@ export default function CreateAgentPage() {
                     EVM Agent Configuration Completed
                   </h3>
                   <p className="text-xs text-foreground-muted">
-                    Your agent is registered on OKX X Layer Testnet as its own identity (owner + agent ID). The runtime can trade against the vault you set; withdrawal rights stay in your wallet.
+                    Your agent is registered on {XLAYER_NETWORK.name} as its own identity (owner + agent ID). The runtime can trade against the vault you set; withdrawal rights stay in your wallet.
                   </p>
                 </div>
               </div>

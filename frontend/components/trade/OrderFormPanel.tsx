@@ -14,6 +14,7 @@ import {
 import { AI_STRATEGIES } from "./AiCoPilotPanel";
 import { RuneIcon } from "@/components/ui/RuneIcon";
 import { cn } from "@/lib/utils";
+import { riskGateBadge } from "@/lib/xlayer";
 
 interface OrderFormPanelProps {
   markPrice: number;
@@ -562,7 +563,7 @@ export function OrderFormPanel({
               leverage <= 20 ? "bg-positive animate-pulse" : "bg-accent"
             )} />
             <span className="text-foreground-muted">CIRCUIT GUARDIAN:</span>
-            <span className="text-accent font-semibold">TAPE-101</span>
+            <span className="text-accent font-semibold">{riskGateBadge()}</span>
           </div>
           <span className={cn(
             "font-medium",

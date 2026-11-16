@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { XLAYER_CONTRACTS, xlayerAddressUrl } from "@/lib/xlayer";
+import { XLAYER_CONTRACTS, xlayerAddressUrl, xlayerTxUrl } from "@/lib/xlayer";
 import { TradePosition, useTradeStore } from "@/lib/trade/tradeStore";
 import {
   formatPrice,
@@ -315,7 +315,7 @@ export function PositionsTable({
               <tbody className="divide-y divide-[#edf0f4] dark:divide-[#161616]">
                 {positions.map((p) => {
                   const explorerUrl = p.txHash?.startsWith("0x") && p.txHash.length === 66
-                    ? `https://www.oklink.com/xlayer-test/tx/${p.txHash}`
+                    ? xlayerTxUrl(p.txHash)
                     : xlayerAddressUrl(XLAYER_CONTRACTS.positionRouter);
                   const shortTx = p.txHash
                     ? `${p.txHash.slice(0, 6)}...${p.txHash.slice(-4)}`

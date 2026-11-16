@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { ExternalLinkGlyph } from "@/components/ui/StatusGlyphs";
 import { Skiper92HeaderTrigger } from "@/components/ui/skiper-ui/skiper92";
+import { XLAYER_NETWORK } from "@/lib/xlayer";
 
 export interface AgentContextData {
   name: string;
@@ -226,7 +227,7 @@ export function ScrolledNavbar({
                     Protocol Live
                   </span>
                   <span className="hidden sm:inline-block rounded border border-border/80 dark:border-white/15 bg-surface dark:bg-white/[0.05] px-1.5 py-0.5 text-[9px] font-bold text-foreground-faint uppercase">
-                    X Layer Testnet
+                    {XLAYER_NETWORK.name}
                   </span>
                 </div>
               )}

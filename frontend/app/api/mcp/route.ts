@@ -49,7 +49,7 @@ const MCP_TOOLS = [
   },
   {
     name: "get_xlayer_markets",
-    description: "Returns all active perpetual markets on OKX X Layer Testnet, oracle feed IDs, contract addresses, and leverage parameters.",
+    description: `Returns all active perpetual markets on ${XLAYER_DEPLOYMENT_BASE.network}, oracle feed IDs, contract addresses, and leverage parameters.`,
     inputSchema: {
       type: "object",
       properties: {},
@@ -141,7 +141,7 @@ async function executeTool(name: string, args: Record<string, unknown>) {
             type: "text",
             text: JSON.stringify(
               {
-                network: "OKX X Layer Testnet",
+                network: XLAYER_DEPLOYMENT_BASE.network,
                 verifiedSource: "ViperX On-Chain Indexer & Watcher",
                 window,
                 totalReturned: topAgents.length,
@@ -238,7 +238,7 @@ async function executeTool(name: string, args: Record<string, unknown>) {
                 estimatedLiquidationPrice: Number(liqPrice.toFixed(2)),
                 maintenanceMarginRequirement: "5.0% ($" + (sizeUsd * 0.05).toFixed(2) + ")",
                 maxBorrowFeePerHour: "0.01% ($" + (sizeUsd * 0.0001).toFixed(4) + ")",
-                venue: "ViperVault (OKX X Layer Testnet)",
+                venue: `ViperVault (${XLAYER_DEPLOYMENT_BASE.network})`,
               },
               null,
               2
@@ -264,7 +264,7 @@ async function executeTool(name: string, args: Record<string, unknown>) {
                 domain: {
                   name: "ViperX PositionRouter",
                   version: "1",
-                  chainId: 1952,
+                  chainId: XLAYER_DEPLOYMENT_BASE.chainId,
                   verifyingContract: XLAYER_DEPLOYMENTS.contracts.positionRouter,
                 },
                 types: {
@@ -309,7 +309,7 @@ export async function GET() {
     name: "ViperX Autonomous Quant Engine (OKX AI)",
     version: "1.0.0",
     description: "Model Context Protocol (MCP) server providing verified AI trading agent risk metrics, real-time alpha signals, and OKX X Layer perpetual execution.",
-    network: "OKX X Layer Testnet (Chain ID 1952)",
+    network: `${XLAYER_DEPLOYMENT_BASE.network} (Chain ID ${XLAYER_DEPLOYMENT_BASE.chainId})`,
     tools: MCP_TOOLS,
   });
 }

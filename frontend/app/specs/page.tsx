@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { XLAYER_CONTRACTS, xlayerAddressUrl } from "@/lib/xlayer";
+import { XLAYER_CONTRACTS, xlayerAddressUrl, XLAYER_CHAIN_ID, XLAYER_NETWORK, riskGateLabel, riskGateBadge } from "@/lib/xlayer";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { Section } from "@/components/ui/Section";
 import { RobotLogo } from "@/components/ui/RobotLogo";
@@ -12,24 +12,24 @@ export const metadata = {
 
 const CONTRACTS = [
   {
-    chain: "OKX X Layer Testnet",
+    chain: XLAYER_NETWORK.name,
     name: "PositionRouter (EIP-712 & Circuit Router)",
     address: XLAYER_CONTRACTS.positionRouter,
     explorer: xlayerAddressUrl(XLAYER_CONTRACTS.positionRouter),
     purpose: "Validates autonomous agent signatures and routes trade intents through the on-chain TapeOut Circuit Guardian.",
   },
   {
-    chain: "OKX X Layer Testnet",
+    chain: XLAYER_NETWORK.name,
     name: "ViperVault (Settlement Pool)",
     address: XLAYER_CONTRACTS.viperVault,
     explorer: xlayerAddressUrl(XLAYER_CONTRACTS.viperVault),
     purpose: "Non-custodial collateral vault, position routing, and Pyth oracle price adapter on OKX X Layer.",
   },
   {
-    chain: "OKX X Layer Testnet",
+    chain: XLAYER_NETWORK.name,
     name: "TapeOut Circuit Guardian (TCG)",
-    address: "Circuit ID: 101 [VIPERX_RISK_V1] (X Layer Processor Hook)",
-    explorer: xlayerAddressUrl(XLAYER_CONTRACTS.positionRouter),
+    address: riskGateLabel(),
+    explorer: xlayerAddressUrl(XLAYER_CONTRACTS.circuitGuardian),
     purpose: "Hardware-grade digital logic gates evaluating leverage (≤20x), slippage (≤2%), drawdown (≤25%), and cooldown (≥10s).",
   },
   {
@@ -95,7 +95,7 @@ export default function SpecsPage() {
               <span className="font-mono text-xs font-bold text-foreground">X LAYER INDEXER</span>
             </div>
             <p className="font-mono text-2xl font-bold mt-3 text-foreground">SYNCED</p>
-            <span className="font-mono text-[9px] text-foreground-faint block mt-1">BLOCK HEIGHT // #1,498,123 (CHAIN 1952)</span>
+            <span className="font-mono text-[9px] text-foreground-faint block mt-1">BLOCK HEIGHT // #1,498,123 (CHAIN {XLAYER_CHAIN_ID})</span>
           </div>
 
           <div className="border border-border/80 p-5 bg-background-elevated">
@@ -104,7 +104,7 @@ export default function SpecsPage() {
               <span className="font-mono text-xs font-bold text-foreground">CIRCUIT GUARDIAN</span>
             </div>
             <p className="font-mono text-2xl font-bold mt-3 text-foreground">ARMED</p>
-            <span className="font-mono text-[9px] text-foreground-faint block mt-1">CIRCUIT ID // 101 (X LAYER)</span>
+            <span className="font-mono text-[9px] text-foreground-faint block mt-1">{riskGateBadge()} (CHAIN {XLAYER_CHAIN_ID})</span>
           </div>
 
           <div className="border border-border/80 p-5 bg-background-elevated">

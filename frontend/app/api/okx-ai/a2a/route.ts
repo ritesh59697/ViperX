@@ -78,7 +78,7 @@ export async function POST(request: Request) {
             stopLossPrice: (targetMarket.basePrice * 0.96).toFixed(2),
             takeProfitPrice: (targetMarket.basePrice * 1.08).toFixed(2),
           },
-          settlementVenue: "OKX X Layer Testnet",
+          settlementVenue: XLAYER_DEPLOYMENTS.network,
         });
       }
 
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
           executionMode: "POSITION_ROUTER_XLAYER",
           positionRouter: XLAYER_DEPLOYMENTS.contracts.positionRouter,
           vault: XLAYER_DEPLOYMENTS.contracts.viperVault,
-          chainId: 1952,
+          chainId: XLAYER_DEPLOYMENTS.chainId,
           message: "Use PositionRouter.executeMarketOrder(...) or submit through OKX Agentic Wallet.",
         });
       }

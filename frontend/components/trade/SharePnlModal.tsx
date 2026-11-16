@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { XLAYER_CONTRACTS, xlayerAddressUrl } from "@/lib/xlayer";
+import { XLAYER_CONTRACTS, xlayerAddressUrl, xlayerTxUrl } from "@/lib/xlayer";
 import { TradePosition, useTradeStore } from "@/lib/trade/tradeStore";
 import { formatPrice, formatSignedPercent, formatUsd } from "@/lib/trade/math";
 import { RuneIcon } from "@/components/ui/RuneIcon";
@@ -22,7 +22,7 @@ export function SharePnlModal({ position, onClose }: SharePnlModalProps) {
   const chainLabel = "OKX X Layer";
 
   const explorerUrl = position.txHash?.startsWith("0x") && position.txHash.length === 66
-    ? `https://www.oklink.com/xlayer-test/tx/${position.txHash}`
+    ? xlayerTxUrl(position.txHash)
     : xlayerAddressUrl(position.txHash || XLAYER_CONTRACTS.positionRouter);
 
   const shortTx = position.txHash

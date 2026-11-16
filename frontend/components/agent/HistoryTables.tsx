@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { StaggerTableBody, StaggerRow } from "@/components/motion/StaggerTable";
 import { ExternalLinkGlyph, ArrowCircleRightGlyph } from "@/components/ui/StatusGlyphs";
 import type { TradeRecord, TuningHistoryEntry, PnlSnapshotRecord } from "@/lib/leaderboardApi";
+import { xlayerTxUrl } from "@/lib/xlayer";
 
 function isSimulated(txSignature: string | null): boolean {
   if (!txSignature) return true;
@@ -19,7 +20,7 @@ function isSimulated(txSignature: string | null): boolean {
 
 function explorerUrl(txSignature: string): string | null {
   if (isSimulated(txSignature)) return null;
-  return `https://www.oklink.com/xlayer-test/tx/${txSignature}`;
+  return xlayerTxUrl(txSignature);
 }
 
 function formatMetric(value: string | null, suffix = ""): string {

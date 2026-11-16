@@ -165,9 +165,9 @@ const STATIC_SEARCH_ITEMS: SearchItem[] = [
   {
     id: "doc-tapeout-guardian",
     category: "docs",
-    title: "TapeOut Circuit Guardian: Circuit 101",
+    title: "TapeOut Circuit Guardian: risk circuits",
     subtitle: "Digital logic risk engine verifying agent leverage, drawdown and slippage on OKX X Layer",
-    href: xlayerAddressUrl(XLAYER_CONTRACTS.positionRouter),
+    href: xlayerAddressUrl(XLAYER_CONTRACTS.circuitGuardian),
     external: true,
     badge: "TapeOut",
     badgeType: "accent",

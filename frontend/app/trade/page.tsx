@@ -52,9 +52,10 @@ import { TradingViewWidget } from "@/components/trade/TradingViewWidget";
 import { ChartPositionOverlay } from "@/components/trade/ChartPositionOverlay";
 import { AccountEquityCard } from "@/components/trade/AccountEquityCard";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { XLAYER_CHAIN_ID, XLAYER_CONTRACTS, XLAYER_NETWORK, xlayerTxUrl } from "@/lib/xlayer";
 
 const USDC_BASE_SEPOLIA = "0x036CbD53842c5426634e7929541eC2318f3dCF7e" as const;
-const USDC_XLAYER_TESTNET = (process.env.NEXT_PUBLIC_XLAYER_USDC || "0x6046c644ea622fBa3043F35d979BAEE83339cfEe") as `0x${string}`;
+const USDC_XLAYER = XLAYER_CONTRACTS.mockUSDC;
 
 const ERC20_ABI = parseAbi([
   "function balanceOf(address account) external view returns (uint256)",
@@ -184,9 +185,9 @@ export default function TradePage() {
     handleCloseOnChainPosition,
   } = useViperOnChainPositions();
 
-  // Read Real On-Chain USDC Balance (Dynamic for X Layer Testnet)
+  // Read the on-chain USDC balance on the configured X Layer network
   const isEvmChain = selectedChain === "base" || selectedChain === "xlayer";
-  const currentUsdcAddress = selectedChain === "xlayer" ? USDC_XLAYER_TESTNET : USDC_BASE_SEPOLIA;
+  const currentUsdcAddress = selectedChain === "xlayer" ? USDC_XLAYER : USDC_BASE_SEPOLIA;
 
   const { data: usdcBalanceRaw, refetch: refetchUsdcBalance } = useReadContract({
     address: currentUsdcAddress,
@@ -211,7 +212,7 @@ export default function TradePage() {
     return 0;
   }, [isEvmChain, isEvmConnected, evmAddress, usdcBalanceRaw]);
 
-  // Faucet claim state for X Layer Testnet
+  // Faucet claim state for the X Layer demo USDC
   const [isClaimingFaucet, setIsClaimingFaucet] = useState(false);
   const handleClaimXLayerFaucet = async () => {
     if (!writeContractAsync || !evmAddress) {
@@ -220,15 +221,15 @@ export default function TradePage() {
     }
     try {
       setIsClaimingFaucet(true);
-      if (currentChainId && currentChainId !== 1952 && switchChainAsync) {
+      if (currentChainId && currentChainId !== XLAYER_CHAIN_ID && switchChainAsync) {
         try {
-          await switchChainAsync({ chainId: 1952 });
+          await switchChainAsync({ chainId: XLAYER_CHAIN_ID });
         } catch {
           // Fall through if switch request was dismissed
         }
       }
       const tx = await writeContractAsync({
-        address: USDC_XLAYER_TESTNET,
+        address: USDC_XLAYER,
         abi: ERC20_ABI,
         functionName: "faucet",
       });
@@ -344,10 +345,10 @@ export default function TradePage() {
       let finalTxHash = "";
 
       if (isEvmChain && hasEvmWallet && evmAddress) {
-        const requiredChainId = 1952;
+        const requiredChainId = XLAYER_CHAIN_ID;
         const targetVault = getViperVaultAddress(requiredChainId);
-        const activeUsdc = USDC_XLAYER_TESTNET;
-        const chainLabel = "OKX X Layer Testnet";
+        const activeUsdc = USDC_XLAYER;
+        const chainLabel = XLAYER_NETWORK.name;
 
         if (currentChainId && currentChainId !== requiredChainId && switchChainAsync) {
           try {
@@ -780,7 +781,7 @@ export default function TradePage() {
               onClick={handleClaimXLayerFaucet}
               disabled={isClaimingFaucet}
               className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#d2d6df] dark:border-[#1e1e1e] bg-white dark:bg-[#121212] px-3 text-xs font-semibold text-foreground transition-all duration-200 hover:border-emerald-500/50 hover:bg-emerald-500/5 cursor-pointer shadow-xs disabled:opacity-50"
-              title="Claim 10,000 Test USDC on X Layer Testnet"
+              title={`Claim 10,000 demo USDC on ${XLAYER_NETWORK.name}`}
             >
               {isClaimingFaucet ? (
                 <>
@@ -839,7 +840,7 @@ export default function TradePage() {
             <span>{notification.msg}</span>
             {notification.tx && (
               <a
-                href={`https://www.oklink.com/xlayer-test/tx/${notification.tx}`}
+                href={xlayerTxUrl(notification.tx)}
                 target="_blank"
                 rel="noreferrer"
                 className="underline ml-2 hover:opacity-80 flex items-center gap-1"

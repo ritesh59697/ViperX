@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { XLAYER_CONTRACTS, xlayerAddressUrl, shortAddress } from "@/lib/xlayer";
+import { XLAYER_CONTRACTS, xlayerAddressUrl, shortAddress, riskGateBadge } from "@/lib/xlayer";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import dynamicImport from "next/dynamic";
@@ -392,7 +392,7 @@ export function SiteHeader() {
               </div>
               <div className="flex items-center justify-between font-mono text-[10px] text-foreground-faint">
                 <span>CIRCUIT GUARDIAN</span>
-                <span className="text-accent font-semibold">TAPE-101 (ARMED)</span>
+                <span className="text-accent font-semibold">{riskGateBadge()} (ARMED)</span>
               </div>
             </div>
 
