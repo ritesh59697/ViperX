@@ -26,7 +26,7 @@
 | **B. Trip a circuit** | 5 min | OKX Wallet on X Layer mainnet, with a little OKB for gas (a gated trade costs ≈ 0.00002 OKB) | On [/trade](https://www.viperx.site/trade): **Connect Wallet to Trade** → **Faucet** (+10K demo USDC) → leverage **5x** → **Buy / Long ETH**. The trade settles. Then pick **25x** → **Buy / Long ETH**. It is refused with *"Order rejected: blocked by the on-chain risk circuits: leverage check failed"* and no funds move. |
 | **C. Check the circuits yourself** | 5 min | none | Read the four netlists in [`contracts/tapeout/circuits/`](./contracts/tapeout/circuits/). Then, in `contracts/`, run `forge test` (offline) and `set -a; source .env.example; set +a && forge test --match-path "test/fork/*" -vv`. The fork tests tape the circuits out through the real TapeOut factory on an X Layer mainnet fork, and trade through them. |
 
-**Where it runs:** the whole stack, `/trade` included, is on X Layer mainnet (chain 196), where the TapeOut factory lives. Every trade calls `processor.eval` on the four circuits of processor [`0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb`](https://www.oklink.com/xlayer/address/0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb), IDs 1–4. The collateral is a demo token with a public faucet, so no real funds are at risk.
+**Where it runs:** the whole stack, `/trade` included, is on X Layer mainnet (chain 196), where the TapeOut factory lives. Every trade calls `processor.eval` on the four circuits of processor [`0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb`](https://www.oklink.com/xlayer/address/0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb), IDs 1–4. On-chain proof: a [5x trade that passed](https://www.oklink.com/xlayer/tx/0x146510d1aa8449a7752785c8090fde5f28daf98f4ce4341aeb91e7738046d3ed) and a [25x trade the leverage circuit rejected](https://www.oklink.com/xlayer/tx/0x35170db2344b09f3ff96146ea38a2652e4680e7abbe1b2ed46acaddad73fd094). The collateral is a demo token with a public faucet, so no real funds are at risk.
 
 ---
 
@@ -57,6 +57,15 @@
 | slippage | 2 | ≤ 2.00% |
 | drawdown | 3 | ≤ 25.00% |
 | cooldown | 4 | ≥ 10 s since the agent's last trade |
+
+**Proof on mainnet (2026-11-16, ETH-PERP, $1,000 collateral):**
+
+| Trade | Result | Tx |
+| :--- | :--- | :--- |
+| 5x long | passed all four circuits, position opened (815k gas) | [`0x146510d1…`](https://www.oklink.com/xlayer/tx/0x146510d1aa8449a7752785c8090fde5f28daf98f4ce4341aeb91e7738046d3ed) |
+| 25x long | reverted `CircuitRiskRejected(1)`: the leverage circuit failed; the vault's own cap is 25x, so only the circuit stopped it | [`0x35170db2…`](https://www.oklink.com/xlayer/tx/0x35170db2344b09f3ff96146ea38a2652e4680e7abbe1b2ed46acaddad73fd094) |
+
+Reproduce with [`contracts/script/proof-trade-xlayer.sh`](./contracts/script/proof-trade-xlayer.sh).
 
 ### Earlier deployment: OKX X Layer Testnet (Chain ID: `1952`)
 

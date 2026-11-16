@@ -139,6 +139,15 @@ Fees, gas price and market prices are read live. [`simulate-xlayer-stack.sh`](./
 
 Checked on mainnet after the deploy: `vault.circuitGuardian()` is the guardian above, `guardian.circuitFor(0..3)` returns this processor with IDs 1–4, and `processor.eval(1, …)` returns pass for 5x and 20x and fail for 25x.
 
+**Proof on mainnet (2026-11-16, ETH-PERP, $1,000 collateral):**
+
+| Trade | Result | Tx |
+| :--- | :--- | :--- |
+| 5x long | passed all four circuits, position opened (815k gas) | [`0x146510d1…`](https://www.oklink.com/xlayer/tx/0x146510d1aa8449a7752785c8090fde5f28daf98f4ce4341aeb91e7738046d3ed) |
+| 25x long | reverted `CircuitRiskRejected(1)`: the leverage circuit failed; the vault's own cap is 25x, so only the circuit stopped it | [`0x35170db2…`](https://www.oklink.com/xlayer/tx/0x35170db2344b09f3ff96146ea38a2652e4680e7abbe1b2ed46acaddad73fd094) |
+
+Reproduce with [`contracts/script/proof-trade-xlayer.sh`](./contracts/script/proof-trade-xlayer.sh).
+
 ### Earlier gate on X Layer testnet (chain 1952) — not a TapeOut circuit
 
 Deployed 2026-11-11; `/trade` moved to the mainnet stack above on 2026-11-16. Its `TapeOutCircuitProcessor` is ViperX's own Solidity comparator contract with a self-defined `evaluateCircuit`; it is **not** a TAP-02 netlist or a TapeOut-factory processor, and the TapeOut factory does not exist on testnet. It is superseded by the circuits above and should not be submitted as the circuit.

@@ -26,6 +26,15 @@ The live `/trade` stack. Every trade is evaluated by four TapeOut NAND circuits 
 | drawdown | 3 | ≤ 25.00% |
 | cooldown | 4 | ≥ 10 s since the agent's last trade |
 
+**Proof on mainnet (2026-11-16, ETH-PERP, $1,000 collateral):**
+
+| Trade | Result | Tx |
+| :--- | :--- | :--- |
+| 5x long | passed all four circuits, position opened (815k gas) | [`0x146510d1…`](https://www.oklink.com/xlayer/tx/0x146510d1aa8449a7752785c8090fde5f28daf98f4ce4341aeb91e7738046d3ed) |
+| 25x long | reverted `CircuitRiskRejected(1)`: the leverage circuit failed; the vault's own cap is 25x, so only the circuit stopped it | [`0x35170db2…`](https://www.oklink.com/xlayer/tx/0x35170db2344b09f3ff96146ea38a2652e4680e7abbe1b2ed46acaddad73fd094) |
+
+Reproduce with [`contracts/script/proof-trade-xlayer.sh`](./contracts/script/proof-trade-xlayer.sh).
+
 ---
 
 ## 1. OKX X Layer Testnet (Chain ID 1952)
