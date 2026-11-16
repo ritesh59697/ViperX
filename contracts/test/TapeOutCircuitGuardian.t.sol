@@ -1,27 +1,31 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
-import { Test, console2 } from "forge-std/Test.sol";
+import { TapeOutCircuitFixture } from "./utils/TapeOutCircuitFixture.sol";
 import { ViperVault } from "../src/core/ViperVault.sol";
 import { PositionRouter } from "../src/core/PositionRouter.sol";
 import { PythPriceAdapter } from "../src/core/PythPriceAdapter.sol";
 import { TapeOutCircuitGuardian } from "../src/core/TapeOutCircuitGuardian.sol";
-import { TapeOutCircuitProcessor } from "../src/core/TapeOutCircuitProcessor.sol";
+import { ITapeOutCircuitGuardian } from "../src/interfaces/ITapeOutCircuitGuardian.sol";
 import { IViperVault } from "../src/interfaces/IViperVault.sol";
 import { IPositionRouter } from "../src/interfaces/IPositionRouter.sol";
 import { MockUSDC, MockPyth } from "./ViperVault.t.sol";
+import { MockTapeOutProcessor } from "../src/mocks/MockTapeOut.sol";
 
-contract TapeOutCircuitGuardianTest is Test {
+contract TapeOutCircuitGuardianTest is TapeOutCircuitFixture {
     MockUSDC public usdc;
     MockPyth public pyth;
     PythPriceAdapter public adapter;
     ViperVault public vault;
     PositionRouter public router;
 
-    TapeOutCircuitProcessor public processor;
     TapeOutCircuitGuardian public guardian;
 
-    uint256 public constant CIRCUIT_VIPER_RISK = 101;
+    // Diagnostic bit per check: 1 << uint8(ITapeOutCircuitGuardian.Check.X).
+    uint32 constant DIAG_LEVERAGE = 1 << 0;
+    uint32 constant DIAG_SLIPPAGE = 1 << 1;
+    uint32 constant DIAG_DRAWDOWN = 1 << 2;
+    uint32 constant DIAG_COOLDOWN = 1 << 3;
 
     uint256 public agentPrivateKey = 0xA11CE;
     address public agent;
@@ -39,22 +43,10 @@ contract TapeOutCircuitGuardianTest is Test {
         vault = new ViperVault(address(usdc), 6, address(adapter));
         router = new PositionRouter(address(vault), address(usdc), address(adapter));
 
-        // 1. Deploy TapeOut Hardware Processor & Register Circuit
-        processor = new TapeOutCircuitProcessor();
-        processor.registerCircuit({
-            circuitId: CIRCUIT_VIPER_RISK,
-            maxLeverageRatio: 2000,     // 20.0x max leverage
-            maxSlippageBps: 200,        // 2.00% max slippage tolerance
-            maxDrawdownBps: 2500,       // 25.00% max drawdown limit
-            minCooldownSeconds: 10      // 10s anti-wash trading latch
-        });
-
-        // 2. Deploy Adapter & Connect to Router
-        guardian = new TapeOutCircuitGuardian(
-            address(processor),
-            CIRCUIT_VIPER_RISK,
-            address(router)
-        );
+        // 1. Tape out the shipped circuits (20.0x, 2.00%, 25.00%, 10s) and wire them into the guardian
+        _deployTapeOut();
+        guardian = new TapeOutCircuitGuardian(address(tapeoutFactory), address(router));
+        _wire(guardian, "leverage_le", "slippage_le", "drawdown_le", "cooldown_ge");
         router.setCircuitGuardian(address(guardian));
 
         // 3. Configure Market (ETH @ $3,000)
@@ -142,7 +134,7 @@ contract TapeOutCircuitGuardianTest is Test {
         bytes memory signature = _signIntent(intent);
 
         vm.prank(relayer);
-        vm.expectRevert(abi.encodeWithSelector(PositionRouter.CircuitRiskRejected.selector, processor.DIAG_LEVERAGE_BREACH()));
+        vm.expectRevert(abi.encodeWithSelector(PositionRouter.CircuitRiskRejected.selector, DIAG_LEVERAGE));
         router.executeAgentIntent(intent, signature);
     }
 
@@ -162,7 +154,7 @@ contract TapeOutCircuitGuardianTest is Test {
         bytes memory signature = _signIntent(intent);
 
         vm.prank(relayer);
-        vm.expectRevert(abi.encodeWithSelector(PositionRouter.CircuitRiskRejected.selector, processor.DIAG_SLIPPAGE_BREACH()));
+        vm.expectRevert(abi.encodeWithSelector(PositionRouter.CircuitRiskRejected.selector, DIAG_SLIPPAGE));
         router.executeAgentIntent(intent, signature);
     }
 
@@ -199,7 +191,7 @@ contract TapeOutCircuitGuardianTest is Test {
         bytes memory sig2 = _signIntent(intent2);
 
         vm.prank(relayer);
-        vm.expectRevert(abi.encodeWithSelector(PositionRouter.CircuitRiskRejected.selector, processor.DIAG_COOLDOWN_BREACH()));
+        vm.expectRevert(abi.encodeWithSelector(PositionRouter.CircuitRiskRejected.selector, DIAG_COOLDOWN));
         router.executeAgentIntent(intent2, sig2);
 
         // 3. Warp past 10s cooldown window (t = 115s > 100 + 10s)
@@ -227,7 +219,111 @@ contract TapeOutCircuitGuardianTest is Test {
         bytes memory signature = _signIntent(intent);
 
         vm.prank(relayer);
-        vm.expectRevert(abi.encodeWithSelector(PositionRouter.CircuitRiskRejected.selector, processor.DIAG_DRAWDOWN_BREACH()));
+        vm.expectRevert(abi.encodeWithSelector(PositionRouter.CircuitRiskRejected.selector, DIAG_DRAWDOWN));
         router.executeAgentIntent(intent, signature);
+    }
+
+    // =========================================================================
+    // REAL-CIRCUIT SPECIFICS
+    // =========================================================================
+
+    function _intent(uint256 sizeUsd, uint256 collateralUsd) internal view returns (IPositionRouter.AgentIntent memory) {
+        return IPositionRouter.AgentIntent({
+            agent: agent,
+            marketId: ETH_MARKET,
+            side: IViperVault.PositionSide.LONG,
+            sizeUsd: sizeUsd,
+            collateralUsd: collateralUsd,
+            maxSlippagePrice: 3000 * 1e18,
+            deadline: block.timestamp + 1 hours,
+            nonce: 0
+        });
+    }
+
+    /// 655.37x leverage is 65537 x100: truncated to the 16-bit circuit it would read as 1 and pass.
+    function test_Guardian_OversizedSignalIsSaturatedNotTruncated() public {
+        (bool passed, uint32 diag, bytes32 bus) = guardian.validateIntent(_intent(65_537 * 1e18, 100 * 1e18), 3000 * 1e18);
+        assertFalse(passed);
+        assertEq(diag, DIAG_LEVERAGE);
+        assertEq(uint32(uint256(bus)), 65537, "bus keeps the full value for the event");
+    }
+
+    /// Size with zero collateral is unbounded leverage. The old guardian scored it as 0x and passed it.
+    function test_Guardian_ZeroCollateralIsMaxLeverage() public {
+        (bool passed, uint32 diag,) = guardian.validateIntent(_intent(1_000 * 1e18, 0), 3000 * 1e18);
+        assertFalse(passed);
+        assertEq(diag, DIAG_LEVERAGE);
+    }
+
+    /// Exactly at each limit passes; one past it fails. Pins the comparators' boundaries end to end.
+    function test_Guardian_BoundariesInclusive() public {
+        (bool passed,,) = guardian.validateIntent(_intent(20_000 * 1e18, 1_000 * 1e18), 3000 * 1e18); // 20.00x
+        assertTrue(passed, "20.00x passes");
+        (passed,,) = guardian.validateIntent(_intent(20_010 * 1e18, 1_000 * 1e18), 3000 * 1e18); // 20.01x
+        assertFalse(passed, "20.01x fails");
+
+        guardian.setAgentDrawdown(agent, 2500);
+        (passed,,) = guardian.validateIntent(_intent(2_000 * 1e18, 1_000 * 1e18), 3000 * 1e18);
+        assertTrue(passed, "25.00% drawdown passes");
+        guardian.setAgentDrawdown(agent, 2501);
+        (, uint32 diag,) = guardian.validateIntent(_intent(2_000 * 1e18, 1_000 * 1e18), 3000 * 1e18);
+        assertEq(diag, DIAG_DRAWDOWN, "25.01% drawdown fails");
+        guardian.setAgentDrawdown(agent, 0);
+
+        vm.warp(1_000);
+        guardian.recordExecution(agent);
+        vm.warp(1_009);
+        (, diag,) = guardian.validateIntent(_intent(2_000 * 1e18, 1_000 * 1e18), 3000 * 1e18);
+        assertEq(diag, DIAG_COOLDOWN, "9s fails a 10s floor");
+        vm.warp(1_010);
+        (passed,,) = guardian.validateIntent(_intent(2_000 * 1e18, 1_000 * 1e18), 3000 * 1e18);
+        assertTrue(passed, "10s passes");
+    }
+
+    /// Every failing check reports its own bit at once.
+    function test_Guardian_ReportsAllBreachesTogether() public {
+        guardian.setAgentDrawdown(agent, 9_000);
+        vm.warp(1_000);
+        guardian.recordExecution(agent);
+        IPositionRouter.AgentIntent memory i = _intent(50_000 * 1e18, 1_000 * 1e18);
+        i.maxSlippagePrice = 3300 * 1e18; // 10%
+        (bool passed, uint32 diag,) = guardian.validateIntent(i, 3000 * 1e18);
+        assertFalse(passed);
+        assertEq(diag, DIAG_LEVERAGE | DIAG_SLIPPAGE | DIAG_DRAWDOWN | DIAG_COOLDOWN);
+    }
+
+    function test_Guardian_InactiveWithNoCircuits() public {
+        TapeOutCircuitGuardian bare = new TapeOutCircuitGuardian(address(tapeoutFactory), address(0));
+        (bool passed, uint32 diag,) = bare.validateIntent(_intent(90_000 * 1e18, 1_000 * 1e18), 3000 * 1e18);
+        assertTrue(passed);
+        assertEq(diag, 0);
+    }
+
+    function test_Guardian_PartialConfigFailsLoudly() public {
+        guardian.clearCircuit(ITapeOutCircuitGuardian.Check.COOLDOWN);
+        assertEq(guardian.configuredCount(), 3);
+        vm.expectRevert(abi.encodeWithSelector(TapeOutCircuitGuardian.IncompleteCircuitSet.selector, 3));
+        guardian.validateIntent(_intent(2_000 * 1e18, 1_000 * 1e18), 3000 * 1e18);
+    }
+
+    function test_Guardian_RejectsProcessorNotFromFactory() public {
+        MockTapeOutProcessor rogue = new MockTapeOutProcessor();
+        vm.expectRevert(abi.encodeWithSelector(TapeOutCircuitGuardian.NotTapeOutProcessor.selector, address(rogue)));
+        guardian.setCircuit(ITapeOutCircuitGuardian.Check.LEVERAGE, address(rogue), 1);
+    }
+
+    function test_Guardian_RejectsMultiOutputCircuit() public {
+        // Two outputs: NAND(in0,in0), NAND(in0,in0) over one input.
+        uint256 id = tapeoutCpu.tapeout(hex"0000000200000200000002000002", 1, 2);
+        vm.expectRevert(
+            abi.encodeWithSelector(TapeOutCircuitGuardian.UnsupportedCircuit.selector, address(tapeoutCpu), id, 1, 2, 0)
+        );
+        guardian.setCircuit(ITapeOutCircuitGuardian.Check.LEVERAGE, address(tapeoutCpu), id);
+    }
+
+    function test_Guardian_OnlyOwnerConfigures() public {
+        vm.prank(relayer);
+        vm.expectRevert();
+        guardian.clearCircuit(ITapeOutCircuitGuardian.Check.LEVERAGE);
     }
 }

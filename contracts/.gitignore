@@ -16,3 +16,6 @@ docs/
 .env
 .env.*
 !.env.example
+
+# Live prices written by script/fetch-mock-prices.sh
+config/generated/

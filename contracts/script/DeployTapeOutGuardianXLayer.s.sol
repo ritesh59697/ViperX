@@ -1,72 +1,42 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
-import { Script, console2 } from "forge-std/Script.sol";
+import { console2 } from "forge-std/Script.sol";
 import { PositionRouter } from "../src/core/PositionRouter.sol";
 import { TapeOutCircuitGuardian } from "../src/core/TapeOutCircuitGuardian.sol";
-import { TapeOutCircuitProcessor } from "../src/core/TapeOutCircuitProcessor.sol";
+import { TapeOutWiring } from "./TapeOutWiring.sol";
 
 /**
  * @title DeployTapeOutGuardianXLayer
- * @notice Deploys and connects the TapeOut Circuit Guardian to PositionRouter on OKX X Layer.
+ * @notice Deploys a guardian on the four taped-out risk circuits and connects it to an existing
+ *         PositionRouter. X Layer mainnet only (where the TapeOut factory is).
+ *
+ *         Signing: --account <name> --sender <addr> (keystore), or PRIVATE_KEY in env.
+ *         Required env: TAPEOUT_FACTORY_XLAYER, POSITION_ROUTER_ADDRESS, TAPEOUT_<CHECK>_CPU / _ID.
+ *         Optional env: VIPER_VAULT_ADDRESS — authorized on the guardian so direct vault trades are gated.
  */
-contract DeployTapeOutGuardianXLayer is Script {
-    uint256 public constant CIRCUIT_VIPERX_RISK = 101;
-
+contract DeployTapeOutGuardianXLayer is TapeOutWiring {
     function run() external {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address deployer = vm.addr(deployerPrivateKey);
+        uint256 deployerPrivateKey = vm.envOr("PRIVATE_KEY", uint256(0));
+        address routerAddress = vm.envAddress("POSITION_ROUTER_ADDRESS");
+        address vaultAddress = vm.envOr("VIPER_VAULT_ADDRESS", address(0));
+        address factory = vm.envAddress("TAPEOUT_FACTORY_XLAYER");
 
-        address routerAddress = vm.envOr("POSITION_ROUTER_ADDRESS", 0x36B9e0D1b0702FC59114A87f277b836d482EaF6A);
-        address processorAddress = vm.envOr("TAPEOUT_PROCESSOR_ADDRESS", address(0));
+        if (deployerPrivateKey == 0) vm.startBroadcast();
+        else vm.startBroadcast(deployerPrivateKey);
 
-        console2.log("==================================================");
-        console2.log("Deploying TapeOut Circuit Guardian on X Layer");
-        console2.log("Deployer:", deployer);
-        console2.log("Target PositionRouter:", routerAddress);
-        console2.log("==================================================");
+        TapeOutCircuitGuardian guardian = new TapeOutCircuitGuardian(factory, routerAddress);
+        console2.log("TapeOutCircuitGuardian:", address(guardian));
+        _wireFromEnv(guardian);
+        if (vaultAddress != address(0)) guardian.setAuthorizedCaller(vaultAddress, true);
 
-        vm.startBroadcast(deployerPrivateKey);
-
-        // 1. Resolve or Deploy TapeOut Processor
-        TapeOutCircuitProcessor processor;
-        if (processorAddress == address(0)) {
-            processor = new TapeOutCircuitProcessor();
-            processorAddress = address(processor);
-            console2.log("Deployed TapeOut Processor at:", processorAddress);
-
-            // Register default ViperX Risk Circuit
-            processor.registerCircuit({
-                circuitId: CIRCUIT_VIPERX_RISK,
-                maxLeverageRatio: 2000,     // 20.0x max leverage
-                maxSlippageBps: 200,        // 2.00% max slippage tolerance
-                maxDrawdownBps: 2500,       // 25.00% max drawdown limit
-                minCooldownSeconds: 10      // 10s anti-wash trading latch
-            });
-            console2.log("Registered Circuit ID:", CIRCUIT_VIPERX_RISK);
-        } else {
-            console2.log("Using existing TapeOut Processor at:", processorAddress);
-        }
-
-        // 2. Deploy TapeOut Circuit Guardian Adapter
-        TapeOutCircuitGuardian guardian = new TapeOutCircuitGuardian(
-            processorAddress,
-            CIRCUIT_VIPERX_RISK,
-            routerAddress
-        );
-        console2.log("TapeOut Circuit Guardian deployed at:", address(guardian));
-
-        // 3. Connect Guardian to PositionRouter (if deployer owns router)
-        PositionRouter router = PositionRouter(routerAddress);
-        try router.setCircuitGuardian(address(guardian)) {
-            console2.log("Successfully connected Guardian to PositionRouter!");
+        try PositionRouter(routerAddress).setCircuitGuardian(address(guardian)) {
+            console2.log("Connected to PositionRouter", routerAddress);
         } catch {
-            console2.log("Notice: Set Guardian manually if deployer is not router owner.");
+            console2.log("Signer is not the router owner: call router.setCircuitGuardian manually.");
         }
-
         vm.stopBroadcast();
-        console2.log("==================================================");
-        console2.log("Deployment Complete!");
-        console2.log("==================================================");
+
+        require(guardian.configuredCount() == guardian.CHECK_COUNT(), "guardian circuits not all set");
     }
 }

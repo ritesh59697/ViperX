@@ -6,6 +6,10 @@ solc_version = "0.8.24"
 optimizer = true
 optimizer_runs = 200
 
+# The TapeOut fork test replays netlists and vectors produced by tapeout/gen_comparator.py;
+# the X Layer deploy scripts read market settings and fetched prices from config/.
+fs_permissions = [{ access = "read", path = "./tapeout/circuits" }, { access = "read", path = "./config" }]
+
 remappings = [
     "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
     "forge-std/=lib/forge-std/src/"

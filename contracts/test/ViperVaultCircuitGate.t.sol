@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
-import { Test } from "forge-std/Test.sol";
+import { TapeOutCircuitFixture } from "./utils/TapeOutCircuitFixture.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { ViperVault } from "../src/core/ViperVault.sol";
 import { PythPriceAdapter } from "../src/core/PythPriceAdapter.sol";
 import { TapeOutCircuitGuardian } from "../src/core/TapeOutCircuitGuardian.sol";
-import { TapeOutCircuitProcessor } from "../src/core/TapeOutCircuitProcessor.sol";
+import { ITapeOutCircuitGuardian } from "../src/interfaces/ITapeOutCircuitGuardian.sol";
 import { IPyth, PythPrice } from "../src/interfaces/IPyth.sol";
 import { IViperVault } from "../src/interfaces/IViperVault.sol";
 
@@ -48,12 +48,11 @@ contract GateMockPyth is IPyth {
  *         /trade UI actually uses. The pre-existing TapeOutCircuitGuardian tests only cover the
  *         PositionRouter path, which no frontend code reaches.
  */
-contract ViperVaultCircuitGateTest is Test {
+contract ViperVaultCircuitGateTest is TapeOutCircuitFixture {
     GateMockUSDC public usdc;
     GateMockPyth public pyth;
     PythPriceAdapter public adapter;
     ViperVault public vault;
-    TapeOutCircuitProcessor public processor;
     TapeOutCircuitGuardian public guardian;
 
     address public lp = address(0x100);
@@ -61,8 +60,6 @@ contract ViperVaultCircuitGateTest is Test {
 
     bytes32 public constant ETH_MARKET = keccak256("ETH-PERP");
     bytes32 public constant ETH_PYTH_FEED = keccak256("ETH-USD-FEED");
-
-    uint256 public constant CIRCUIT_ID = 101;
 
     // Diagnostic bits emitted by the circuit's comparators.
     uint32 constant DIAG_LEVERAGE = 1 << 0;
@@ -87,19 +84,14 @@ contract ViperVaultCircuitGateTest is Test {
             500
         );
 
-        processor = new TapeOutCircuitProcessor();
-        // Circuit limits deliberately set so each gate can be tripped from inside the vault's own
-        // 5x leverage cap: a 20x circuit ceiling is unreachable here and would never fire.
-        processor.registerCircuit({
-            circuitId: CIRCUIT_ID,
-            maxLeverageRatio: 300, // 3.0x
-            maxSlippageBps: 200, // 2.00%
-            maxDrawdownBps: 2500, // 25.00%
-            minCooldownSeconds: 10 // 10s anti-wash latch
-        });
+        // Leverage circuit deliberately at 3.0x (fixtures/leverage_le_300) so each gate can be tripped
+        // from inside the vault's own 5x cap: the shipped 20x ceiling is unreachable here and would
+        // never fire. Slippage 2.00%, drawdown 25.00%, cooldown 10s are the shipped circuits.
+        _deployTapeOut();
 
         // positionRouter is address(0): this suite exercises the direct-to-vault path only.
-        guardian = new TapeOutCircuitGuardian(address(processor), CIRCUIT_ID, address(0));
+        guardian = new TapeOutCircuitGuardian(address(tapeoutFactory), address(0));
+        _wire(guardian, "fixtures/leverage_le_300", "slippage_le", "drawdown_le", "cooldown_ge");
         guardian.setAuthorizedCaller(address(vault), true);
         vault.setCircuitGuardian(address(guardian));
 
@@ -173,13 +165,9 @@ contract ViperVaultCircuitGateTest is Test {
     function test_Gate_DirectTradeReportsZeroSlippage() public {
         // A direct caller names no limit price, so the slippage comparator must see 0 bps and
         // never contribute a breach — even with the circuit's slippage ceiling set to zero.
-        processor.registerCircuit({
-            circuitId: CIRCUIT_ID,
-            maxLeverageRatio: 300,
-            maxSlippageBps: 0,
-            maxDrawdownBps: 2500,
-            minCooldownSeconds: 10
-        });
+        guardian.setCircuit(
+            ITapeOutCircuitGuardian.Check.SLIPPAGE, address(tapeoutCpu), _tapeoutCircuit("fixtures/slippage_le_0")
+        );
 
         vm.prank(agent);
         bytes32 posKey = vault.openPosition(ETH_MARKET, IViperVault.PositionSide.LONG, 2_000 * 1e18, 1_000 * 1e18);
@@ -245,14 +233,10 @@ contract ViperVaultCircuitGateTest is Test {
         pyth.setPrice(marketId, 3000_00000000, -8, 1_00000000);
         vault.addMarket(marketId, marketId, 1_000_000 * 1e18, 1_000_000 * 1e18, 10 * 1e18, marketCapBps, 500);
 
-        // Re-register the circuit at the deployed ceiling rather than the fixture's 3x.
-        processor.registerCircuit({
-            circuitId: CIRCUIT_ID,
-            maxLeverageRatio: DEPLOY_MAX_LEVERAGE_RATIO,
-            maxSlippageBps: 200,
-            maxDrawdownBps: 2500,
-            minCooldownSeconds: 10
-        });
+        // Point the leverage check at the shipped 20.0x circuit rather than the fixture's 3x.
+        guardian.setCircuit(ITapeOutCircuitGuardian.Check.LEVERAGE, address(tapeoutCpu), _tapeoutCircuit("leverage_le"));
+        string memory json = vm.readFile("tapeout/circuits/leverage_le.json");
+        assertEq(vm.parseJsonUint(json, ".max"), DEPLOY_MAX_LEVERAGE_RATIO, "shipped circuit ceiling drifted");
     }
 
     function test_DeployedConfig_MarketCapLeavesCircuitReachable() public {

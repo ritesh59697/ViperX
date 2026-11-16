@@ -1,0 +1,21 @@
+{
+  "_comment": "Markets, oracle and seed settings for the X Layer deploy scripts (DeployMockOracleXLayer, DeployVaultWithCircuitXLayer, RefreshMockPricesXLayer). USD amounts are whole dollars. pythFeedId is the key the vault and MockPyth use; OKB has no feed on the mock, so it uses keccak256(\"OKB-USD-FEED\"). price.source/price.id say where script/fetch-mock-prices.sh reads each market's live price.",
+  "oracle": {
+    "priceExpo": -8,
+    "confidenceBps": 10,
+    "maxStalenessSeconds": 0,
+    "maxConfidenceRatioBps": 500
+  },
+  "seedLiquidityUsdc": 500000,
+  "maintenanceMarginBps": 500,
+  "markets": [
+    { "symbol": "ETH-PERP",  "pythFeedId": "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace", "maxOiLongUsd": 1000000, "maxOiShortUsd": 1000000, "minSizeUsd": 10, "price": { "source": "okx",   "id": "ETH-USDT" } },
+    { "symbol": "BTC-PERP",  "pythFeedId": "0xe62df6e875746b43f8000b0b152753545192ddc4203240d23e1112c0200ecd92", "maxOiLongUsd": 2000000, "maxOiShortUsd": 2000000, "minSizeUsd": 20, "price": { "source": "okx",   "id": "BTC-USDT" } },
+    { "symbol": "SOL-PERP",  "pythFeedId": "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d", "maxOiLongUsd": 500000,  "maxOiShortUsd": 500000,  "minSizeUsd": 5,  "price": { "source": "okx",   "id": "SOL-USDT" } },
+    { "symbol": "OKB-PERP",  "pythFeedId": "0x81a0e46bf436362b5aaf7564a18224a79fec96dc5f93dfafa8749e6dedd2c619", "maxOiLongUsd": 500000,  "maxOiShortUsd": 500000,  "minSizeUsd": 5,  "price": { "source": "okx",   "id": "OKB-USDT" } },
+    { "symbol": "NVDA-PERP", "pythFeedId": "0x5a54e99f0e8f000efcead7818e6e9b8971d8ad2327663f73966035eb41cf6b48", "maxOiLongUsd": 500000,  "maxOiShortUsd": 500000,  "minSizeUsd": 10, "price": { "source": "yahoo", "id": "NVDA" } },
+    { "symbol": "TSLA-PERP", "pythFeedId": "0x160934149021a0081d6d8db8618e5f8b9e67d4e41416e6378e906b38c2ef40a6", "maxOiLongUsd": 500000,  "maxOiShortUsd": 500000,  "minSizeUsd": 10, "price": { "source": "yahoo", "id": "TSLA" } },
+    { "symbol": "COIN-PERP", "pythFeedId": "0x19d554a93a7e584feab5253805494d6e9f90cf9a3e20e8b15d2a9ff60e20f4f9", "maxOiLongUsd": 500000,  "maxOiShortUsd": 500000,  "minSizeUsd": 10, "price": { "source": "yahoo", "id": "COIN" } },
+    { "symbol": "SPY-PERP",  "pythFeedId": "0x2613da66c6155551c682aa15259926a458b2914db368297f62939d37537b02ff", "maxOiLongUsd": 1000000, "maxOiShortUsd": 1000000, "minSizeUsd": 20, "price": { "source": "yahoo", "id": "SPY" } }
+  ]
+}
