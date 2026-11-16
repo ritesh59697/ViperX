@@ -6,7 +6,7 @@
 
 [![Live Application](https://img.shields.io/badge/Live_App-www.viperx.site-blue?style=flat-square)](https://www.viperx.site/)
 [![TapeOut DeWEB](https://img.shields.io/badge/DeWEB-TAP--10_Container-orange?style=flat-square)](./dist-deweb/deweb.manifest.json)
-[![OKX X Layer](https://img.shields.io/badge/Primary_Venue-OKX_X_Layer_Testnet-black?style=flat-square&logo=okx)](https://www.oklink.com/xlayer-test/address/0x347C8ebB8e88B2A556fb9d951469238FE6628501)
+[![OKX X Layer](https://img.shields.io/badge/Primary_Venue-OKX_X_Layer_Mainnet-black?style=flat-square&logo=okx)](https://www.oklink.com/xlayer/address/0x8ad53FB549707686c1D6484119Fb2D5842A83229)
 [![TapeOut Circuits](https://img.shields.io/badge/TapeOut-4_NAND_risk_circuits-00E599?style=flat-square)](./TAPEOUT_HACKATHON.md)
 [![Pyth Network](https://img.shields.io/badge/Oracle-Pyth_Network-white?style=flat-square)](https://pyth.network)
 [![Next.js 16](https://img.shields.io/badge/Frontend-Next.js_16-black?style=flat-square&logo=next.js)](https://nextjs.org)
@@ -23,13 +23,10 @@
 | Path | Time | Wallet | What you see |
 | :--- | :--- | :--- | :--- |
 | **A. Look at the gate** | 2 min | none | Open [viperx.site/trade](https://www.viperx.site/trade) and click **Circuits** in the top bar. The popup lists the vault, router, guardian and circuit processor with explorer links, and which circuits gate each trade. |
-| **B. Trip a circuit** | 5 min | OKX Wallet on X Layer Testnet, with testnet OKB for gas | On [/trade](https://www.viperx.site/trade): **Connect Wallet to Trade** → **Faucet** (+10K demo USDC) → leverage **5x** → **Buy / Long ETH**. The trade settles. Then pick **25x** → **Buy / Long ETH**. It is refused with *"Order rejected: blocked by the on-chain risk circuits: leverage check failed"* and no funds move. |
+| **B. Trip a circuit** | 5 min | OKX Wallet on X Layer mainnet, with a little OKB for gas (a gated trade costs ≈ 0.00002 OKB) | On [/trade](https://www.viperx.site/trade): **Connect Wallet to Trade** → **Faucet** (+10K demo USDC) → leverage **5x** → **Buy / Long ETH**. The trade settles. Then pick **25x** → **Buy / Long ETH**. It is refused with *"Order rejected: blocked by the on-chain risk circuits: leverage check failed"* and no funds move. |
 | **C. Check the circuits yourself** | 5 min | none | Read the four netlists in [`contracts/tapeout/circuits/`](./contracts/tapeout/circuits/). Then, in `contracts/`, run `forge test` (offline) and `set -a; source .env.example; set +a && forge test --match-path "test/fork/*" -vv`. The fork tests tape the circuits out through the real TapeOut factory on an X Layer mainnet fork, and trade through them. |
 
-**Where each gate runs**
-
-- **Mainnet:** the four TapeOut circuits run there, because the TapeOut factory exists only on X Layer mainnet. Their processor address and circuit IDs are listed in [TAPEOUT_HACKATHON.md §7](./TAPEOUT_HACKATHON.md#7-how-to-submit) once taped out.
-- **Testnet:** the live testnet app (paths A and B) is gated by the earlier single-circuit testnet gate. The 25x rejection works the same way there.
+**Where it runs:** the whole stack, `/trade` included, is on X Layer mainnet (chain 196), where the TapeOut factory lives. Every trade calls `processor.eval` on the four circuits of processor [`0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb`](https://www.oklink.com/xlayer/address/0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb), IDs 1–4. The collateral is a demo token with a public faucet, so no real funds are at risk.
 
 ---
 
@@ -41,8 +38,27 @@
 - **OKX AI MCP Server**: [`https://www.viperx.site/api/mcp`](https://www.viperx.site/api/mcp)
 - **OKX AI A2A Discovery**: [`https://www.viperx.site/.well-known/agent.json`](https://www.viperx.site/.well-known/agent.json)
 
-### Primary Execution Venue: OKX X Layer Testnet (Chain ID: `1952`)
-*OKX Build X Series — TapeOut Accelerate Hackathon*
+### Primary Execution Venue: OKX X Layer Mainnet (Chain ID: `196`)
+*OKX Build X Series — TapeOut Accelerate Hackathon. Deployed 2026-11-16.*
+
+| Contract | Address | Explorer |
+| :--- | :--- | :--- |
+| TapeOut processor “ViperX Risk Guardian” (circuits 1–4) | `0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb` | [OKLink](https://www.oklink.com/xlayer/address/0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb) |
+| `ViperVault` | `0x8ad53FB549707686c1D6484119Fb2D5842A83229` | [OKLink](https://www.oklink.com/xlayer/address/0x8ad53FB549707686c1D6484119Fb2D5842A83229) |
+| `PositionRouter` | `0xEe8888BDd3d6a2B3F17173773511D151b74961d6` | [OKLink](https://www.oklink.com/xlayer/address/0xEe8888BDd3d6a2B3F17173773511D151b74961d6) |
+| `TapeOutCircuitGuardian` | `0x91d1aa84A3262B606DCFDb2bcf2da8889c2640B5` | [OKLink](https://www.oklink.com/xlayer/address/0x91d1aa84A3262B606DCFDb2bcf2da8889c2640B5) |
+| `PythPriceAdapter` | `0x3373C0d9A05F1dd87e912b9B7bC010d961aB599b` | [OKLink](https://www.oklink.com/xlayer/address/0x3373C0d9A05F1dd87e912b9B7bC010d961aB599b) |
+| `MockUSDC` (Faucet) | `0x36B9e0D1b0702FC59114A87f277b836d482EaF6A` | [OKLink](https://www.oklink.com/xlayer/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A) |
+| `MockPyth` (Oracle) | `0x68c59b55359Dc36D9E842e7314Da1150a964f4C7` | [OKLink](https://www.oklink.com/xlayer/address/0x68c59b55359Dc36D9E842e7314Da1150a964f4C7) |
+
+| Check | Circuit ID | Passes when |
+| :--- | :---: | :--- |
+| leverage | 1 | ≤ 20.00x |
+| slippage | 2 | ≤ 2.00% |
+| drawdown | 3 | ≤ 25.00% |
+| cooldown | 4 | ≥ 10 s since the agent's last trade |
+
+### Earlier deployment: OKX X Layer Testnet (Chain ID: `1952`)
 
 | Contract / Asset | Address | Explorer Link |
 | :--- | :--- | :--- |
@@ -52,7 +68,7 @@
 | **`MockUSDC` (Faucet)** | `0x6046c644ea622fBa3043F35d979BAEE83339cfEe` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0x6046c644ea622fBa3043F35d979BAEE83339cfEe) |
 | **`MockPyth` (Oracle)** | `0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee` | [View on OKLink](https://www.oklink.com/xlayer-test/address/0xA256D01Ca6e89c5B6bDf34F3dd68eBfF47f2C7ee) |
 
-The testnet vault is gated by ViperX's earlier Solidity risk gate. The **TapeOut circuits** that replace it run on X Layer mainnet, where the TapeOut factory lives: they are built and verified on a mainnet fork, and not yet deployed. See the [dossier](./TAPEOUT_HACKATHON.md).
+The testnet vault is gated by ViperX's earlier Solidity risk gate, which is not a TapeOut circuit. The mainnet stack above replaces it. See the [dossier](./TAPEOUT_HACKATHON.md).
 
 ---
 
@@ -95,7 +111,7 @@ ViperX strictly separates what an agent claims from what independent indexers ve
                                         |
                                         v
 +--------------------------------------------------------------------------------+
-|              OKX X LAYER  (app: testnet 1952 / TapeOut circuits: mainnet 196)  |
+|              OKX X LAYER MAINNET (196): app + vault + four TapeOut circuits      |
 |                                                                                |
 |  [EIP-712 Intent]                                                              |
 |         |                                                                      |

@@ -1,7 +1,30 @@
 # ViperX Deployed Contracts & Live Protocol Addresses
 
-**Deployer / Admin**: [`0x9f718b338Ccc69B6AC211Dc8239548E43095813a`](https://sepolia.basescan.org/address/0x9f718b338Ccc69B6AC211Dc8239548E43095813a)  
-**Deployment Date**: August 28, 2026  
+**Deployer / Admin**: [`0x9f718b338Ccc69B6AC211Dc8239548E43095813a`](https://www.oklink.com/xlayer/address/0x9f718b338Ccc69B6AC211Dc8239548E43095813a)  
+**Deployment Date**: X Layer mainnet 2026-11-16; earlier testnets August 28, 2026  
+
+---
+
+## 0. OKX X Layer Mainnet (Chain ID 196) — TapeOut Accelerate
+
+The live `/trade` stack. Every trade is evaluated by four TapeOut NAND circuits on the processor below before it reaches the vault.
+
+| Contract | Address | Explorer | Deploy tx |
+| :--- | :--- | :--- | :--- |
+| TapeOut processor “ViperX Risk Guardian” (circuits 1–4) | `0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb` | [OKLink](https://www.oklink.com/xlayer/address/0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb) | [`0x28fca425…`](https://www.oklink.com/xlayer/tx/0x28fca425b94adced7c5da62818a6370590018ae9cc6eba4bcb6ceb79c48a54e9) |
+| `ViperVault` | `0x8ad53FB549707686c1D6484119Fb2D5842A83229` | [OKLink](https://www.oklink.com/xlayer/address/0x8ad53FB549707686c1D6484119Fb2D5842A83229) | [`0xce5ed47b…`](https://www.oklink.com/xlayer/tx/0xce5ed47b1fcd1c9881d617f0ca52b73dc41f23b8a245a93a029f192febe90eaf) |
+| `PositionRouter` | `0xEe8888BDd3d6a2B3F17173773511D151b74961d6` | [OKLink](https://www.oklink.com/xlayer/address/0xEe8888BDd3d6a2B3F17173773511D151b74961d6) | [`0x6789ae12…`](https://www.oklink.com/xlayer/tx/0x6789ae12987a848bf81ddab4841919c472dfdbdb40975539e6cbcb39343302ef) |
+| `TapeOutCircuitGuardian` | `0x91d1aa84A3262B606DCFDb2bcf2da8889c2640B5` | [OKLink](https://www.oklink.com/xlayer/address/0x91d1aa84A3262B606DCFDb2bcf2da8889c2640B5) | [`0x5d90486f…`](https://www.oklink.com/xlayer/tx/0x5d90486f5d44b8b06b806da4715162050a4bdcc655a80b75204f17dc0052070a) |
+| `PythPriceAdapter` | `0x3373C0d9A05F1dd87e912b9B7bC010d961aB599b` | [OKLink](https://www.oklink.com/xlayer/address/0x3373C0d9A05F1dd87e912b9B7bC010d961aB599b) | [`0x679f0bbd…`](https://www.oklink.com/xlayer/tx/0x679f0bbd04de50ba97d68d2dbb6b87140343775a4caa6811c31003818918a3b0) |
+| `MockUSDC` (Faucet) | `0x36B9e0D1b0702FC59114A87f277b836d482EaF6A` | [OKLink](https://www.oklink.com/xlayer/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A) | [`0x425d163a…`](https://www.oklink.com/xlayer/tx/0x425d163a0d734d523d0a72a9227facf8ac305e41796bf0a54d0d2c190d98902d) |
+| `MockPyth` (Oracle) | `0x68c59b55359Dc36D9E842e7314Da1150a964f4C7` | [OKLink](https://www.oklink.com/xlayer/address/0x68c59b55359Dc36D9E842e7314Da1150a964f4C7) | [`0x8440f062…`](https://www.oklink.com/xlayer/tx/0x8440f06230f87c38b0b53ec3d08e00ade473eec5e8768c43815c033b14ff0a98) |
+
+| Check | Circuit ID | Passes when |
+| :--- | :---: | :--- |
+| leverage | 1 | ≤ 20.00x |
+| slippage | 2 | ≤ 2.00% |
+| drawdown | 3 | ≤ 25.00% |
+| cooldown | 4 | ≥ 10 s since the agent's last trade |
 
 ---
 

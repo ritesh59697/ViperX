@@ -55,7 +55,7 @@ The vault must live on the same chain as the circuits it calls, and TapeOut exis
 2. [`DeployMockOracleXLayer.s.sol`](./contracts/script/DeployMockOracleXLayer.s.sol) deploys the demo collateral (MockUSDC with a public faucet), a MockPyth set to live prices, and the price adapter.
 3. [`DeployVaultWithCircuitXLayer.s.sol`](./contracts/script/DeployVaultWithCircuitXLayer.s.sol) deploys the vault, router and guardian. It wires the four circuits through [`TapeOutWiring.sol`](./contracts/script/TapeOutWiring.sol), which refuses any circuit whose on-chain netlist differs from its generated file, then adds the markets from [`xlayer-markets.json`](./contracts/config/xlayer-markets.json) and seeds liquidity.
 
-Fees, gas price and market prices are read live. [`simulate-xlayer-stack.sh`](./contracts/script/simulate-xlayer-stack.sh) runs the same deploy on a local mainnet fork funded with the planned amounts only. It then trades once at 5x, which passes, and once above the ceiling, which the leverage circuit rejects. Nothing has been broadcast to mainnet yet; steps are in [`docs/TAPEOUT_MAINNET_RUNBOOK.md`](./docs/TAPEOUT_MAINNET_RUNBOOK.md).
+Fees, gas price and market prices are read live. [`simulate-xlayer-stack.sh`](./contracts/script/simulate-xlayer-stack.sh) runs the same deploy on a local mainnet fork funded with the planned amounts only. It then trades once at 5x, which passes, and once above the ceiling, which the leverage circuit rejects. It was broadcast to mainnet on 2026-11-16 (addresses in §4); steps are in [`docs/TAPEOUT_MAINNET_RUNBOOK.md`](./docs/TAPEOUT_MAINNET_RUNBOOK.md).
 
 **Measured cost** (mainnet fork, 2026-11-16, 0.02 gwei):
 
@@ -74,7 +74,7 @@ Fees, gas price and market prices are read live. [`simulate-xlayer-stack.sh`](./
 - **SHA-256 of `index.html` (19,403 bytes):** `2f7c1c338e156a0f59f65b3823402cebcd96a67734ee063d73e0ea9934d0b857`
 - **TAP-10 Manifest:** [`dist-deweb/deweb.manifest.json`](./dist-deweb/deweb.manifest.json) — **stale**: it records an older hash and the placeholder name `tape://viperx.tape`.
 - **Interactive Circuit Simulator:** lets judges toggle the four check inputs and watch the verdict.
-- **Not done:** the portal still describes the testnet processor below, and the package has not been published on DeWEB. Rebuild after the mainnet tape-out.
+- **Not done:** the portal still describes the testnet processor in §4, and the package has not been published on DeWEB. Rebuild after the mainnet tape-out.
 
 ---
 
@@ -116,11 +116,32 @@ Fees, gas price and market prices are read live. [`simulate-xlayer-stack.sh`](./
 | :--- | :--- |
 | TapeOut factory | `0x1f09DAeFA827f02CBb40967cc91b259763760761` |
 | DeWEB hub | `0xe61A9C7213a6Aa616C246a2B569e555B417b25ee` |
-| ViperX risk processor | *pending mainnet tape-out* |
+| ViperX risk processor | [`0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb`](https://www.oklink.com/xlayer/address/0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb) |
+
+### ViperX on X Layer mainnet (chain 196), deployed 2026-11-16
+
+| Contract | Address | Explorer | Deploy tx |
+| :--- | :--- | :--- | :--- |
+| TapeOut processor “ViperX Risk Guardian” (circuits 1–4) | `0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb` | [OKLink](https://www.oklink.com/xlayer/address/0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb) | [`0x28fca425…`](https://www.oklink.com/xlayer/tx/0x28fca425b94adced7c5da62818a6370590018ae9cc6eba4bcb6ceb79c48a54e9) |
+| `ViperVault` | `0x8ad53FB549707686c1D6484119Fb2D5842A83229` | [OKLink](https://www.oklink.com/xlayer/address/0x8ad53FB549707686c1D6484119Fb2D5842A83229) | [`0xce5ed47b…`](https://www.oklink.com/xlayer/tx/0xce5ed47b1fcd1c9881d617f0ca52b73dc41f23b8a245a93a029f192febe90eaf) |
+| `PositionRouter` | `0xEe8888BDd3d6a2B3F17173773511D151b74961d6` | [OKLink](https://www.oklink.com/xlayer/address/0xEe8888BDd3d6a2B3F17173773511D151b74961d6) | [`0x6789ae12…`](https://www.oklink.com/xlayer/tx/0x6789ae12987a848bf81ddab4841919c472dfdbdb40975539e6cbcb39343302ef) |
+| `TapeOutCircuitGuardian` | `0x91d1aa84A3262B606DCFDb2bcf2da8889c2640B5` | [OKLink](https://www.oklink.com/xlayer/address/0x91d1aa84A3262B606DCFDb2bcf2da8889c2640B5) | [`0x5d90486f…`](https://www.oklink.com/xlayer/tx/0x5d90486f5d44b8b06b806da4715162050a4bdcc655a80b75204f17dc0052070a) |
+| `PythPriceAdapter` | `0x3373C0d9A05F1dd87e912b9B7bC010d961aB599b` | [OKLink](https://www.oklink.com/xlayer/address/0x3373C0d9A05F1dd87e912b9B7bC010d961aB599b) | [`0x679f0bbd…`](https://www.oklink.com/xlayer/tx/0x679f0bbd04de50ba97d68d2dbb6b87140343775a4caa6811c31003818918a3b0) |
+| `MockUSDC` (Faucet) | `0x36B9e0D1b0702FC59114A87f277b836d482EaF6A` | [OKLink](https://www.oklink.com/xlayer/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A) | [`0x425d163a…`](https://www.oklink.com/xlayer/tx/0x425d163a0d734d523d0a72a9227facf8ac305e41796bf0a54d0d2c190d98902d) |
+| `MockPyth` (Oracle) | `0x68c59b55359Dc36D9E842e7314Da1150a964f4C7` | [OKLink](https://www.oklink.com/xlayer/address/0x68c59b55359Dc36D9E842e7314Da1150a964f4C7) | [`0x8440f062…`](https://www.oklink.com/xlayer/tx/0x8440f06230f87c38b0b53ec3d08e00ade473eec5e8768c43815c033b14ff0a98) |
+
+| Check | Circuit ID | Passes when |
+| :--- | :---: | :--- |
+| leverage | 1 | ≤ 20.00x |
+| slippage | 2 | ≤ 2.00% |
+| drawdown | 3 | ≤ 25.00% |
+| cooldown | 4 | ≥ 10 s since the agent's last trade |
+
+Checked on mainnet after the deploy: `vault.circuitGuardian()` is the guardian above, `guardian.circuitFor(0..3)` returns this processor with IDs 1–4, and `processor.eval(1, …)` returns pass for 5x and 20x and fail for 25x.
 
 ### Earlier gate on X Layer testnet (chain 1952) — not a TapeOut circuit
 
-Deployed 2026-11-11 and still serving the `/trade` UI. Its `TapeOutCircuitProcessor` is ViperX's own Solidity comparator contract with a self-defined `evaluateCircuit`; it is **not** a TAP-02 netlist or a TapeOut-factory processor, and the TapeOut factory does not exist on testnet. It is superseded by the circuits above and should not be submitted as the circuit.
+Deployed 2026-11-11; `/trade` moved to the mainnet stack above on 2026-11-16. Its `TapeOutCircuitProcessor` is ViperX's own Solidity comparator contract with a self-defined `evaluateCircuit`; it is **not** a TAP-02 netlist or a TapeOut-factory processor, and the TapeOut factory does not exist on testnet. It is superseded by the circuits above and should not be submitted as the circuit.
 
 | Contract / Asset | Address | Explorer |
 | :--- | :--- | :--- |
@@ -186,8 +207,8 @@ The X Layer and TapeOut teams jointly score five criteria (no published weights)
 1. **Form:** [OKX Build X / TapeOut Accelerate Google Form](https://forms.gle/EoDNbxQ65dev1wFd9) — before December 7, 2026, 23:59 UTC (provisional).
 2. **Project Name:** ViperX (TapeOut Circuit Guardian & DeWEB)
 3. **Category:** Circuit Design + Apps & Tools on X Layer
-4. **Processor contract address:** *from the mainnet tape-out (`TapeOutRiskCircuits.s.sol` prints it)* — not the testnet `0x5474874E…`, which is not a TapeOut processor.
-5. **Circuit IDs:** *four, from the same run* — leverage, slippage, drawdown, cooldown. Confirm the form accepts more than one ID, or submit the leverage circuit and list the rest in the summary.
+4. **Processor contract address:** `0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb` (X Layer mainnet). Not the testnet `0x5474874E…`, which is not a TapeOut processor.
+5. **Circuit IDs:** `1, 2, 3, 4` — leverage, slippage, drawdown, cooldown. Confirm the form accepts more than one ID, or submit the leverage circuit and list the rest in the summary.
 6. **Access link:** [https://www.viperx.site/](https://www.viperx.site/) and the DeWEB address once the package is published (`tape://viperx.tape` is a placeholder, not a published name)
 7. **TapeOut features used:** four taped-out circuits evaluated in the trade path, DeWEB TAP-10.
 8. **New Development Summary:**
