@@ -222,7 +222,7 @@ The X Layer and TapeOut teams jointly score five criteria (no published weights)
 7. **TapeOut features used:** four taped-out circuits evaluated in the trade path, DeWEB TAP-10.
 8. **New Development Summary:**
    > *"Designed four TapeOut NAND circuits — leverage, slippage, drawdown and anti-wash cooldown — generated and checked against the TAP-02 reference evaluator for every input, and taped them out to a TapeOut processor on X Layer. Every ViperX trade, from the UI or from a signed agent intent, is evaluated by all four circuits with processor.eval before it reaches vault liquidity, and a rejection says which check failed. Packaged the verification portal and a circuit simulator for TapeOut DeWEB (TAP-10)."*
-9. **Demo Video (≤ 3 minutes):**
+9. **Demo Video (2:29):** [https://youtu.be/LRdL7g3I2Ao](https://youtu.be/LRdL7g3I2Ao) (unlisted). Planned outline, as recorded:
    1. The problem: unverified AI trading agents and uncontrolled risk.
    2. The four netlists: how a comparator is built from NAND gates, and where the limits live.
    3. Trades gated by the circuits on `/trade`: a 5x trade passes; at **25x** (the vault allows it, and the 20x leverage circuit does not) the order is refused as *"blocked by the on-chain risk circuits: leverage check failed"*, from `CircuitRiskRejected(1)`. The **Circuits** button shows which processor and circuits are live.

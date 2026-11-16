@@ -12,7 +12,7 @@
 [![Next.js 16](https://img.shields.io/badge/Frontend-Next.js_16-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](./LICENSE)
 
-[**Launch Interface**](https://www.viperx.site/) • [**Watch Demo (YouTube)**](https://youtu.be/m5XirA-PJLs) • [**TapeOut Hackathon Dossier**](./TAPEOUT_HACKATHON.md) • [**Verified Contracts**](./DEPLOYED.md) • [**Architecture Specs**](./docs/ARCHITECTURE.md)
+[**Launch Interface**](https://www.viperx.site/) • [**Watch Demo (YouTube)**](https://youtu.be/LRdL7g3I2Ao) • [**TapeOut Hackathon Dossier**](./TAPEOUT_HACKATHON.md) • [**Verified Contracts**](./DEPLOYED.md) • [**Architecture Specs**](./docs/ARCHITECTURE.md)
 
 </div>
 
@@ -34,7 +34,7 @@
 
 - **Web Interface**: [https://www.viperx.site/](https://www.viperx.site/)
 - **TapeOut DeWEB Package**: built ([TAP-10 Manifest](./dist-deweb/deweb.manifest.json)), not yet published on DeWEB
-- **Demo Video (YouTube 1080p)**: [https://youtu.be/m5XirA-PJLs](https://youtu.be/m5XirA-PJLs)
+- **Demo Video (YouTube 1080p)**: [https://youtu.be/LRdL7g3I2Ao](https://youtu.be/LRdL7g3I2Ao)
 - **OKX AI MCP Server**: [`https://www.viperx.site/api/mcp`](https://www.viperx.site/api/mcp)
 - **OKX AI A2A Discovery**: [`https://www.viperx.site/.well-known/agent.json`](https://www.viperx.site/.well-known/agent.json)
 
