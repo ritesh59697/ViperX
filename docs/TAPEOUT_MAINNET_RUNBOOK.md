@@ -10,40 +10,45 @@ Puts the whole ViperX stack on X Layer mainnet (chain 196) so `/trade` is gated 
 
 ## 1. Fund the deployer
 
-Deployer: `0x9f718b338Ccc69B6AC211Dc8239548E43095813a` (keystore `viperx-deployer` — confirm with `cast wallet address --account viperx-deployer`). On 2026-11-16 it held nothing on X Layer or BNB Chain.
+Deployer: `0x9f718b338Ccc69B6AC211Dc8239548E43095813a` (keystore `viperx-deployer`; confirm with `cast wallet address --account viperx-deployer`). On 2026-11-16 it held nothing on X Layer or BNB Chain.
 
-- [ ] **0.12 BEM on BNB Chain** to the deployer. Needed: 0.11, which is the factory `deployFee()` (0.10) plus the gate-mint protocol fee (0.01).
-- [ ] **~0.003 BNB on BNB Chain** to the deployer, for the bridge fee (~0.002, quoted live below) and gas.
-- [ ] **0.02 OKB on X Layer** to the deployer. Withdraw from OKX on the "X Layer" network. Needed: ~0.0055 for the deploy. The rest covers hundreds of demo trades at 805k gas each.
+Minimum funding, measured 2026-11-16. The fork run in step 3 passed with exactly 0.01 OKB and 0.11 BEM.
 
-Then bridge the BEM to X Layer, signed by the deployer. BEM is a LayerZero OFT: the BNB-side adapter locks it and the X Layer OFT mints it.
+| Send to the deployer | Amount | Covers |
+| :--- | ---: | :--- |
+| BEM on BNB Chain | **0.112** | 0.11 for the deploy (0.10 factory `deployFee()` + 0.01 gate-mint fee). Plus the bridge's 0.5% fee (0.00056) and 0.001 spare |
+| BNB on BNB Chain | **0.0025** | Bridge fee 0.00203 (LayerZero, quoted live), approve and send gas (~300k at 0.05 gwei, ≈0.00002), and spare |
+| OKB on X Layer | **0.01** | Deploy ≈0.0055 (4 × 0.0013 tape-out fees + 12.4M gas at 0.02 gwei). The rest pays for ~280 gated trades at 805k gas each |
 
-| | Address |
-| :--- | :--- |
-| BEM, BNB Chain (8 decimals) | `0x5ce033B2bFCa3Af30b3e8C8457DeaF776A8b695a` |
-| OFT adapter, BNB Chain | `0xa84b8d3893de6e9922f2b29be1e1b115845f5e72` |
-| BEM OFT, X Layer | `0x60e62Efa9405d6873C5deaBD4E6CC91c25363952` (the factory's `bem()`) |
-| LayerZero eid, X Layer | `30274` |
+- **Getting BEM.** It trades on PancakeSwap (BNB Chain), with BEM/USDT and BEM/WBNB pools of roughly $55k–140k liquidity at ~$10.2 on 2026-11-16. A 0.112 BEM buy (~$1.15) won't move the price. Buy it in your own wallet and send it to the deployer, or send extra BNB and swap.
+- **Withdrawal minimums.** Exchange minimums for OKB to X Layer and BNB to BNB Chain may be above these amounts. Anything extra stays in the deployer.
+- **Gas for trading.** A wallet that trades in the demo needs its own OKB on X Layer, unless it is the deployer.
+
+Then bridge the BEM to X Layer. `script/bridge-bem.sh` reads the adapter's fee live and sends just enough for the requested amount to arrive. The `minAmountLD` it sets makes the bridge revert rather than deliver less. Run it without `--send` to see the quote; it needs `BSC_RPC_URL`, `BEM_BSC_ADAPTER` and `BEM_XLAYER_EID` from `.env.example`.
 
 ```bash
-BSC=https://bsc-dataseed.bnbchain.org; ADAPTER=0xa84b8d3893de6e9922f2b29be1e1b115845f5e72; D=0x9f718b338Ccc69B6AC211Dc8239548E43095813a
-PARAM="(30274,0x000000000000000000000000${D:2},12000000,12000000,0x,0x,0x)"
-FEE=$(cast call $ADAPTER 'quoteSend((uint32,bytes32,uint256,uint256,bytes,bytes,bytes),bool)((uint256,uint256))' "$PARAM" false --rpc-url $BSC | tr -d '()' | cut -d' ' -f1); echo "bridge fee: $(cast from-wei $FEE) BNB"
+cd contracts && set -a && source .env && set +a && ./script/bridge-bem.sh 0.111
 ```
 
 ```bash
-cast send 0x5ce033B2bFCa3Af30b3e8C8457DeaF776A8b695a 'approve(address,uint256)' $ADAPTER 12000000 --rpc-url $BSC --account viperx-deployer
+cd contracts && set -a && source .env && set +a && ./script/bridge-bem.sh 0.111 --send -- --account viperx-deployer
 ```
 
-```bash
-cast send $ADAPTER 'send((uint32,bytes32,uint256,uint256,bytes,bytes,bytes),(uint256,uint256),address)' "$PARAM" "($FEE,0)" $D --value $FEE --rpc-url $BSC --account viperx-deployer
-```
-
-Delivery takes a few minutes (track it on layerzeroscan.com). Check it arrived; `12000000` means 0.12 BEM:
+Delivery takes a few minutes (track it on layerzeroscan.com). Check it arrived (`11100000` = 0.111 BEM):
 
 ```bash
 cast call 0x60e62Efa9405d6873C5deaBD4E6CC91c25363952 'balanceOf(address)(uint256)' 0x9f718b338Ccc69B6AC211Dc8239548E43095813a --rpc-url https://rpc.xlayer.tech
 ```
+
+### Optional: DeWEB site (+0.08 OKB)
+
+Publishing the portal on DeWEB means opening the container of one of the circuits. `open(processor, #ID)` on the X Layer container opener (`0x536adD8F30f03b69f6fbF29d425A816A0dC50106`) charges its `FEE()`. That fee is **0.08 OKB**, confirmed on a fork on 2026-11-16: anything less reverts. The opening is one-time, and anyone may open a container.
+
+- X Layer's `DomainBinding.monthlyFee()` is 0.
+- `index.html` (19 KB) fits in one `putFile` call.
+- Gas for both steps is under 0.0002 OKB.
+
+Opening a container costs roughly 15 times the whole OKB for the deploy. Skip it to keep the cost minimal, or add 0.08 OKB for the Ecosystem Integration criterion. Not scripted yet.
 
 ## 2. Settings
 
@@ -61,13 +66,13 @@ Market caps, minimum sizes, the oracle confidence limit and the $500k LP seed ar
 
 ## 3. Simulate (no funds, no key)
 
-This runs the exact deploy on a local anvil fork of mainnet, funded with only the amounts above. It then makes one 5x trade, which must pass, and one trade above the leverage ceiling, which the circuit must reject. Finally it prints the real cost at today's gas price. Broadcast records go to a temp dir, so nothing in `broadcast/` looks like a mainnet deploy.
+This runs the exact deploy on a local anvil fork of mainnet, funded with only what lands on X Layer (0.01 OKB, 0.11 BEM). It then makes one 5x trade, which must pass, and one trade above the leverage ceiling, which the circuit must reject. Finally it prints the real cost at today's gas price. Broadcast records go to a temp dir, so nothing in `broadcast/` looks like a mainnet deploy.
 
 ```bash
-cd contracts && set -a && source .env && set +a && ./script/simulate-xlayer-stack.sh 0.02 0.12
+cd contracts && set -a && source .env && set +a && ./script/simulate-xlayer-stack.sh 0.01 0.11
 ```
 
-Result on 2026-11-16, at 0.02 gwei:
+Result on 2026-11-16, at 0.02 gwei, with 0.01 OKB and 0.11 BEM (0.0046 OKB and 0 BEM left):
 
 | | |
 | :--- | ---: |
