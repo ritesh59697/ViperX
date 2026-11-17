@@ -1,6 +1,7 @@
 import {
   createPublicClient,
   decodeEventLog,
+  fallback,
   formatUnits,
   toEventSelector,
   http,
@@ -47,7 +48,19 @@ const HANDLED_TOPICS = new Set(
 const LOCK_KEY = "viperx-xlayer-indexer";
 const CURSOR_KEY = `xlayer:${XLAYER_NETWORK.chainId}:cursor`;
 
-const client = createPublicClient({ transport: http(XLAYER_NETWORK.rpcUrl) });
+/**
+ * RPC endpoints for the indexer: XLAYER_INDEXER_RPC_URLS (comma-separated, server-only), else the
+ * app's NEXT_PUBLIC_XLAYER_RPC_URL. With several, viem's fallback transport moves to the next one
+ * when a node errors or rate-limits.
+ */
+const RPC_URLS = (process.env.XLAYER_INDEXER_RPC_URLS ?? "")
+  .split(",")
+  .map((u) => u.trim())
+  .filter(Boolean);
+const client = createPublicClient({
+  transport: RPC_URLS.length > 1 ? fallback(RPC_URLS.map((u) => http(u))) : http(RPC_URLS[0] ?? XLAYER_NETWORK.rpcUrl),
+});
+const isRateLimited = (err: unknown) => /rate limit|too many requests|429/i.test(String((err as Error)?.message ?? err));
 const marketSymbolById = new Map<string, string>(
   XLAYER_MARKET_SYMBOLS.map((s) => [keccak256(toBytes(s)).toLowerCase(), s]),
 );
@@ -106,7 +119,7 @@ async function withRateLimitRetry<T>(fn: () => Promise<T>): Promise<T> {
     try {
       return await fn();
     } catch (err) {
-      const limited = /rate limit|too many requests|429/i.test(String((err as Error)?.message ?? err));
+      const limited = isRateLimited(err);
       const wait = 250 * 2 ** attempt;
       if (!limited || Date.now() + wait > runDeadline) throw err;
       await new Promise((r) => setTimeout(r, wait));
@@ -247,6 +260,8 @@ export interface IndexRunResult {
   agentsUpdated: number;
   caughtUp: boolean;
   skipped?: string;
+  /** The RPC kept rate-limiting; progress up to toBlock was saved and the next run resumes there. */
+  rateLimited?: boolean;
 }
 
 /**
@@ -272,6 +287,7 @@ export async function runXLayerIndexer(budgetMs: number): Promise<IndexRunResult
   const router = XLAYER_CONTRACTS.positionRouter.toLowerCase();
   const touched = new Set<string>();
   let logCount = 0;
+  let rateLimited = false;
 
   while (cursor < latest && Date.now() - started < budgetMs) {
     const step = await chunkSize(addresses, cursor + BigInt(1), latest);
@@ -282,8 +298,15 @@ export async function runXLayerIndexer(budgetMs: number): Promise<IndexRunResult
       ranges.push([s, e]);
       s = e + BigInt(1);
     }
-    const logs = (await Promise.all(ranges.map(([a, b]) => getLogsRange(addresses, a, b))))
-      .flat()
+    let fetched: Log[];
+    try {
+      fetched = (await Promise.all(ranges.map(([a, b]) => getLogsRange(addresses, a, b)))).flat();
+    } catch (err) {
+      if (!isRateLimited(err)) throw err;
+      rateLimited = true;
+      break;
+    }
+    const logs = fetched
       .filter((l) => !l.removed && HANDLED_TOPICS.has((l.topics[0] ?? "").toLowerCase()))
       .sort((x, y) => Number(x.blockNumber! - y.blockNumber!) || x.logIndex! - y.logIndex!);
     const batchEnd = ranges[ranges.length - 1][1];
@@ -332,6 +355,7 @@ export async function runXLayerIndexer(budgetMs: number): Promise<IndexRunResult
     logs: logCount,
     agentsUpdated: touched.size,
     caughtUp: cursor >= latest,
+    ...(rateLimited ? { rateLimited } : {}),
   };
 }
 
