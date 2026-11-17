@@ -25,8 +25,8 @@ import { refreshAgentMetrics } from "./metrics";
  *
  * Every fill it writes comes from a vault event, so it is marked tx_found = TRUE. Fills are
  * attributed only to agents read from the registry (registry_tx set) whose vault address is the
- * trader. Positions opened through PositionRouter are skipped: the vault records the router as
- * their trader, so they cannot be attributed to an agent (see the router bug note in DEPLOYED.md).
+ * trader. Positions opened from signed agent intents go through PositionRouter.openPositionFor
+ * and are recorded under the agent, so they are attributed the same way as direct trades.
  */
 
 const VAULT_ABI = parseAbi([
@@ -195,8 +195,11 @@ async function applyLog(tx: Queryable, log: Log, blockTime: Date, touched: Set<s
   if (address !== XLAYER_CONTRACTS.viperVault.toLowerCase()) return;
   const ev = decodeEventLog({ abi: VAULT_ABI, data: log.data, topics: log.topics });
   const trader = ev.args.trader.toLowerCase();
-  if (trader === router) return; // router positions cannot be attributed to an agent
-  const key = ev.args.positionKey.toLowerCase();
+  // A router should never be a trader since openPositionFor; guard against an older router.
+  if (trader === router) return;
+  // The vault derives keys from (trader, market, side) only, so the same key exists on every
+  // vault deployment; prefix it with the vault address.
+  const key = `${address}:${ev.args.positionKey.toLowerCase()}`;
   const usd = (v: bigint) => formatUnits(v, USD_DECIMALS);
 
   if (ev.eventName === "PositionOpened") {
