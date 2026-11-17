@@ -6,7 +6,7 @@
 
 [![Live Application](https://img.shields.io/badge/Live_App-www.viperx.site-blue?style=flat-square)](https://www.viperx.site/)
 [![TapeOut DeWEB](https://img.shields.io/badge/DeWEB-TAP--10_Container-orange?style=flat-square)](./dist-deweb/deweb.manifest.json)
-[![OKX X Layer](https://img.shields.io/badge/Primary_Venue-OKX_X_Layer_Mainnet-black?style=flat-square&logo=okx)](https://www.oklink.com/xlayer/address/0x8ad53FB549707686c1D6484119Fb2D5842A83229)
+[![OKX X Layer](https://img.shields.io/badge/Primary_Venue-OKX_X_Layer_Mainnet-black?style=flat-square&logo=okx)](https://www.oklink.com/xlayer/address/0x0e36c7fE3B20b1c33B1691E7041A80ad50e77Bdc)
 [![TapeOut Circuits](https://img.shields.io/badge/TapeOut-4_NAND_risk_circuits-00E599?style=flat-square)](./TAPEOUT_HACKATHON.md)
 [![Pyth Network](https://img.shields.io/badge/Oracle-Pyth_Network-white?style=flat-square)](https://pyth.network)
 [![Next.js 16](https://img.shields.io/badge/Frontend-Next.js_16-black?style=flat-square&logo=next.js)](https://nextjs.org)
@@ -26,7 +26,7 @@
 | **B. Trip a circuit** | 5 min | OKX Wallet on X Layer mainnet, with a little OKB for gas (a gated trade costs ≈ 0.00002 OKB) | On [/trade](https://www.viperx.site/trade): **Connect Wallet to Trade** → **Faucet** (+10K demo USDC) → leverage **5x** → **Buy / Long ETH**. The trade settles. Then pick **25x** → **Buy / Long ETH**. It is refused with *"Order rejected: blocked by the on-chain risk circuits: leverage check failed"* and no funds move. |
 | **C. Check the circuits yourself** | 5 min | none | Read the four netlists in [`contracts/tapeout/circuits/`](./contracts/tapeout/circuits/). Then, in `contracts/`, run `forge test` (offline) and `set -a; source .env.example; set +a && forge test --match-path "test/fork/*" -vv`. The fork tests tape the circuits out through the real TapeOut factory on an X Layer mainnet fork, and trade through them. |
 
-**Where it runs:** the whole stack, `/trade` included, is on X Layer mainnet (chain 196), where the TapeOut factory lives. Every trade calls `processor.eval` on the four circuits of processor [`0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb`](https://www.oklink.com/xlayer/address/0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb), IDs 1–4. On-chain proof: a [5x trade that passed](https://www.oklink.com/xlayer/tx/0x146510d1aa8449a7752785c8090fde5f28daf98f4ce4341aeb91e7738046d3ed) and a [25x trade the leverage circuit rejected](https://www.oklink.com/xlayer/tx/0x35170db2344b09f3ff96146ea38a2652e4680e7abbe1b2ed46acaddad73fd094). The collateral is a demo token with a public faucet, so no real funds are at risk.
+**Where it runs:** the whole stack, `/trade` included, is on X Layer mainnet (chain 196), where the TapeOut factory lives. Every trade calls `processor.eval` on the four circuits of processor [`0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb`](https://www.oklink.com/xlayer/address/0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb), IDs 1–4. On-chain proof: a [5x trade that passed](https://www.oklink.com/xlayer/tx/0x5ae0f66a42016cc85a035b2ad2b9380ecfd5e17ce9dd40e55b9c03d09e0b35b3) and a [25x trade the leverage circuit rejected](https://www.oklink.com/xlayer/tx/0xeffdd924d113225e32ef6eb8e8c982cba94d00bc5b22b39a76f95c04aafdb632). The collateral is a demo token with a public faucet, so no real funds are at risk.
 
 ---
 
@@ -44,9 +44,9 @@
 | Contract | Address | Explorer |
 | :--- | :--- | :--- |
 | TapeOut processor “ViperX Risk Guardian” (circuits 1–4) | `0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb` | [OKLink](https://www.oklink.com/xlayer/address/0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb) |
-| `ViperVault` | `0x8ad53FB549707686c1D6484119Fb2D5842A83229` | [OKLink](https://www.oklink.com/xlayer/address/0x8ad53FB549707686c1D6484119Fb2D5842A83229) |
-| `PositionRouter` | `0xEe8888BDd3d6a2B3F17173773511D151b74961d6` | [OKLink](https://www.oklink.com/xlayer/address/0xEe8888BDd3d6a2B3F17173773511D151b74961d6) |
-| `TapeOutCircuitGuardian` | `0x91d1aa84A3262B606DCFDb2bcf2da8889c2640B5` | [OKLink](https://www.oklink.com/xlayer/address/0x91d1aa84A3262B606DCFDb2bcf2da8889c2640B5) |
+| `ViperVault` | `0x0e36c7fE3B20b1c33B1691E7041A80ad50e77Bdc` | [OKLink](https://www.oklink.com/xlayer/address/0x0e36c7fE3B20b1c33B1691E7041A80ad50e77Bdc) |
+| `PositionRouter` | `0x280d21b19A504BDEf95CFd1Aa9492f03EE4e7135` | [OKLink](https://www.oklink.com/xlayer/address/0x280d21b19A504BDEf95CFd1Aa9492f03EE4e7135) |
+| `TapeOutCircuitGuardian` | `0x54FaE0b57646365c6e4631E06dFe3d314BA0206A` | [OKLink](https://www.oklink.com/xlayer/address/0x54FaE0b57646365c6e4631E06dFe3d314BA0206A) |
 | `PythPriceAdapter` | `0x3373C0d9A05F1dd87e912b9B7bC010d961aB599b` | [OKLink](https://www.oklink.com/xlayer/address/0x3373C0d9A05F1dd87e912b9B7bC010d961aB599b) |
 | `MockUSDC` (Faucet) | `0x36B9e0D1b0702FC59114A87f277b836d482EaF6A` | [OKLink](https://www.oklink.com/xlayer/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A) |
 | `MockPyth` (Oracle) | `0x68c59b55359Dc36D9E842e7314Da1150a964f4C7` | [OKLink](https://www.oklink.com/xlayer/address/0x68c59b55359Dc36D9E842e7314Da1150a964f4C7) |
@@ -58,12 +58,16 @@
 | drawdown | 3 | ≤ 25.00% |
 | cooldown | 4 | ≥ 10 s since the agent's last trade |
 
-**Proof on mainnet (2026-11-16, ETH-PERP, $1,000 collateral):**
+Vault, router and guardian redeployed 2026-11-17 so positions opened from signed agent intents belong to the agent (`ViperVault.openPositionFor`); before, the vault recorded the router as their trader. Same processor and circuits. Previous addresses: vault [`0x8ad5…3229`](https://www.oklink.com/xlayer/address/0x8ad53FB549707686c1D6484119Fb2D5842A83229), router [`0xEe88…61d6`](https://www.oklink.com/xlayer/address/0xEe8888BDd3d6a2B3F17173773511D151b74961d6), guardian [`0x91d1…40B5`](https://www.oklink.com/xlayer/address/0x91d1aa84A3262B606DCFDb2bcf2da8889c2640B5).
+
+**Proof on mainnet (2026-11-17, ETH-PERP, $1,000 collateral):**
 
 | Trade | Result | Tx |
 | :--- | :--- | :--- |
-| 5x long | passed all four circuits, position opened (815k gas) | [`0x146510d1…`](https://www.oklink.com/xlayer/tx/0x146510d1aa8449a7752785c8090fde5f28daf98f4ce4341aeb91e7738046d3ed) |
-| 25x long | reverted `CircuitRiskRejected(1)`: the leverage circuit failed; the vault's own cap is 25x, so only the circuit stopped it | [`0x35170db2…`](https://www.oklink.com/xlayer/tx/0x35170db2344b09f3ff96146ea38a2652e4680e7abbe1b2ed46acaddad73fd094) |
+| 5x long | passed all four circuits, position opened (809k gas) | [`0x5ae0f66a…`](https://www.oklink.com/xlayer/tx/0x5ae0f66a42016cc85a035b2ad2b9380ecfd5e17ce9dd40e55b9c03d09e0b35b3) |
+| 25x long | reverted `CircuitRiskRejected(1)`: the leverage circuit failed; the vault's own cap is 25x, so only the circuit stopped it | [`0xeffdd924…`](https://www.oklink.com/xlayer/tx/0xeffdd924d113225e32ef6eb8e8c982cba94d00bc5b22b39a76f95c04aafdb632) |
+
+The same two trades on the first mainnet vault (2026-11-16, replaced the next day): [5x passed](https://www.oklink.com/xlayer/tx/0x146510d1aa8449a7752785c8090fde5f28daf98f4ce4341aeb91e7738046d3ed), [25x rejected](https://www.oklink.com/xlayer/tx/0x35170db2344b09f3ff96146ea38a2652e4680e7abbe1b2ed46acaddad73fd094).
 
 Reproduce with [`contracts/script/proof-trade-xlayer.sh`](./contracts/script/proof-trade-xlayer.sh).
 
