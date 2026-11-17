@@ -94,11 +94,31 @@ async function deployBlock(address: `0x${string}`, latest: bigint): Promise<bigi
   return lo;
 }
 
+/** Deadline for the current run; rate-limit retries never wait past it. */
+let runDeadline = 0;
+
+/**
+ * Retries `fn` while the node answers "rate limit", backing off exponentially, until the run's
+ * deadline. Any other error is thrown at once.
+ */
+async function withRateLimitRetry<T>(fn: () => Promise<T>): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      const limited = /rate limit|too many requests|429/i.test(String((err as Error)?.message ?? err));
+      const wait = 250 * 2 ** attempt;
+      if (!limited || Date.now() + wait > runDeadline) throw err;
+      await new Promise((r) => setTimeout(r, wait));
+    }
+  }
+}
+
 /** The node's eth_getLogs block-range cap, read from its own error message. */
 let logRangeCap: bigint | null = null;
 async function getLogsRange(addresses: `0x${string}`[], from: bigint, to: bigint): Promise<Log[]> {
   try {
-    return await client.getLogs({ address: addresses, fromBlock: from, toBlock: to });
+    return await withRateLimitRetry(() => client.getLogs({ address: addresses, fromBlock: from, toBlock: to }));
   } catch (err) {
     const m = String((err as Error)?.message ?? err).match(/greater than (\d+)/i);
     if (!m) throw err;
@@ -106,7 +126,7 @@ async function getLogsRange(addresses: `0x${string}`[], from: bigint, to: bigint
     const out: Log[] = [];
     for (let s = from; s <= to; s += logRangeCap) {
       const e = s + logRangeCap - BigInt(1) < to ? s + logRangeCap - BigInt(1) : to;
-      out.push(...(await client.getLogs({ address: addresses, fromBlock: s, toBlock: e })));
+      out.push(...(await withRateLimitRetry(() => client.getLogs({ address: addresses, fromBlock: s, toBlock: e }))));
     }
     return out;
   }
@@ -119,7 +139,7 @@ async function getLogsRange(addresses: `0x${string}`[], from: bigint, to: bigint
 async function chunkSize(addresses: `0x${string}`[], at: bigint, latest: bigint): Promise<bigint> {
   if (logRangeCap !== null) return logRangeCap;
   try {
-    await client.getLogs({ address: addresses, fromBlock: at, toBlock: latest });
+    await withRateLimitRetry(() => client.getLogs({ address: addresses, fromBlock: at, toBlock: latest }));
     return latest - at + BigInt(1);
   } catch (err) {
     const m = String((err as Error)?.message ?? err).match(/greater than (\d+)/i);
@@ -236,6 +256,7 @@ export interface IndexRunResult {
  */
 export async function runXLayerIndexer(budgetMs: number): Promise<IndexRunResult> {
   const started = Date.now();
+  runDeadline = started + budgetMs;
   const concurrency = requirePositiveInt("XLAYER_INDEXER_CONCURRENCY");
   const latest = await client.getBlockNumber();
   const addresses: `0x${string}`[] = [XLAYER_CONTRACTS.viperVault];
@@ -270,7 +291,7 @@ export async function runXLayerIndexer(budgetMs: number): Promise<IndexRunResult
     const blockTimes = new Map<bigint, Date>();
     await Promise.all(
       [...new Set(logs.map((l) => l.blockNumber!))].map(async (b) => {
-        const blk = await client.getBlock({ blockNumber: b });
+        const blk = await withRateLimitRetry(() => client.getBlock({ blockNumber: b }));
         blockTimes.set(b, new Date(Number(blk.timestamp) * 1000));
       }),
     );
