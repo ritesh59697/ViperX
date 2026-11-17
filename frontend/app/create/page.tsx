@@ -5,7 +5,15 @@ import { AnimatePresence, motion } from "motion/react";
 import dynamicImport from "next/dynamic";
 import { useAnchorWallet, useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useSignMessage } from "wagmi";
+import {
+  useAccount,
+  useChainId,
+  usePublicClient,
+  useSignMessage,
+  useSwitchChain,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
 import bs58 from "bs58";
 import { indexOnchainBaseAgent, registerPaperAgent } from "@/lib/leaderboardApi";
 import { baseAgentKey } from "@/lib/baseAgentKey";
@@ -28,7 +36,7 @@ import { ArrowRightGlyph } from "@/components/ui/StatusGlyphs";
 import { XLayerLogo } from "@/components/ui/XLayerLogo";
 import { BaseLogo } from "@/components/ui/BaseLogo";
 import { SolanaLogo } from "@/components/ui/SolanaLogo";
-import { XLAYER_CHAIN_ID, XLAYER_NETWORK } from "@/lib/xlayer";
+import { XLAYER_AGENT_REGISTRY, XLAYER_CHAIN_ID, XLAYER_NETWORK, xlayerTxUrl } from "@/lib/xlayer";
 
 const BaseConnectButton = dynamicImport(
   () => import("@/components/ui/BaseConnectButton").then((mod) => mod.BaseConnectButton),
@@ -43,11 +51,8 @@ const WalletMultiButton = dynamicImport(
 type SubmitState =
   | { status: "idle" }
   | { status: "signing" }
-  | { status: "confirmed"; agentPda: string; signature?: string; alreadyExisted?: boolean }
+  | { status: "confirmed"; agentPda: string; signature?: string; alreadyExisted?: boolean; txUrl?: string }
   | { status: "error"; message: string };
-
-const BASE_REGISTRY_ADDRESS =
-  process.env.NEXT_PUBLIC_BASE_REGISTRY_ADDRESS || "0x0000000000000000000000000000000000000000";
 
 const registryAbi = [
   {
@@ -75,7 +80,20 @@ export default function CreateAgentPage() {
   const { signMessageAsync } = useSignMessage();
   const [evmTxHash, setEvmTxHash] = useState<`0x${string}` | undefined>(undefined);
   const indexedBaseTx = useRef<string | null>(null);
-  const { isLoading: isEvmConfirming, isSuccess: isEvmSuccess, error: evmConfirmError } = useWaitForTransactionReceipt({
+  const evmChainId = useChainId();
+  const { switchChainAsync } = useSwitchChain();
+  const xlayerClient = usePublicClient({ chainId: XLAYER_CHAIN_ID });
+  // Whether the configured X Layer registry actually has code on this chain. A write to an
+  // address without code "succeeds" and stores nothing, so live registration waits for this.
+  const [xlayerRegistry, setXlayerRegistry] = useState<"checking" | "ready" | "missing">(
+    XLAYER_AGENT_REGISTRY ? "checking" : "missing",
+  );
+  const {
+    data: evmReceipt,
+    isLoading: isEvmConfirming,
+    isSuccess: isEvmSuccess,
+    error: evmConfirmError,
+  } = useWaitForTransactionReceipt({
     hash: evmTxHash,
   });
 
@@ -242,17 +260,38 @@ export default function CreateAgentPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!XLAYER_AGENT_REGISTRY || !xlayerClient) return;
+    let cancelled = false;
+    xlayerClient
+      .getCode({ address: XLAYER_AGENT_REGISTRY })
+      .then((code) => {
+        if (!cancelled) setXlayerRegistry(code && code !== "0x" ? "ready" : "missing");
+      })
+      .catch(() => {
+        if (!cancelled) setXlayerRegistry("missing");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [xlayerClient]);
+
   // React to EVM transaction confirmations
   useEffect(() => {
-    if (!isEvmSuccess || !evmTxHash || activeChain !== "base" || !evmAddress) return;
+    if (!isEvmSuccess || !evmReceipt || !evmTxHash || activeChain === "solana" || !evmAddress) return;
     if (indexedBaseTx.current === evmTxHash) return;
     indexedBaseTx.current = evmTxHash;
+    if (evmReceipt.status !== "success") {
+      setState({ status: "error", message: "The registration transaction reverted. Nothing was registered." });
+      return;
+    }
     const pda = baseAgentKey(evmAddress, agentId);
     clearFormDrafts();
     setState({
       status: "confirmed",
       agentPda: pda,
       signature: evmTxHash,
+      txUrl: activeChain === "xlayer" ? xlayerTxUrl(evmTxHash) : undefined,
     });
     void indexOnchainBaseAgent({
       agentId,
@@ -261,13 +300,14 @@ export default function CreateAgentPage() {
       ownerAddress: evmAddress,
       vaultAddress: effectiveVault,
       txHash: evmTxHash,
+      chain: activeChain,
     }).catch((err) => {
-      console.error("Failed to index Base agent into leaderboard-api:", err);
+      console.error("Failed to index EVM agent into leaderboard-api:", err);
     });
-  }, [isEvmSuccess, evmTxHash, activeChain, evmAddress, agentId, name, strategyUri, effectiveVault]);
+  }, [isEvmSuccess, evmReceipt, evmTxHash, activeChain, evmAddress, agentId, name, strategyUri, effectiveVault]);
 
   useEffect(() => {
-    if (evmConfirmError && activeChain === "base") {
+    if (evmConfirmError && activeChain !== "solana") {
       setState({ status: "error", message: sanitizeErrorMessage(evmConfirmError) });
     }
   }, [evmConfirmError, activeChain]);
@@ -301,7 +341,13 @@ export default function CreateAgentPage() {
         : !!evmAddress && !!signMessageAsync && agentId.length > 0 && name.length > 0 && errors.length === 0)
     : (activeChain === "solana"
         ? !!anchorWallet && !!publicKey && agentId.length > 0 && name.length > 0 && !!vaultPubkeyParsed && errors.length === 0
-        : isEvmConnected && !!evmAddress && agentId.length > 0 && name.length > 0 && isEvmAddressValid && errors.length === 0);
+        : isEvmConnected &&
+          !!evmAddress &&
+          agentId.length > 0 &&
+          name.length > 0 &&
+          isEvmAddressValid &&
+          errors.length === 0 &&
+          (activeChain !== "xlayer" || xlayerRegistry === "ready"));
 
   function handleAgentIdChange(next: string) {
     setAgentId(next);
@@ -477,15 +523,37 @@ export default function CreateAgentPage() {
     } else {
     // ── OKX X Layer path ────────────────────────────────────────────────────
       if (!isEvmConnected || !evmAddress) return;
+      if (activeChain !== "xlayer") {
+        setState({ status: "error", message: "Live registration is only offered on OKX X Layer." });
+        return;
+      }
+      if (!XLAYER_AGENT_REGISTRY || xlayerRegistry !== "ready" || !xlayerClient) {
+        setState({ status: "error", message: `The agent registry is not deployed on ${XLAYER_NETWORK.name} yet.` });
+        return;
+      }
 
       setState({ status: "signing" });
       setEvmTxHash(undefined);
       try {
-        const txHash = await writeContractAsync({
-          address: BASE_REGISTRY_ADDRESS as `0x${string}`,
+        if (evmChainId !== XLAYER_CHAIN_ID) {
+          await switchChainAsync({ chainId: XLAYER_CHAIN_ID });
+        }
+        const args = [agentId, name, strategyUri, effectiveVault as `0x${string}`] as const;
+        // Simulate first so a taken agent ID or bad input fails here, with the contract's reason,
+        // instead of costing gas.
+        await xlayerClient.simulateContract({
+          address: XLAYER_AGENT_REGISTRY,
           abi: registryAbi,
           functionName: "registerAgent",
-          args: [agentId, name, strategyUri, effectiveVault as `0x${string}`],
+          args,
+          account: evmAddress,
+        });
+        const txHash = await writeContractAsync({
+          address: XLAYER_AGENT_REGISTRY,
+          abi: registryAbi,
+          functionName: "registerAgent",
+          args,
+          chainId: XLAYER_CHAIN_ID,
         });
         setEvmTxHash(txHash);
       } catch (err) {
@@ -579,6 +647,12 @@ export default function CreateAgentPage() {
                     ? "Use simulated capital for a fast demo run. Paper agents stay separate from verified PnL, rankings, and reputation."
                     : "Register on-chain with your wallet. The app never receives custody or withdrawal authority."}
                 </p>
+                {!isPaperMode && activeChain === "xlayer" && xlayerRegistry === "missing" && (
+                  <p className="mt-2 max-w-[62ch] text-xs leading-relaxed text-negative">
+                    Live registration is unavailable: the agent registry is not deployed on {XLAYER_NETWORK.name} yet.
+                    Use Paper mode for now.
+                  </p>
+                )}
               </div>
 
               <div className="grid w-full grid-cols-2 rounded-full border border-border bg-neutral-100 p-1 sm:w-auto dark:bg-[#141414]">
@@ -773,6 +847,16 @@ export default function CreateAgentPage() {
                       <p className="max-w-md text-xs text-foreground-muted">
                         Transaction confirmed on {XLAYER_NETWORK.name}. Your agent account is live and indexing.
                       </p>
+                      {state.txUrl && (
+                        <a
+                          href={state.txUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-mono text-xs text-foreground underline underline-offset-4"
+                        >
+                          View transaction on OKLink
+                        </a>
+                      )}
                       <div className="flex gap-3">
                         <Button href={`/agents/${state.agentPda}`}>View Agent Profile</Button>
                         <Button href="/leaderboard" variant="secondary">

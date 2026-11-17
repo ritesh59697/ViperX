@@ -69,6 +69,16 @@ export function shortAddress(address: string): string {
   return `${address.slice(0, 5)}...${address.slice(-4)}`;
 }
 
+/**
+ * The agent registry /create writes to (contracts/src/registry/Registry.sol). Optional on purpose:
+ * when it is unset, /create disables live registration and says why, instead of the whole app
+ * failing to load. It must never fall back to another chain's registry: a write to an address
+ * with no code succeeds and stores nothing.
+ */
+export const XLAYER_AGENT_REGISTRY: Hex | null = process.env.NEXT_PUBLIC_XLAYER_AGENT_REGISTRY
+  ? readAddress("NEXT_PUBLIC_XLAYER_AGENT_REGISTRY", process.env.NEXT_PUBLIC_XLAYER_AGENT_REGISTRY)
+  : null;
+
 export const XLAYER_CONTRACTS = {
   viperVault: readAddress("NEXT_PUBLIC_XLAYER_VIPER_VAULT", process.env.NEXT_PUBLIC_XLAYER_VIPER_VAULT),
   positionRouter: readAddress(

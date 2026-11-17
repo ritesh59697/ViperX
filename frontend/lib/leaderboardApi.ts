@@ -589,6 +589,8 @@ export async function indexOnchainBaseAgent(params: {
   ownerAddress: string;
   vaultAddress: string;
   txHash: string;
+  /** EVM chain the registry write landed on. */
+  chain: "base" | "xlayer";
 }): Promise<{ success: boolean; agentPda: string }> {
   const res = await fetch(`${LEADERBOARD_API_URL}/agents/onchain-base`, {
     method: "POST",
