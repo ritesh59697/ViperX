@@ -4,6 +4,11 @@ export const LEADERBOARD_API_URL =
     ? process.env.NEXT_PUBLIC_LEADERBOARD_API_URL
     : "";
 
+/** Same-origin /api routes unless an external leaderboard API is configured. */
+function apiUrl(path: string): string {
+  return LEADERBOARD_API_URL ? `${LEADERBOARD_API_URL}${path}` : `/api${path}`;
+}
+
 export type LeaderboardWindow = "24h" | "7d" | "30d" | "all";
 
 export const LEADERBOARD_WINDOWS: LeaderboardWindow[] = ["24h", "7d", "30d", "all"];
@@ -241,7 +246,7 @@ export interface MyAgentSummary {
 }
 
 export async function fetchMyAgents(owner: string): Promise<MyAgentSummary[]> {
-  const res = await fetch(`${LEADERBOARD_API_URL}/agents?owner=${owner}`, { cache: "no-store" });
+  const res = await fetch(apiUrl(`/agents?owner=${owner}`), { cache: "no-store" });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}) as { error?: string });
     throw new Error(body.error || `leaderboard-api returned ${res.status}`);
@@ -276,7 +281,7 @@ export async function followAgent(
   nonce: string,
   signature: string
 ): Promise<{ followerAgentPda: string; sourceAgentPda: string; sizeUsd: number; active: boolean }> {
-  const res = await fetch(`${LEADERBOARD_API_URL}/agents/${followerAgentPda}/subscriptions`, {
+  const res = await fetch(apiUrl(`/agents/${followerAgentPda}/subscriptions`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ sourceAgentPda, sizeUsd, nonce, signature }),
@@ -307,7 +312,7 @@ export interface CopySubscription {
  * source.
  */
 export async function fetchCopySubscriptions(): Promise<CopySubscription[]> {
-  const res = await fetch(`${LEADERBOARD_API_URL}/copy-subscriptions`, { cache: "no-store" });
+  const res = await fetch(apiUrl(`/copy-subscriptions`), { cache: "no-store" });
   if (!res.ok) {
     throw new Error(`leaderboard-api returned ${res.status}`);
   }
@@ -329,7 +334,7 @@ export async function unfollowAgent(
   signature: string
 ): Promise<{ followerAgentPda: string; sourceAgentPda: string; active: boolean }> {
   const res = await fetch(
-    `${LEADERBOARD_API_URL}/agents/${followerAgentPda}/subscriptions/${sourceAgentPda}`,
+    apiUrl(`/agents/${followerAgentPda}/subscriptions/${sourceAgentPda}`),
     {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -349,7 +354,7 @@ export async function setStrategyParams(
   nonce: string,
   signature: string
 ): Promise<{ params: StrategyParams }> {
-  const res = await fetch(`${LEADERBOARD_API_URL}/agents/${agentPda}/params`, {
+  const res = await fetch(apiUrl(`/agents/${agentPda}/params`), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ params, nonce, signature }),
@@ -364,7 +369,7 @@ export async function setStrategyParams(
 export async function fetchStrategyParams(
   agentPda: string
 ): Promise<{ params: StrategyParams }> {
-  const res = await fetch(`${LEADERBOARD_API_URL}/agents/${agentPda}/params`, {
+  const res = await fetch(apiUrl(`/agents/${agentPda}/params`), {
     cache: "no-store",
   });
   if (!res.ok) {
@@ -385,7 +390,7 @@ export interface ArenaSeason {
 }
 
 export async function fetchArenaSeasons(): Promise<ArenaSeason[]> {
-  const res = await fetch(`${LEADERBOARD_API_URL}/arena/seasons`, { cache: "no-store" });
+  const res = await fetch(apiUrl(`/arena/seasons`), { cache: "no-store" });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}) as { error?: string });
     throw new Error(body.error || `leaderboard-api returned ${res.status}`);
@@ -403,7 +408,7 @@ export interface ArenaSeasonDetail {
 }
 
 export async function fetchArenaSeason(id: number): Promise<ArenaSeasonDetail> {
-  const res = await fetch(`${LEADERBOARD_API_URL}/arena/seasons/${id}`, { cache: "no-store" });
+  const res = await fetch(apiUrl(`/arena/seasons/${id}`), { cache: "no-store" });
   if (res.status === 404) {
     throw new ArenaSeasonNotFoundError("season not found");
   }
@@ -424,7 +429,7 @@ export async function enterArena(
   agentPda: string,
   signature: string
 ): Promise<{ entered: boolean }> {
-  const res = await fetch(`${LEADERBOARD_API_URL}/arena/seasons/${seasonId}/enter`, {
+  const res = await fetch(apiUrl(`/arena/seasons/${seasonId}/enter`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ agentPda, signature }),
@@ -452,7 +457,7 @@ export interface PlatformStats {
  */
 export async function fetchPlatformStats(): Promise<PlatformStats | null> {
   try {
-    const res = await fetch(`${LEADERBOARD_API_URL}/stats`, { next: { revalidate: 10 } });
+    const res = await fetch(apiUrl(`/stats`), { next: { revalidate: 10 } });
     if (!res.ok) return null;
     return (await res.json()) as PlatformStats;
   } catch {
@@ -481,7 +486,7 @@ export interface RecentTrade {
 /** Recent real closed trades across all agents, newest first. */
 export async function fetchRecentTrades(limit = 8): Promise<RecentTrade[]> {
   try {
-    const res = await fetch(`${LEADERBOARD_API_URL}/trades/recent?limit=${limit}`, {
+    const res = await fetch(apiUrl(`/trades/recent?limit=${limit}`), {
       next: { revalidate: 10 },
     });
     if (!res.ok) return [];
@@ -508,7 +513,7 @@ export interface FlaggedAgent {
  */
 export async function fetchFlaggedAgents(): Promise<FlaggedAgent[]> {
   try {
-    const res = await fetch(`${LEADERBOARD_API_URL}/flagged-agents`, { next: { revalidate: 10 } });
+    const res = await fetch(apiUrl(`/flagged-agents`), { next: { revalidate: 10 } });
     if (!res.ok) return [];
     const body = (await res.json()) as { flagged: FlaggedAgent[] };
     return (body.flagged || []).filter(
@@ -552,7 +557,7 @@ export interface UserDashboardResponse {
 }
 
 export async function fetchUserDashboard(owner: string): Promise<UserDashboardResponse> {
-  const res = await fetch(`${LEADERBOARD_API_URL}/agents/dashboard?owner=${owner}`, { cache: "no-store" });
+  const res = await fetch(apiUrl(`/agents/dashboard?owner=${owner}`), { cache: "no-store" });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}) as { error?: string });
     throw new Error(body.error || `leaderboard-api returned ${res.status}`);
@@ -570,7 +575,7 @@ export async function registerPaperAgent(params: {
   nonce: string;
   signature: string;
 }): Promise<{ success: boolean; agentPda: string; message: string }> {
-  const res = await fetch(`${LEADERBOARD_API_URL}/agents`, {
+  const res = await fetch(apiUrl(`/agents`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(params),
@@ -592,7 +597,7 @@ export async function indexOnchainBaseAgent(params: {
   /** EVM chain the registry write landed on. */
   chain: "base" | "xlayer";
 }): Promise<{ success: boolean; agentPda: string }> {
-  const res = await fetch(`${LEADERBOARD_API_URL}/agents/onchain-base`, {
+  const res = await fetch(apiUrl(`/agents/onchain`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(params),
@@ -612,7 +617,7 @@ export async function transitionPaperAgent(
     signature: string;
   }
 ): Promise<{ success: boolean; message: string }> {
-  const res = await fetch(`${LEADERBOARD_API_URL}/agents/${agentPda}/transition`, {
+  const res = await fetch(apiUrl(`/agents/${agentPda}/transition`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(params),

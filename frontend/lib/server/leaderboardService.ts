@@ -19,7 +19,14 @@ export const AGENT_RANKING_COLUMNS = `
   t.verified_trade_count
 `;
 
-export const REAL_TRADE_SQL_PREDICATE = `tx_signature IS NOT NULL AND tx_signature NOT LIKE 'simulated\\_%' AND tx_signature NOT LIKE 'paper\\_%' AND tx_signature NOT LIKE 'evm\\_sim\\_%'`;
+/**
+ * A fill counts as real or verified only if its transaction was found on its chain
+ * (trades.tx_found, set by the X Layer indexer or backend/leaderboard-api/tools/check-trade-hashes.mjs). Rows whose hash
+ * does not exist on chain stay in the table but never count.
+ */
+export const VERIFIED_FILL_SQL_PREDICATE = `onchain_verified_pnl IS NOT NULL AND tx_found IS TRUE`;
+
+export const REAL_TRADE_SQL_PREDICATE = `tx_found IS TRUE AND tx_signature IS NOT NULL AND tx_signature NOT LIKE 'simulated\\_%' AND tx_signature NOT LIKE 'paper\\_%' AND tx_signature NOT LIKE 'evm\\_sim\\_%'`;
 
 export const TRADE_COUNTS_LATERAL = `
   LEFT JOIN LATERAL (
@@ -27,7 +34,7 @@ export const TRADE_COUNTS_LATERAL = `
       count(*) FILTER (
         WHERE ${REAL_TRADE_SQL_PREDICATE}
       )::int AS real_trade_count,
-      count(*) FILTER (WHERE onchain_verified_pnl IS NOT NULL)::int AS verified_trade_count
+      count(*) FILTER (WHERE ${VERIFIED_FILL_SQL_PREDICATE})::int AS verified_trade_count
     FROM trades tr
     WHERE tr.agent_pda = a.agent_pda AND tr.closed_at IS NOT NULL
   ) t ON true
@@ -59,7 +66,8 @@ export async function evaluateAntiGamingHeuristics(agentPda: string): Promise<An
       ),
       pool.query(
         `SELECT size_usd::float AS "sizeUsd", opened_at AS "openedAt", closed_at AS "closedAt",
-                realized_pnl::float AS "realizedPnl", pnl_divergence_flagged AS "pnlDivergenceFlagged"
+                realized_pnl::float AS "realizedPnl", pnl_divergence_flagged AS "pnlDivergenceFlagged",
+                (chain_event_id IS NOT NULL) AS "gatedOnChain"
          FROM trades
          WHERE agent_pda = $1 AND closed_at IS NOT NULL
          ORDER BY opened_at ASC`,
@@ -107,6 +115,9 @@ export async function evaluateAntiGamingHeuristics(agentPda: string): Promise<An
         divergentTradeCount++;
       }
 
+      // Fills indexed from the X Layer vault already passed the TapeOut leverage circuit when they
+      // opened, and those agents have no off-chain vault balance to divide by.
+      if (trade.gatedOnChain) continue;
       const impliedLeverage = trade.sizeUsd / balanceForLeverage;
       if (impliedLeverage > ABERRANT_LEVERAGE_THRESHOLD) {
         extremeLeverageTradeCount++;
@@ -288,7 +299,9 @@ export async function getAgentDetailFromDb(agentPda: string) {
     pool.query(
       `SELECT market_symbol, side, size_usd, entry_price, exit_price,
               opened_at, closed_at, realized_pnl, tx_signature,
-              onchain_verified_pnl, verified_at, pnl_divergence_flagged, reason, is_paper
+              CASE WHEN tx_found IS TRUE THEN onchain_verified_pnl END AS onchain_verified_pnl,
+              CASE WHEN tx_found IS TRUE THEN verified_at END AS verified_at,
+              pnl_divergence_flagged, reason, is_paper, tx_found
        FROM trades WHERE agent_pda = $1
        ORDER BY opened_at DESC LIMIT 50`,
       [agentPda]
@@ -362,7 +375,7 @@ export async function getPlatformStatsFromDb() {
        (SELECT count(*) FROM trades
          WHERE closed_at IS NOT NULL AND ${REAL_TRADE_SQL_PREDICATE})::int AS real_trades,
        (SELECT count(*) FROM trades
-         WHERE onchain_verified_pnl IS NOT NULL)::int AS verified_trades,
+         WHERE ${VERIFIED_FILL_SQL_PREDICATE})::int AS verified_trades,
        (SELECT count(*) FROM trades
          WHERE pnl_divergence_flagged = true)::int AS divergence_flagged_trades,
        (SELECT count(*) FROM agents a
@@ -370,7 +383,7 @@ export async function getPlatformStatsFromDb() {
            AND a.trade_count >= $1
            AND (SELECT count(*) FROM trades t
                  WHERE t.agent_pda = a.agent_pda
-                   AND t.onchain_verified_pnl IS NOT NULL) >= $1)::int AS ranked_agents`,
+                   AND t.onchain_verified_pnl IS NOT NULL AND t.tx_found IS TRUE) >= $1)::int AS ranked_agents`,
     [MIN_TRADES_FOR_ELIGIBILITY]
   );
 
@@ -423,7 +436,7 @@ export async function getRecentTradesFromDb(limit = 6) {
             t.realized_pnl     AS "realizedPnl",
             t.closed_at        AS "closedAt",
             t.tx_signature     AS "txSignature",
-            (t.onchain_verified_pnl IS NOT NULL) AS "onchainVerified",
+            (t.onchain_verified_pnl IS NOT NULL AND t.tx_found IS TRUE) AS "onchainVerified",
             t.reason
      FROM trades t
      JOIN agents a ON a.agent_pda = t.agent_pda

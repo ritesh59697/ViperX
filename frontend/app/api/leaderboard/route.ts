@@ -1,3 +1,4 @@
+import { indexInBackgroundIfStale } from "@/lib/server/indexerTrigger";
 import { NextResponse } from "next/server";
 import { getLeaderboardFromDb } from "@/lib/server/leaderboardService";
 import {
@@ -7,6 +8,8 @@ import {
 } from "@/lib/leaderboardApi";
 
 export const dynamic = "force-dynamic";
+// Next.js reads this as static segment config, so it has to be a literal.
+export const maxDuration = 60;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -14,6 +17,9 @@ export async function GET(request: Request) {
   const window: LeaderboardWindow = (LEADERBOARD_WINDOWS as string[]).includes(rawWindow)
     ? (rawWindow as LeaderboardWindow)
     : "all";
+
+  // Keep the X Layer index fresh between cron runs; runs after the response is sent.
+  indexInBackgroundIfStale(maxDuration * 750);
 
   try {
     const data = await getLeaderboardFromDb(window);

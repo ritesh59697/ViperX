@@ -1,3 +1,11 @@
 {
-  "regions": ["bom1"]
+  "regions": [
+    "bom1"
+  ],
+  "crons": [
+    {
+      "path": "/api/indexer/xlayer",
+      "schedule": "0 0 * * *"
+    }
+  ]
 }
