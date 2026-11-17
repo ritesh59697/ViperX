@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 /**
  * @title ViperX Agent Registry
- * @notice Manages registered copy-trading agents, their strategy parameters, and execution vaults on EVM (Base).
+ * @notice Manages registered copy-trading agents, their strategy parameters, and execution vaults on EVM chains (Base Sepolia, OKX X Layer).
  */
 contract Registry {
     struct Agent {
