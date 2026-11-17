@@ -113,12 +113,14 @@ contract PositionRouter is IPositionRouter, EIP712, ReentrancyGuard, Ownable {
             if (!passed) revert CircuitRiskRejected(diagBits);
         }
 
-        // 3. Transfer USDC from agent to this router, approve vault, and open position
+        // 3. Transfer USDC from agent to this router, approve vault, and open the position in the
+        //    agent's name: the agent owns it, closes it, and receives the payout.
         uint256 rawUsdc = _fromUsd18(intent.collateralUsd);
         usdc.safeTransferFrom(intent.agent, address(this), rawUsdc);
         usdc.forceApprove(address(vault), rawUsdc);
 
-        positionKey = vault.openPosition(
+        positionKey = vault.openPositionFor(
+            intent.agent,
             intent.marketId,
             intent.side,
             intent.sizeUsd,

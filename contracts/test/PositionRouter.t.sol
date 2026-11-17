@@ -136,4 +136,143 @@ contract PositionRouterTest is Test {
         (,,,uint256 remainingSize,,,,) = vault.positions(posKey);
         assertEq(remainingSize, 0);
     }
+
+    // ---------------------------------------------------------------------
+    // Positions opened from a signed intent belong to the agent, not the router
+    // ---------------------------------------------------------------------
+
+    function _intent(address who, uint256 nonce) internal view returns (IPositionRouter.AgentIntent memory) {
+        return IPositionRouter.AgentIntent({
+            agent: who,
+            marketId: ETH_MARKET,
+            side: IViperVault.PositionSide.LONG,
+            sizeUsd: 3_000 * 1e18,
+            collateralUsd: 1_000 * 1e18,
+            maxSlippagePrice: 3050 * 1e18,
+            deadline: block.timestamp + 1 hours,
+            nonce: nonce
+        });
+    }
+
+    function _sign(uint256 key, IPositionRouter.AgentIntent memory intent) internal view returns (bytes memory) {
+        bytes32 structHash = keccak256(
+            abi.encode(
+                router.AGENT_INTENT_TYPEHASH(),
+                intent.agent,
+                intent.marketId,
+                uint8(intent.side),
+                intent.sizeUsd,
+                intent.collateralUsd,
+                intent.maxSlippagePrice,
+                intent.deadline,
+                intent.nonce
+            )
+        );
+        bytes32 domainSeparator = keccak256(
+            abi.encode(
+                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+                keccak256(bytes("ViperX PositionRouter")),
+                keccak256(bytes("1")),
+                block.chainid,
+                address(router)
+            )
+        );
+        (uint8 v, bytes32 r, bytes32 sig) = vm.sign(key, keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash)));
+        return abi.encodePacked(r, sig, v);
+    }
+
+    function test_IntentPositionIsOwnedByAgent() public {
+        IPositionRouter.AgentIntent memory intent = _intent(agent, 0);
+        bytes32 expectedKey = vault.getPositionKey(agent, ETH_MARKET, IViperVault.PositionSide.LONG);
+
+        vm.expectEmit(true, true, true, false, address(vault));
+        emit IViperVault.PositionOpened(expectedKey, agent, ETH_MARKET, IViperVault.PositionSide.LONG, 0, 0, 0);
+        vm.prank(relayer);
+        bytes32 posKey = router.executeAgentIntent(intent, _sign(agentPrivateKey, intent));
+
+        assertEq(posKey, expectedKey, "position key is the agent's");
+        (address trader,,,,,,,) = vault.positions(posKey);
+        assertEq(trader, agent, "vault records the agent as trader");
+        bytes32 routerKey = vault.getPositionKey(address(router), ETH_MARKET, IViperVault.PositionSide.LONG);
+        (,,, uint256 routerSize,,,,) = vault.positions(routerKey);
+        assertEq(routerSize, 0, "nothing is held under the router");
+    }
+
+    function test_AgentClosesIntentPositionAndIsPaid() public {
+        IPositionRouter.AgentIntent memory intent = _intent(agent, 0);
+        vm.prank(relayer);
+        router.executeAgentIntent(intent, _sign(agentPrivateKey, intent));
+        bytes32 posKey = vault.getPositionKey(agent, ETH_MARKET, IViperVault.PositionSide.LONG);
+
+        pyth.setPrice(ETH_PYTH_FEED, 3300_00000000, -8, 1_00000000); // +10%
+        uint256 agentBefore = usdc.balanceOf(agent);
+        uint256 routerBefore = usdc.balanceOf(address(router));
+
+        vm.prank(agent);
+        (int256 pnl, uint256 payout) = vault.closePosition(posKey);
+
+        assertGt(pnl, 0);
+        assertEq(usdc.balanceOf(agent) - agentBefore, payout / 1e12, "payout goes to the agent");
+        assertEq(usdc.balanceOf(address(router)), routerBefore, "router keeps nothing");
+    }
+
+    function test_TwoAgentsGetSeparatePositions() public {
+        uint256 otherKey = 0xB0B;
+        address other = vm.addr(otherKey);
+        usdc.mint(other, 10_000 * 1e6);
+        vm.prank(other);
+        usdc.approve(address(router), type(uint256).max);
+
+        IPositionRouter.AgentIntent memory a = _intent(agent, 0);
+        IPositionRouter.AgentIntent memory b = _intent(other, 0);
+        vm.prank(relayer);
+        bytes32 keyA = router.executeAgentIntent(a, _sign(agentPrivateKey, a));
+        vm.prank(relayer);
+        bytes32 keyB = router.executeAgentIntent(b, _sign(otherKey, b));
+
+        assertTrue(keyA != keyB, "same market and side, different agents, different positions");
+        (,,, uint256 sizeA,,,,) = vault.positions(keyA);
+        (,,, uint256 sizeB,,,,) = vault.positions(keyB);
+        assertEq(sizeA, 3_000 * 1e18);
+        assertEq(sizeB, 3_000 * 1e18);
+    }
+
+    function test_OpenPositionForIsRouterOnly() public {
+        usdc.mint(address(0xBAD), 10_000 * 1e6);
+        vm.startPrank(address(0xBAD));
+        usdc.approve(address(vault), type(uint256).max);
+        (bool ok, bytes memory ret) = address(vault).call(
+            abi.encodeWithSignature(
+                "openPositionFor(address,bytes32,uint8,uint256,uint256)",
+                agent, ETH_MARKET, uint8(0), 3_000 * 1e18, 1_000 * 1e18
+            )
+        );
+        vm.stopPrank();
+        assertFalse(ok, "only a PositionRouter may open a position for someone else");
+        assertEq(bytes4(ret), ViperVault.Unauthorized.selector);
+    }
+
+    function test_StopLossClosesIntentPositionToAgent() public {
+        IPositionRouter.AgentIntent memory intent = _intent(agent, 0);
+        vm.prank(relayer);
+        router.executeAgentIntent(intent, _sign(agentPrivateKey, intent));
+
+        vm.prank(agent);
+        bytes32 orderId = router.createTriggerOrder(
+            ETH_MARKET, IViperVault.PositionSide.LONG, IPositionRouter.OrderType.STOP_LOSS,
+            2800 * 1e18, 3_000 * 1e18, 1_000 * 1e18, true
+        );
+        pyth.setPrice(ETH_PYTH_FEED, 2750_00000000, -8, 1_00000000);
+
+        uint256 agentBefore = usdc.balanceOf(agent);
+        uint256 routerBefore = usdc.balanceOf(address(router));
+        vm.prank(relayer);
+        router.executeTriggerOrder(orderId);
+
+        bytes32 posKey = vault.getPositionKey(agent, ETH_MARKET, IViperVault.PositionSide.LONG);
+        (,,, uint256 size,,,,) = vault.positions(posKey);
+        assertEq(size, 0, "the agent's position was closed");
+        assertGt(usdc.balanceOf(agent), agentBefore, "remaining margin returned to the agent");
+        assertEq(usdc.balanceOf(address(router)), routerBefore, "router keeps nothing");
+    }
 }

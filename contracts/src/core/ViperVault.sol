@@ -132,7 +132,7 @@ contract ViperVault is IViperVault, ERC20, ReentrancyGuard, Ownable {
     // =========================================================================
 
     /**
-     * @notice Opens a Long or Short position against the pool.
+     * @notice Opens a Long or Short position against the pool for the caller.
      */
     function openPosition(
         bytes32 marketId,
@@ -140,6 +140,35 @@ contract ViperVault is IViperVault, ERC20, ReentrancyGuard, Ownable {
         uint256 sizeUsd,
         uint256 collateralUsd
     ) external nonReentrant returns (bytes32 positionKey) {
+        return _openPosition(msg.sender, marketId, side, sizeUsd, collateralUsd);
+    }
+
+    /**
+     * @notice Opens a position owned by `trader`, paid for by the calling PositionRouter. The router
+     *         has already verified the trader's signed intent and run the circuit guardian, so the
+     *         position key, the PositionOpened event and the eventual payout all belong to `trader`,
+     *         not to the router.
+     */
+    function openPositionFor(
+        address trader,
+        bytes32 marketId,
+        PositionSide side,
+        uint256 sizeUsd,
+        uint256 collateralUsd
+    ) external nonReentrant returns (bytes32 positionKey) {
+        if (!isPositionRouter[msg.sender]) revert Unauthorized();
+        if (trader == address(0)) revert Unauthorized();
+        return _openPosition(trader, marketId, side, sizeUsd, collateralUsd);
+    }
+
+    /// @dev Collateral is always pulled from msg.sender (the trader, or the router paying for them).
+    function _openPosition(
+        address trader,
+        bytes32 marketId,
+        PositionSide side,
+        uint256 sizeUsd,
+        uint256 collateralUsd
+    ) private returns (bytes32 positionKey) {
         updateBorrowIndex();
 
         MarketConfig storage market = markets[marketId];
@@ -163,7 +192,7 @@ contract ViperVault is IViperVault, ERC20, ReentrancyGuard, Ownable {
         if (collateralUsd <= openFeeUsd) revert InsufficientCollateral();
         uint256 netCollateral = collateralUsd - openFeeUsd;
 
-        // Pull USDC collateral from trader
+        // Pull USDC collateral from the caller
         uint256 rawUsdc = _fromUsd18(collateralUsd);
         usdc.safeTransferFrom(msg.sender, address(this), rawUsdc);
         poolCollateralUsd += openFeeUsd; // fee stays with pool LPs
@@ -172,7 +201,7 @@ contract ViperVault is IViperVault, ERC20, ReentrancyGuard, Ownable {
 
         _evaluateCircuit(marketId, side, sizeUsd, collateralUsd, markPrice);
 
-        positionKey = getPositionKey(msg.sender, marketId, side);
+        positionKey = getPositionKey(trader, marketId, side);
 
         Position storage pos = positions[positionKey];
         if (pos.sizeUsd > 0) {
@@ -182,7 +211,7 @@ contract ViperVault is IViperVault, ERC20, ReentrancyGuard, Ownable {
             pos.collateralUsd += netCollateral;
         } else {
             positions[positionKey] = Position({
-                trader: msg.sender,
+                trader: trader,
                 marketId: marketId,
                 side: side,
                 sizeUsd: sizeUsd,
@@ -193,7 +222,7 @@ contract ViperVault is IViperVault, ERC20, ReentrancyGuard, Ownable {
             });
         }
 
-        emit PositionOpened(positionKey, msg.sender, marketId, side, sizeUsd, netCollateral, markPrice);
+        emit PositionOpened(positionKey, trader, marketId, side, sizeUsd, netCollateral, markPrice);
     }
 
     /**
