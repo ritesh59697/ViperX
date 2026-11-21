@@ -4,10 +4,10 @@
 > **Official page:** https://web3.okx.com/xlayer/build-x-series
 > **Submission deadline:** December 7, 2026, 23:59 UTC (*provisional* — the event page will confirm the final date)
 > **Prize Pool:** 100,000 USDT — 1st (1 winner) 20,000 · 2nd (5 winners) 10,000 each · 3rd (5 winners) 6,000 each, paid in milestone stages
-> **Network:** X Layer **mainnet** (chain `196`) for the TapeOut circuits — the TapeOut factory and processors exist only there. The ViperX app and its earlier risk gate run on X Layer testnet (`1952`).
-> **TapeOut components used:** Digital Logic Circuits (four NAND netlists on one processor) · DeWEB (TAP-10, package built, not yet published)
+> **Network:** X Layer **mainnet** (chain `196`) for everything: the TapeOut circuits, the vault, router and guardian, the agent registry, and the live app at [viperx.site](https://www.viperx.site).
+> **TapeOut components used:** Digital Logic Circuits (four NAND netlists on one processor) · DeWEB (TAP-10, package built, not published: the 0.08 OKB container fee is not funded)
 
-> **Status (2026-11-14):** the four risk circuits are generated, verified, and taped out on a **fork** of X Layer mainnet, where a ViperVault trade is gated by four real `processor.eval` calls. **Nothing is on mainnet yet**: the processor address and circuit IDs in section 7 come from the real tape-out, which needs ~0.11 BEM on X Layer (bridged from BNB Chain) and ~0.006 OKB.
+> **Status (2026-11-21):** live on X Layer mainnet. Every trade, from the `/trade` UI or from a signed agent intent, is evaluated by four TapeOut circuits (processor `0xb57b…e1Fb`, IDs 1–4). Agents register on chain, the leaderboard indexes X Layer and counts only fills whose transactions exist on chain, and a public reference agent trades through the router so its fills can be checked on OKLink.
 
 ---
 
@@ -18,7 +18,10 @@
 During the **TapeOut Accelerate Hackathon** we added:
 1. **Four TapeOut risk circuits:** leverage, slippage, drawdown and anti-wash cooldown, each a TAP-02 NAND netlist taped out to a processor created by the TapeOut factory. The risk limits live inside the netlists on chain, not in Solidity.
 2. **TapeOut Circuit Guardian:** the contract that turns a trade into circuit inputs and calls `processor.eval` on all four circuits before the trade touches vault liquidity — both direct UI trades (`ViperVault.openPosition()`) and signed agent intents (`PositionRouter.executeAgentIntent()`).
-3. **DeWEB package (TAP-10):** a self-contained verification portal and circuit simulator packaged for TapeOut DeWEB hosting.
+3. **Agent-owned positions:** a signed agent intent opens a position in the agent's name (`ViperVault.openPositionFor`), so the agent closes it, is paid on close, and its fills are attributable.
+4. **On-chain agent registry and a verified leaderboard on X Layer:** agents register on chain; an indexer reads the registry and vault events and ranks agents only on fills whose transactions exist on chain.
+5. **A public reference agent** that trades through the router with EIP-712 intents, so the whole path (intent → four circuits → vault → leaderboard) can be watched on mainnet.
+6. **DeWEB package (TAP-10):** a self-contained verification portal and circuit simulator packaged for TapeOut DeWEB hosting (not published).
 
 ---
 
@@ -75,6 +78,17 @@ Fees, gas price and market prices are read live. [`simulate-xlayer-stack.sh`](./
 - **TAP-10 Manifest:** [`dist-deweb/deweb.manifest.json`](./dist-deweb/deweb.manifest.json) — **stale**: it records an older hash and the placeholder name `tape://viperx.tape`.
 - **Interactive Circuit Simulator:** lets judges toggle the four check inputs and watch the verdict.
 - **Not done:** the portal still describes the testnet processor in §4, and the package has not been published on DeWEB. Rebuild after the mainnet tape-out.
+
+### E. Agent-owned positions (2026-11-17)
+`PositionRouter.executeAgentIntent()` used to call `vault.openPosition()`, so the vault recorded the **router** as the trader: every agent on a market and side shared one position, closes paid the router, and stop-loss orders never found agent positions. `ViperVault.openPositionFor(trader, …)`, callable only by an authorized router, fixes this; the router pays with the agent's collateral and the position belongs to the agent. Five router tests fail on the old contracts and pass now. Vault, router and guardian were redeployed with the same processor and circuits.
+
+### F. Agent registry and verified leaderboard on X Layer (2026-11-17)
+- **Registry** [`0x0991…a338`](https://www.oklink.com/xlayer/address/0x0991750A3196BF56f355aE18C1cec841DbF3a338) ([`Registry.sol`](./contracts/src/registry/Registry.sol)); `/create` checks the registry has code on the chain, simulates the registration, and confirms it.
+- **Indexer** ([`xlayerIndexer.ts`](./frontend/lib/server/xlayerIndexer.ts)) reads `AgentRegistered` and the vault's open/close/liquidation events, pairs each close with its size-weighted opens, and attributes fills only to registry agents. It runs as a Vercel Cron job and after leaderboard reads.
+- **Verified means on chain:** a fill counts only if its transaction is found on its chain. The 245 fills stored before the event were checked; the 175 whose hashes do not exist on any chain no longer count.
+
+### G. Reference agent (2026-11-21)
+[`frontend/tools/reference-agent.mjs`](./frontend/tools/reference-agent.mjs) is a public momentum agent: it samples the live OKX price, opens long or short through `PositionRouter` with a signed intent (so every open passes the four circuits), holds a few minutes and closes. It runs as the agent `viperx-momentum-1`; its fills appear on the leaderboard and on OKLink.
 
 ---
 
@@ -175,7 +189,7 @@ The frontend reads addresses from env through [`frontend/lib/xlayer.ts`](./front
 
 ```bash
 cd contracts
-forge test                                    # offline: 37 passed, 2 fork suites skipped
+forge test                                    # offline: 56 passed (2026-11-17)
 set -a; source .env.example; set +a           # sets TAPEOUT_FACTORY_XLAYER
 forge test --match-path "test/fork/*" -vv     # mainnet fork: 10 passed
 python3 tapeout/gen_comparator.py --name leverage_le --bits 16 --max 2000   # regenerate a circuit
@@ -200,18 +214,20 @@ The X Layer and TapeOut teams jointly score five criteria (no published weights)
 | :--- | :--- |
 | **User Value & Commercial Potential** | See below. |
 | **Innovation** | Risk limits for autonomous agents enforced by TapeOut NAND circuits in the trade path, not by off-chain policy or Solidity `if`s; the limits are readable from the netlists on chain, and diagnostic bits tell an agent exactly which check it tripped. |
-| **Ecosystem Integration** | Four circuits taped out through the TapeOut factory and evaluated with `processor.eval` on every trade; netlists checked with the TAP-02 reference evaluator; DeWEB TAP-10 package. FabX, TapeCode, TapeKit and TapeSend are **not used yet**. |
-| **Product Readiness & UX** | Live `/trade` UI on X Layer testnet with 8 markets, gated by the earlier testnet gate; the TapeOut-circuit gate is proven on a mainnet fork and needs the mainnet deploy before the UI uses it. |
+| **Ecosystem Integration** | Four circuits taped out through the TapeOut factory and evaluated with `processor.eval` on every trade; netlists checked with the TAP-02 reference evaluator; the UI reads the leverage ceiling from the circuit itself; DeWEB TAP-10 package built (not published). FabX, TapeCode, TapeKit and TapeSend are **not used yet**. |
+| **Product Readiness & UX** | Live on X Layer mainnet: `/trade` with 8 markets and demo USDC, every trade gated by the four circuits; on-chain agent registration at `/create`; a leaderboard and agent profiles fed by an X Layer indexer; a reference agent trading through signed intents. |
 | **Demo Video** | ≤ 3 minutes recommended — script in section 7. |
 
 ### User value & commercial model
 - **Target users:** operators of AI trading agents who need enforceable risk limits, and capital allocators who need to know an agent's record is real (on-chain settled fills, not self-reported PnL).
 - **Fees today (on-chain):** 0.10% of size on open and on close, a borrow fee of 0.01%/hour base rate, and a 2.5% liquidation fee split between liquidator and pool. Trading and borrow fees accrue to vault LPs.
-- **Why agent operators pay and stay (draft — founder to confirm):** a ViperX track record is the product. Fills are settled on chain and every trade passed four public circuits, so an agent's PnL can be shown to allocators without trusting the operator. The record only grows while the agent keeps trading through ViperX, which is what keeps operators here.
-- **Revenue (draft — founder to confirm):**
-  - *Protocol share of trading fees* — route a share of the existing 0.10% open/close fee to a treasury. Planned; needs a vault change, not in the contracts today.
-  - *Verified-agent listings* — allocators see the full circuit-verified record; operators pay to list an agent on the leaderboard and in the A2A/MCP directory. Planned, off chain.
-  - *Circuit licensing through TapeOut* — other builders can reuse the four risk circuits by minting gates from the ViperX processor, at a BEM price per gate set when it is created (`TAPEOUT_MINT_PRICE`). This is native to the protocol, but the price has to be chosen before the mainnet tape-out (runbook: `docs/TAPEOUT_MAINNET_RUNBOOK.md`).
+- **Why agent operators pay and stay:** a ViperX track record is the product. Every fill is settled on chain and every trade passed four public circuits, so an operator can show allocators a record nobody has to take on trust, and the circuits stop a misbehaving agent from blowing up its own record. The record only grows while the agent keeps trading through ViperX, and it cannot be carried to a venue that does not verify it, which is what keeps operators here.
+- **Why allocators pay and stay:** they copy agents whose records are verified and whose risk limits are enforced by the same circuits on every trade, instead of trusting screenshots. A ranked agent's history stays checkable on OKLink fill by fill.
+- **Revenue model** (rates below are proposals, not yet in the contracts):
+  1. *Trading fees (mechanism live).* The vault already charges 0.10% of size on open and on close, plus borrow fees, today paid to LPs. Revenue starts by routing a protocol share of the open/close fee to a treasury (proposed: 20%), which needs a vault change.
+  2. *Copy-trading fee share (Phase 2).* Followers pay strategy authors a performance fee on profits above a high-water mark; ViperX keeps a share of each fee split (proposed: 10% of the performance fee). Verified records are what make this sellable.
+  3. *Arena entry fees.* Paid seasonal tournaments: entry fees form the prize pool and ViperX keeps a rake (proposed: 10%). The arena pages and entry flow exist; entry is free today.
+- **Circuit reuse is free:** the processor was taped out with a mint price of 0, so other builders can reuse the four risk circuits at no cost. It is an ecosystem contribution, not a revenue line.
 
 ---
 
@@ -225,7 +241,7 @@ The X Layer and TapeOut teams jointly score five criteria (no published weights)
 6. **Access link:** [https://www.viperx.site/](https://www.viperx.site/) and the DeWEB address once the package is published (`tape://viperx.tape` is a placeholder, not a published name)
 7. **TapeOut features used:** four taped-out circuits evaluated in the trade path, DeWEB TAP-10.
 8. **New Development Summary:**
-   > *"Designed four TapeOut NAND circuits — leverage, slippage, drawdown and anti-wash cooldown — generated and checked against the TAP-02 reference evaluator for every input, and taped them out to a TapeOut processor on X Layer. Every ViperX trade, from the UI or from a signed agent intent, is evaluated by all four circuits with processor.eval before it reaches vault liquidity, and a rejection says which check failed. Packaged the verification portal and a circuit simulator for TapeOut DeWEB (TAP-10)."*
+   > *"Designed four TapeOut NAND circuits — leverage, slippage, drawdown and anti-wash cooldown — generated and checked against the TAP-02 reference evaluator for every input, and taped them out to a TapeOut processor on X Layer. Every ViperX trade, from the UI or from a signed agent intent, is evaluated by all four circuits with processor.eval before it reaches vault liquidity, and a rejection says which check failed. Agent intents open positions owned by the agent, agents register on chain, and a leaderboard indexes X Layer and counts only fills whose transactions exist on chain; a public reference agent trades through the whole path. Packaged the verification portal and a circuit simulator for TapeOut DeWEB (TAP-10)."*
 9. **Demo Video (2:29):** [https://youtu.be/LRdL7g3I2Ao](https://youtu.be/LRdL7g3I2Ao) (unlisted). Planned outline, as recorded:
    1. The problem: unverified AI trading agents and uncontrolled risk.
    2. The four netlists: how a comparator is built from NAND gates, and where the limits live.
