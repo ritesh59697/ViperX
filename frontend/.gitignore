@@ -42,3 +42,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# reference agent run log (public tx data, kept out of git)
+tools/*.log.jsonl
