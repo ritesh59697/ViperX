@@ -15,6 +15,7 @@ import { AI_STRATEGIES } from "./AiCoPilotPanel";
 import { RuneIcon } from "@/components/ui/RuneIcon";
 import { cn } from "@/lib/utils";
 import { riskGateBadge } from "@/lib/xlayer";
+import { useCircuitLimits } from "@/hooks/useCircuitLimits";
 
 interface OrderFormPanelProps {
   markPrice: number;
@@ -57,6 +58,17 @@ export function OrderFormPanel({
     selectedAgentStrategy,
     setSelectedAgentStrategy,
   } = useTradeStore();
+
+  // The leverage circuit's ceiling and the vault's cap, both read from the chain. The presets end
+  // with them so the gate can be seen firing from the UI: the cap passes the vault but not the circuit.
+  const { circuitMaxLeverage, vaultMaxLeverage } = useCircuitLimits(selectedMarket.symbol);
+  const leveragePresets = useMemo(() => {
+    const base = [1, 2, 5, 10];
+    const limits = [circuitMaxLeverage, vaultMaxLeverage].filter((v): v is number => v !== null && v > 0);
+    return [...new Set([...base, ...limits])].sort((a, b) => a - b);
+  }, [circuitMaxLeverage, vaultMaxLeverage]);
+  const gateKnown = circuitMaxLeverage !== null;
+  const gatePasses = gateKnown && leverage <= circuitMaxLeverage;
 
   const [orderType, setOrderType] = useState<"market" | "limit">("market");
   const [limitPriceInput, setLimitPriceInput] = useState("");
@@ -286,10 +298,8 @@ export function OrderFormPanel({
           <span className="font-bold text-foreground">{leverage}x</span>
         </div>
 
-        {/* 20x is the leverage circuit's ceiling; 25x passes the vault's own cap and is rejected
-            by the TapeOut circuit, so the gate can be seen firing from the UI. */}
-        <div className="grid grid-cols-6 gap-1 font-mono">
-          {[1, 2, 5, 10, 20, 25].map((lvl) => (
+        <div className="grid gap-1 font-mono" style={{ gridTemplateColumns: `repeat(${leveragePresets.length}, minmax(0, 1fr))` }}>
+          {leveragePresets.map((lvl) => (
             <button
               key={lvl}
               type="button"
@@ -562,16 +572,16 @@ export function OrderFormPanel({
           <div className="flex items-center gap-1.5">
             <span className={cn(
               "h-1.5 w-1.5 rounded-full",
-              leverage <= 20 ? "bg-positive animate-pulse" : "bg-accent"
+              !gateKnown ? "bg-foreground-muted" : gatePasses ? "bg-positive animate-pulse" : "bg-accent"
             )} />
             <span className="text-foreground-muted">CIRCUIT GUARDIAN:</span>
             <span className="text-accent font-semibold">{riskGateBadge()}</span>
           </div>
           <span className={cn(
             "font-medium",
-            leverage <= 20 ? "text-positive" : "text-accent"
+            !gateKnown ? "text-foreground-muted" : gatePasses ? "text-positive" : "text-accent"
           )}>
-            {leverage <= 20 ? "GATE PASS" : "LEV EXCEEDED (MAX 20x)"}
+            {!gateKnown ? "READING CIRCUIT…" : gatePasses ? "GATE PASS" : `LEV EXCEEDED (MAX ${circuitMaxLeverage}x)`}
           </span>
         </div>
       )}

@@ -61,6 +61,7 @@ export async function refreshAgentMetrics(agentPda: string, minTradesForEligibil
     `SELECT onchain_verified_pnl::float AS pnl
        FROM trades
       WHERE agent_pda = $1 AND closed_at IS NOT NULL AND tx_found IS TRUE AND onchain_verified_pnl IS NOT NULL
+        AND onchain_verified_pnl < 'Infinity'::numeric AND onchain_verified_pnl > '-Infinity'::numeric
       ORDER BY closed_at ASC, id ASC`,
     [agentPda],
   );

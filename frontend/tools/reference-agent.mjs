@@ -114,7 +114,7 @@ const pub = createPublicClient({ chain, transport });
 const wallet = createWalletClient({ chain, transport, account });
 
 const VAULT_ABI = parseAbi([
-  "function markets(bytes32) view returns (bool isActive, bytes32 pythPriceFeedId, uint256 maxLeverageBps, uint256 maintenanceMarginBps, uint256 maxOpenInterestLongUsd, uint256 maxOpenInterestShortUsd, uint256 openInterestLongUsd, uint256 openInterestShortUsd, uint256 minPositionSizeUsd)",
+  "function markets(bytes32) view returns (bool isActive, bytes32 pythPriceFeedId, uint256 maxOpenInterestLongUsd, uint256 maxOpenInterestShortUsd, uint256 openInterestLongUsd, uint256 openInterestShortUsd, uint256 minPositionSizeUsd, uint256 maxLeverageBps, uint256 maintenanceMarginBps)",
   "function getPositionKey(address,bytes32,uint8) pure returns (bytes32)",
   "function positions(bytes32) view returns (address trader, bytes32 marketId, uint8 side, uint256 sizeUsd, uint256 collateralUsd, uint256 entryPrice, uint256 entryBorrowIndex, uint256 openedAt)",
   "function closePosition(bytes32) returns (int256 realizedPnlUsd, uint256 payoutUsd)",
@@ -203,7 +203,7 @@ if (oracleOwner.toLowerCase() !== account.address.toLowerCase()) throw new Error
 feedId = mkt[1];
 const sizeUsd18 = parseEther(String(cfg.collateralUsd * cfg.leverage));
 const collateralUsd18 = parseEther(String(cfg.collateralUsd));
-if (sizeUsd18 < mkt[8]) throw new Error(`size below the market minimum of ${formatEther(mkt[8])} USD`);
+if (sizeUsd18 < mkt[6]) throw new Error(`size below the market minimum of ${formatEther(mkt[6])} USD`); // minPositionSizeUsd
 const usdcDecimals = await pub.readContract({ address: VAULT, abi: VAULT_ABI, functionName: "usdcDecimals" });
 log({ action: "start", agent: account.address, chainId, market: cfg.market, vault: VAULT, router: ROUTER, okb: formatEther(await pub.getBalance({ address: account.address })) });
 

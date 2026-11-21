@@ -11,10 +11,12 @@ export const AGENT_RANKING_COLUMNS = `
   a.trade_count,
   a.leaderboard_eligible,
   a.chain,
-  s.roi_pct,
-  s.sharpe_like,
-  s.max_drawdown_pct,
-  s.snapshot_at AS latest_snapshot_at,
+  -- Metrics are shown only for agents with at least one verified fill; older snapshots computed
+  -- from fills whose transactions are not on chain would otherwise still be displayed.
+  CASE WHEN t.verified_trade_count > 0 THEN s.roi_pct END AS roi_pct,
+  CASE WHEN t.verified_trade_count > 0 THEN s.sharpe_like END AS sharpe_like,
+  CASE WHEN t.verified_trade_count > 0 THEN s.max_drawdown_pct END AS max_drawdown_pct,
+  CASE WHEN t.verified_trade_count > 0 THEN s.snapshot_at END AS latest_snapshot_at,
   t.real_trade_count,
   t.verified_trade_count
 `;
@@ -24,7 +26,8 @@ export const AGENT_RANKING_COLUMNS = `
  * (trades.tx_found, set by the X Layer indexer or backend/leaderboard-api/tools/check-trade-hashes.mjs). Rows whose hash
  * does not exist on chain stay in the table but never count.
  */
-export const VERIFIED_FILL_SQL_PREDICATE = `onchain_verified_pnl IS NOT NULL AND tx_found IS TRUE`;
+// `< 'Infinity'` also excludes NaN (NaN sorts above every numeric in Postgres); one legacy row stores Infinity.
+export const VERIFIED_FILL_SQL_PREDICATE = `onchain_verified_pnl IS NOT NULL AND tx_found IS TRUE AND onchain_verified_pnl < 'Infinity'::numeric AND onchain_verified_pnl > '-Infinity'::numeric`;
 
 export const REAL_TRADE_SQL_PREDICATE = `tx_found IS TRUE AND tx_signature IS NOT NULL AND tx_signature NOT LIKE 'simulated\\_%' AND tx_signature NOT LIKE 'paper\\_%' AND tx_signature NOT LIKE 'evm\\_sim\\_%'`;
 
@@ -265,7 +268,8 @@ export async function getLeaderboardFromDb(windowStr: string = "all") {
      WHERE a.is_paper = FALSE
        AND a.agent_pda != '0x435f196396e0A8738A9cA22257474f1BBb5C4CaF'
        AND a.name !~* '\\m(nigg[a-z]*|niga[a-z]*)\\M'
-     ORDER BY s.sharpe_like DESC NULLS LAST, a.trade_count DESC`,
+     ORDER BY CASE WHEN t.verified_trade_count > 0 THEN s.sharpe_like END DESC NULLS LAST,
+              t.verified_trade_count DESC NULLS LAST, a.trade_count DESC`,
     [interval]
   );
 
@@ -383,7 +387,8 @@ export async function getPlatformStatsFromDb() {
            AND a.trade_count >= $1
            AND (SELECT count(*) FROM trades t
                  WHERE t.agent_pda = a.agent_pda
-                   AND t.onchain_verified_pnl IS NOT NULL AND t.tx_found IS TRUE) >= $1)::int AS ranked_agents`,
+                   AND t.onchain_verified_pnl IS NOT NULL AND t.tx_found IS TRUE
+                   AND t.onchain_verified_pnl < 'Infinity'::numeric AND t.onchain_verified_pnl > '-Infinity'::numeric) >= $1)::int AS ranked_agents`,
     [MIN_TRADES_FOR_ELIGIBILITY]
   );
 
@@ -436,7 +441,8 @@ export async function getRecentTradesFromDb(limit = 6) {
             t.realized_pnl     AS "realizedPnl",
             t.closed_at        AS "closedAt",
             t.tx_signature     AS "txSignature",
-            (t.onchain_verified_pnl IS NOT NULL AND t.tx_found IS TRUE) AS "onchainVerified",
+            (t.onchain_verified_pnl IS NOT NULL AND t.tx_found IS TRUE
+             AND t.onchain_verified_pnl < 'Infinity'::numeric AND t.onchain_verified_pnl > '-Infinity'::numeric) AS "onchainVerified",
             t.reason
      FROM trades t
      JOIN agents a ON a.agent_pda = t.agent_pda
