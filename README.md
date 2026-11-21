@@ -25,6 +25,7 @@
 | **A. Look at the gate** | 2 min | none | Open [viperx.site/trade](https://www.viperx.site/trade) and click **Circuits** in the top bar. The popup lists the vault, router, guardian and circuit processor with explorer links, and which circuits gate each trade. |
 | **B. Trip a circuit** | 5 min | OKX Wallet on X Layer mainnet, with a little OKB for gas (a gated trade costs ≈ 0.00002 OKB) | On [/trade](https://www.viperx.site/trade): **Connect Wallet to Trade** → **Faucet** (+10K demo USDC) → leverage **5x** → **Buy / Long ETH**. The trade settles. Then pick **25x** → **Buy / Long ETH**. It is refused with *"Order rejected: blocked by the on-chain risk circuits: leverage check failed"* and no funds move. |
 | **C. Check the circuits yourself** | 5 min | none | Read the four netlists in [`contracts/tapeout/circuits/`](./contracts/tapeout/circuits/). Then, in `contracts/`, run `forge test` (offline) and `set -a; source .env.example; set +a && forge test --match-path "test/fork/*" -vv`. The fork tests tape the circuits out through the real TapeOut factory on an X Layer mainnet fork, and trade through them. |
+| **D. Watch a live agent** | 1 min | none | Open the [reference agent's profile](https://www.viperx.site/agents/0x7872668b9368277bedf31917b28f442f98cbcad4). `viperx-momentum-1` trades ETH-PERP on mainnet through signed EIP-712 intents, so every open passes the four circuits, and each closed position appears as a verified fill linked to its transaction. See [Reference Agent](#reference-agent). |
 
 **Where it runs:** the whole stack, `/trade` included, is on X Layer mainnet (chain 196), where the TapeOut factory lives. Every trade calls `processor.eval` on the four circuits of processor [`0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb`](https://www.oklink.com/xlayer/address/0xb57b56034e2dc25161e2512CfC40b24EA3bee1Fb), IDs 1–4. On-chain proof: a [5x trade that passed](https://www.oklink.com/xlayer/tx/0x5ae0f66a42016cc85a035b2ad2b9380ecfd5e17ce9dd40e55b9c03d09e0b35b3) and a [25x trade the leverage circuit rejected](https://www.oklink.com/xlayer/tx/0xeffdd924d113225e32ef6eb8e8c982cba94d00bc5b22b39a76f95c04aafdb632). The collateral is a demo token with a public faucet, so no real funds are at risk.
 
@@ -47,6 +48,7 @@
 | `ViperVault` | `0x0e36c7fE3B20b1c33B1691E7041A80ad50e77Bdc` | [OKLink](https://www.oklink.com/xlayer/address/0x0e36c7fE3B20b1c33B1691E7041A80ad50e77Bdc) |
 | `PositionRouter` | `0x280d21b19A504BDEf95CFd1Aa9492f03EE4e7135` | [OKLink](https://www.oklink.com/xlayer/address/0x280d21b19A504BDEf95CFd1Aa9492f03EE4e7135) |
 | `TapeOutCircuitGuardian` | `0x54FaE0b57646365c6e4631E06dFe3d314BA0206A` | [OKLink](https://www.oklink.com/xlayer/address/0x54FaE0b57646365c6e4631E06dFe3d314BA0206A) |
+| Agent `Registry` | `0x0991750A3196BF56f355aE18C1cec841DbF3a338` | [OKLink](https://www.oklink.com/xlayer/address/0x0991750A3196BF56f355aE18C1cec841DbF3a338) |
 | `PythPriceAdapter` | `0x3373C0d9A05F1dd87e912b9B7bC010d961aB599b` | [OKLink](https://www.oklink.com/xlayer/address/0x3373C0d9A05F1dd87e912b9B7bC010d961aB599b) |
 | `MockUSDC` (Faucet) | `0x36B9e0D1b0702FC59114A87f277b836d482EaF6A` | [OKLink](https://www.oklink.com/xlayer/address/0x36B9e0D1b0702FC59114A87f277b836d482EaF6A) |
 | `MockPyth` (Oracle) | `0x68c59b55359Dc36D9E842e7314Da1150a964f4C7` | [OKLink](https://www.oklink.com/xlayer/address/0x68c59b55359Dc36D9E842e7314Da1150a964f4C7) |
@@ -70,6 +72,21 @@ Vault, router and guardian redeployed 2026-11-17 so positions opened from signed
 The same two trades on the first mainnet vault (2026-11-16, replaced the next day): [5x passed](https://www.oklink.com/xlayer/tx/0x146510d1aa8449a7752785c8090fde5f28daf98f4ce4341aeb91e7738046d3ed), [25x rejected](https://www.oklink.com/xlayer/tx/0x35170db2344b09f3ff96146ea38a2652e4680e7abbe1b2ed46acaddad73fd094).
 
 Reproduce with [`contracts/script/proof-trade-xlayer.sh`](./contracts/script/proof-trade-xlayer.sh).
+
+### Reference Agent
+
+A public momentum agent that ViperX runs on mainnet to show the whole agent path working: register on chain, sign intents, pass the circuits, settle, get indexed as verified fills.
+
+| | |
+| :--- | :--- |
+| Agent | `viperx-momentum-1`, address [`0x9f718b33…813a`](https://www.oklink.com/xlayer/address/0x9f718b338Ccc69B6AC211Dc8239548E43095813a) |
+| Registered | [`0xa818dbf2…`](https://www.oklink.com/xlayer/tx/0xa818dbf23a950f2f8e0692c3b834adfff94757dd8a739a10ae2a1bdc11532b94) on the agent registry, 2026-11-21 |
+| First fill | short ETH-PERP: [open](https://www.oklink.com/xlayer/tx/0xf3c5b9daa4d7c0280e70f1822c063942692cf2f367531785ebf7141895dd4e9b) through `PositionRouter.executeAgentIntent` (all four circuits passed), [close](https://www.oklink.com/xlayer/tx/0xe8d362ea616aa608f8a8b4609c9d5ecb579ad704afa364ca1385068593890de3) with PnL +$0.13 |
+| Live profile | [viperx.site/agents/0x7872…ad4](https://www.viperx.site/agents/0x7872668b9368277bedf31917b28f442f98cbcad4) |
+
+**Strategy:** every 5 minutes it compares the live OKX ETH price with the price 3 minutes earlier, goes long if it rose and short if it fell (3x, $100 demo collateral), and closes 3 minutes later. The run is 55 round trips over about 4.6 hours, enough for the leaderboard's 50-fill, 4-hour ranking minimum. Before each open and close it writes the live price to the demo oracle, so trades settle at market prices. Gas is about 0.00002 OKB per round trip.
+
+**Run it:** [`frontend/tools/run-reference-agent.sh`](./frontend/tools/run-reference-agent.sh) decrypts a Foundry keystore (you type the password) and passes the key to [`reference-agent.mjs`](./frontend/tools/reference-agent.mjs) over stdin only. Addresses come from `contracts/deployments/xlayer-196.env`, and every strategy setting is a flag. Full walkthrough: [docs.viperx.site/agents/reference-agent](https://docs.viperx.site/agents/reference-agent).
 
 ### Earlier deployment: OKX X Layer Testnet (Chain ID: `1952`)
 
@@ -162,7 +179,8 @@ ViperX strictly separates what an agent claims from what independent indexers ve
 │   ├── app/                    # Route handlers & page views
 │   ├── components/             # Modular UI components & design system
 │   ├── hooks/                  # Web3 wallet & contract hooks
-│   └── lib/                    # SDK interfaces, math routines & API clients
+│   ├── lib/                    # SDK interfaces, math routines & API clients
+│   └── tools/                  # Reference agent (signed-intent trader) and its runner
 │
 ├── dist-deweb/                 # TapeOut DeWEB (TAP-10) Decentralized Package
 │   ├── index.html              # Zero-dependency reactive portal & circuit simulator
